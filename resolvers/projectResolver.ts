@@ -276,9 +276,9 @@ export class ProjectResolver {
     return { projects, totalCount }
   }
 
-  @Query(returns => [Project])
-  async project (@Args() { id }: GetProjectArgs): Promise<Project[]> {
-    return this.projectRepository.find({ id })
+  @Query(returns => Project)
+  async project (@Args() { id }: GetProjectArgs) {
+    return this.projectRepository.findOneOrFail({ id })
   }
 
   //Move this to it's own resolver later
