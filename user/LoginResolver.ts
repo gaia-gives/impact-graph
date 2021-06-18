@@ -23,6 +23,14 @@ class LoginResponse {
   token: string
 }
 
+enum LoginErrorType {
+  UsernamePasswordCombinationWrong = "USERNAME_PASSWORD_COMBINATION_WRONG"
+}
+
+class LoginError {
+  constructor(public readonly errorType: LoginErrorType) {}
+}
+
 enum LoginType {
   Password = 'password',
   SignedMessage = 'message'
@@ -88,7 +96,7 @@ export class LoginResolver {
     @Arg('password') password: string,
     @Arg('loginType', { nullable: true }) loginType: LoginType,
     @Ctx() ctx: MyContext
-  ): Promise<LoginResponse | null> {
+  ): Promise<LoginResponse> {
     if (typeof loginType === 'undefined') {
       loginType = LoginType.Password
     }
@@ -111,18 +119,10 @@ export class LoginResolver {
       .addSelect('user.password')
       .getOne()
 
-    if (!user) {
-      console.log(`No user with email address ${email}`)
-
-      return null
-    }
-
-    const valid = await bcrypt.compare(password, user.password)
+    const valid = user && await bcrypt.compare(password, user.password)
 
     if (!valid) {
-      // console.log('Invalid password')
-
-      return null
+      throw new LoginError(LoginErrorType.UsernamePasswordCombinationWrong);
     }
 
     // if (!user.confirmed) {
