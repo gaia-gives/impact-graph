@@ -54,6 +54,8 @@ interface requiredEnv {
   TYPEORM_DATABASE_HOST: string
   TYPEORM_DATABASE_PORT: string
   TYPEORM_LOGGING: string
+  REDIS_HOST: string
+  REDIS_PORT: number
   DROP_DATABASE: string
   SEED_PASSWORD: string
   APOLLO_KEY: string
