@@ -10,6 +10,7 @@ import { registerEnumType, Field, ID, ObjectType } from 'type-graphql'
 import config from '../config'
 import Logger from '../logger'
 import { getAnalytics } from '../analytics'
+import { ApolloError } from 'apollo-server-express'
 
 const analytics = getAnalytics()
 const sigUtil = require('eth-sig-util')
@@ -27,8 +28,10 @@ enum LoginErrorType {
   UsernamePasswordCombinationWrong = "USERNAME_PASSWORD_COMBINATION_WRONG"
 }
 
-class LoginError {
-  constructor(public readonly errorType: LoginErrorType) { }
+class LoginError extends ApolloError {
+  constructor(message: string, public readonly errorType: LoginErrorType) {
+    super(message)
+   }
 }
 
 enum LoginType {
@@ -122,7 +125,7 @@ export class LoginResolver {
     const valid = user && await bcrypt.compare(password, user.password)
 
     if (!valid) {
-      throw new LoginError(LoginErrorType.UsernamePasswordCombinationWrong);
+      throw new LoginError("The provided username and password combination does not exist.", LoginErrorType.UsernamePasswordCombinationWrong);
     }
 
     // if (!user.confirmed) {
