@@ -17,6 +17,7 @@ import { Reaction } from './reaction'
 import { Category } from './category'
 import { User } from './user'
 import { ProjectStatus } from './projectStatus'
+import { ImpactLocation } from './impactLocation'
 
 @Entity()
 @ObjectType()
@@ -62,9 +63,14 @@ class Project extends BaseEntity {
   @Column({ nullable: true })
   image?: string
 
-  @Field({ nullable: true })
-  @Column({ nullable: true })
-  impactLocation?: string
+  @Field(type => [ImpactLocation], { nullable: true })
+  @ManyToMany(
+    type => ImpactLocation,
+    impactLocation => impactLocation.projects,
+    { nullable: true, eager: true, cascade: true }
+  )
+  @JoinTable()
+  impactLocations: ImpactLocation[]
 
   @Field(type => [Category], { nullable: true })
   @ManyToMany(
@@ -123,7 +129,7 @@ class Project extends BaseEntity {
   reactions?: Reaction[]
 
   @Field(type => Float, { nullable: true })
-  reactionsCount () {
+  reactionsCount() {
     return this.reactions ? this.reactions.length : 0
   }
 
@@ -134,7 +140,7 @@ class Project extends BaseEntity {
   @RelationId((project: Project) => project.status)
   statusId: number
 
-  mayUpdateStatus (user: User) {
+  mayUpdateStatus(user: User) {
     if (this.users.filter(o => o.id === user.id).length > 0) {
       return true
     } else {
@@ -146,7 +152,7 @@ class Project extends BaseEntity {
    * Add / remove a heart to the score
    * @param loved true to add a heart, false to remove
    */
-  updateQualityScoreHeart (loved: boolean) {
+  updateQualityScoreHeart(loved: boolean) {
     if (loved) {
       this.qualityScore = this.qualityScore + 10
     } else {
@@ -162,7 +168,7 @@ class Project extends BaseEntity {
   @Column({ nullable: true })
   totalHearts: number = 0
 
-  owner () {
+  owner() {
     return this.users[0]
   }
 }

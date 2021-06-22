@@ -1,8 +1,9 @@
+import { nodemailer } from 'nodemailer';
 import gql from 'graphql-tag'
 
 const FETCH_PROJECTS = gql`
-  query FetchProjects($limit: Int, $skip: Int, $orderBy: OrderBy) {
-    topProjects(take: $limit, skip: $skip, orderBy: $orderBy) {
+  query FetchProjects($limit: Int, $skip: Int, $orderBy: OrderBy, $categories: number[], $locations: number[]) {
+    topProjects(take: $limit, skip: $skip, orderBy: $orderBy, categories: $categories, locations: $locations) {
       projects {
         id
         title
@@ -165,7 +166,9 @@ const ADD_PROJECT = gql`
       description
       admin
       image
-      impactLocation
+      impactLocations {
+        name
+      }
       slug
       walletAddress
       categories {

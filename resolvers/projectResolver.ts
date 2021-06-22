@@ -15,7 +15,7 @@ import { getAnalytics } from '../analytics'
 import { Max, Min } from 'class-validator'
 import { User } from '../entities/user'
 import { Context } from '../context'
-import { Repository } from 'typeorm'
+import { Brackets, QueryBuilder, Repository, SelectQueryBuilder } from 'typeorm'
 import { Service } from 'typedi'
 import config from '../config'
 import slugify from 'slugify'
@@ -38,7 +38,7 @@ import {
   Resolver
 } from 'type-graphql'
 
-function isSmartContract (provider) {
+function isSmartContract(provider) {
   return async function (projectWalletAddress) {
     const code = await provider.getCode(projectWalletAddress)
 
@@ -101,12 +101,12 @@ registerEnumType(OrderDirection, {
   name: 'OrderDirection',
   description: 'Order direction'
 })
-function checkIfUserInRequest (ctx: MyContext) {
+function checkIfUserInRequest(ctx: MyContext) {
   if (!ctx.req.user) {
     throw new Error('Access denied')
   }
 }
-async function getLoggedInUser (ctx: MyContext) {
+async function getLoggedInUser(ctx: MyContext) {
   checkIfUserInRequest(ctx)
 
   const user = await User.findOne({ id: ctx.req.user.userId })
@@ -155,6 +155,12 @@ class GetProjectsArgs {
 
   @Field({ nullable: true })
   admin?: number
+
+  @Field(type => [Int], { nullable: true })
+  categories: number[];
+
+  @Field(type => [Int], { nullable: true })
+  locations: number[];
 }
 
 @Service()
@@ -184,7 +190,7 @@ class ToggleResponse {
 
 @Resolver(of => Project)
 export class ProjectResolver {
-  constructor (
+  constructor(
     @InjectRepository(Project)
     private readonly projectRepository: Repository<Project>,
     @InjectRepository(ProjectStatus)
@@ -195,28 +201,52 @@ export class ProjectResolver {
     private userPermissions: UserPermissions,
     @InjectRepository(Donation)
     private readonly donationRepository: Repository<Donation>
-  ) {}
+  ) { }
 
   @Query(returns => [Project])
-  async projects (
-    @Args() { take, skip, admin }: GetProjectsArgs
+  async projects(
+    @Args() { take, skip, categories, locations }: GetProjectsArgs
   ): Promise<Project[]> {
-    let projects
-    let totalCount
-    ;[projects, totalCount] = await this.projectRepository
+    const categoriesAreFilled = categories && categories.length > 0;
+    const locationsAreFilled = locations && locations.length > 0;
+
+    const queryBuilder = this.projectRepository
       .createQueryBuilder('project')
       .leftJoinAndSelect('project.reactions', 'reactions')
       .leftJoinAndSelect('project.donations', 'donations')
       .leftJoinAndSelect('project.status', 'status')
       .leftJoinAndSelect('project.users', 'users')
-      .where('project.statusId = 5')
-      .orderBy(`project.qualityScore`, 'DESC')
-      .limit(skip)
-      .take(take)
-      .innerJoinAndSelect('project.categories', 'c')
-      .getManyAndCount()
+      .where('project.statusId = 5');
 
-    function sum (items, prop) {
+    if (categoriesAreFilled && locationsAreFilled) {
+      queryBuilder.andWhere(new Brackets(qb => qb
+        .where('project.categories IN (:...categories)', { categories })
+        .orWhere('project.impactLocations IN (:...impactLocations)', { impactLocations: locations })
+      ));
+    }
+
+    else if (categoriesAreFilled && !locationsAreFilled) {
+      queryBuilder.andWhere(new Brackets(qb => qb
+        .where('project.categories IN (:...categories)', { categories })
+      ));
+    }
+
+    else if (!categoriesAreFilled && locationsAreFilled) {
+      queryBuilder.andWhere(new Brackets(qb => qb
+        .where('project.impactLocations IN (:...impactLocations)', { impactLocations: locations })
+      ));
+    }
+
+    let projects
+    let totalCount
+      ;[projects, totalCount] = await queryBuilder
+        .orderBy(`project.qualityScore`, 'DESC')
+        .limit(skip)
+        .take(take)
+        .innerJoinAndSelect('project.categories', 'c')
+        .getManyAndCount();
+
+    function sum(items, prop) {
       return items.reduce(function (a, b) {
         return a + b[prop]
       }, 0)
@@ -234,7 +264,7 @@ export class ProjectResolver {
   }
 
   @Query(returns => TopProjects)
-  async topProjects (
+  async topProjects(
     @Args() { take, skip, orderBy, category }: GetProjectsArgs
   ): Promise<TopProjects> {
     const { field, direction } = orderBy
@@ -277,13 +307,13 @@ export class ProjectResolver {
   }
 
   @Query(returns => Project)
-  async project (@Args() { id }: GetProjectArgs) {
+  async project(@Args() { id }: GetProjectArgs) {
     return this.projectRepository.findOneOrFail({ id })
   }
 
   //Move this to it's own resolver later
   @Query(returns => Project)
-  async projectBySlug (@Arg('slug') slug: string) {
+  async projectBySlug(@Arg('slug') slug: string) {
     return await this.projectRepository.findOne({
       where: { slug },
       relations: ['donations', 'reactions']
@@ -291,7 +321,7 @@ export class ProjectResolver {
   }
 
   @Mutation(returns => Project)
-  async editProject (
+  async editProject(
     @Arg('projectId') projectId: number,
     @Arg('newProjectData') newProjectData: ProjectInput,
     @Ctx() { req: { user } }: MyContext,
@@ -362,7 +392,7 @@ export class ProjectResolver {
   }
 
   //getQualityScore (projectInput) {
-  getQualityScore (description, hasImageUpload, heartCount) {
+  getQualityScore(description, hasImageUpload, heartCount) {
     const heartScore = 10
     let qualityScore = 40
 
@@ -376,29 +406,29 @@ export class ProjectResolver {
   }
 
   @Mutation(returns => String)
-  async uploadImage (
+  async uploadImage(
     @Arg('imageUpload') imageUpload: ImageUpload,
     @Ctx() ctx: MyContext
   ): Promise<string> {
     //const user = await getLoggedInUser(ctx)
     let url = ''
-    
+
     if (imageUpload.image) {
       const { filename, createReadStream, encoding } = await imageUpload.image
-      
+
       try {
         const response = await pinFile(createReadStream(), filename, encoding)
         url = 'https://gateway.pinata.cloud/ipfs/' + response.data.IpfsHash
       } catch (e) {
         throw Error('Upload file failed')
       }
-    } 
-    
+    }
+
     return url
   }
 
   @Mutation(returns => Project)
-  async addProject (
+  async addProject(
     @Arg('project') projectInput: ProjectInput,
     @Ctx() ctx: MyContext,
     @PubSub() pubSub: PubSubEngine
@@ -414,13 +444,13 @@ export class ProjectResolver {
     const categoriesPromise = Promise.all(
       projectInput.categories
         ? projectInput.categories.map(async category => {
-            let [c] = await this.categoryRepository.find({ name: category })
-            if (c === undefined) {
-              c = new Category()
-              c.name = category
-            }
-            return c
-          })
+          let [c] = await this.categoryRepository.find({ name: category })
+          if (c === undefined) {
+            c = new Category()
+            c.name = category
+          }
+          return c
+        })
         : []
     )
 
@@ -519,7 +549,7 @@ export class ProjectResolver {
   }
 
   @Mutation(returns => ProjectUpdate)
-  async addProjectUpdate (
+  async addProjectUpdate(
     @Arg('projectId') projectId: number,
     @Arg('title') title: string,
     @Arg('content') content: string,
@@ -574,7 +604,7 @@ export class ProjectResolver {
   }
 
   @Mutation(returns => Boolean)
-  async toggleReaction (
+  async toggleReaction(
     @Arg('updateId') updateId: number,
     @Arg('reaction') reaction: REACTION_TYPE = 'heart',
     @Ctx() { req: { user } }: MyContext,
@@ -619,7 +649,7 @@ export class ProjectResolver {
   }
 
   @Mutation(returns => ToggleResponse)
-  async toggleProjectReaction (
+  async toggleProjectReaction(
     @Arg('projectId') projectId: number,
     @Arg('reaction') reaction: REACTION_TYPE = 'heart',
     @Ctx() { req: { user } }: MyContext,
@@ -677,7 +707,7 @@ export class ProjectResolver {
   }
 
   @Query(returns => [GetProjectUpdatesResult])
-  async getProjectUpdates (
+  async getProjectUpdates(
     @Arg('projectId') projectId: number,
     @Arg('skip') skip: number,
     @Arg('take') take: number,
@@ -704,7 +734,7 @@ export class ProjectResolver {
   }
 
   @Query(returns => [Reaction])
-  async getProjectReactions (
+  async getProjectReactions(
     @Arg('projectId') projectId: number,
     @Ctx() { user }: Context,
     @PubSub() pubSub: PubSubEngine
@@ -717,7 +747,7 @@ export class ProjectResolver {
   }
 
   @Query(returns => Boolean)
-  async isWalletSmartContract (@Arg('address') address: string) {
+  async isWalletSmartContract(@Arg('address') address: string) {
     const isContractPromises: any = []
     isContractPromises.push(isSmartContractMainnet(address))
     isContractPromises.push(isSmartContractXDai(address))
@@ -738,7 +768,7 @@ export class ProjectResolver {
    * @returns
    */
   @Query(returns => WalletAddressIsValidResponse)
-  async walletAddressIsValid (@Arg('address') address: string) {
+  async walletAddressIsValid(@Arg('address') address: string) {
     const isSmartContractWallet = await this.isWalletSmartContract(address)
     const reasons: string[] = []
     if (isSmartContractWallet) {
@@ -759,11 +789,11 @@ export class ProjectResolver {
   }
 
   @Query(returns => Project, { nullable: true })
-  projectByAddress (@Arg('address', type => String) address: string) {
+  projectByAddress(@Arg('address', type => String) address: string) {
     return this.projectRepository.findOne({ walletAddress: address })
   }
 
-  async updateProjectStatus (
+  async updateProjectStatus(
     projectId: number,
     status: number,
     user: User
@@ -791,7 +821,7 @@ export class ProjectResolver {
   }
 
   @Mutation(returns => Boolean)
-  async deactivateProject (
+  async deactivateProject(
     @Arg('projectId') projectId: number,
     @Ctx() ctx: MyContext
   ): Promise<Boolean> {
@@ -806,7 +836,7 @@ export class ProjectResolver {
   }
 
   @Mutation(returns => Boolean)
-  async activateProject (
+  async activateProject(
     @Arg('projectId') projectId: number,
     @Ctx() ctx: MyContext
   ): Promise<Boolean> {

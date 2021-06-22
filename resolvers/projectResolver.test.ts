@@ -1,8 +1,7 @@
-import { expect } from 'chai';
 import 'mocha';
 import { createServerWithDummyUser } from '../server/testServerFactory';
 import { createTestClient } from 'apollo-server-testing';
-import { ADD_PROJECT } from './graphqlApi/project';
+import { ADD_PROJECT, FETCH_PROJECT } from './graphqlApi/project';
 
 let apolloServer;
 
@@ -24,6 +23,22 @@ describe('Test Project Resolver', () => {
 
         // expect(sampleProject.title).to.eq(createProject.title);
     });
+
+    it('should query projects by id and category', async () => {
+        const { query } = createTestClient(apolloServer);
+
+        const params = { categoryIds: [1, 2], impactLocationIds: [1, 5] };
+
+        const result = await query({
+            query: FETCH_PROJECT,
+            variables: {
+                categories: params.categoryIds,
+                locations: params.impactLocationIds
+            }
+        })
+
+        
+    })
 });
 
 before(async () => {
