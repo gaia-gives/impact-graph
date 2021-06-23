@@ -1,3 +1,4 @@
+import { ImpactLocation } from './../entities/impactLocation';
 import NotificationPayload from '../entities/notificationPayload'
 import { Reaction, REACTION_TYPE } from '../entities/reaction'
 import { Project, ProjectUpdate } from '../entities/project'
@@ -200,7 +201,9 @@ export class ProjectResolver {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private userPermissions: UserPermissions,
     @InjectRepository(Donation)
-    private readonly donationRepository: Repository<Donation>
+    private readonly donationRepository: Repository<Donation>,
+    @InjectRepository(ImpactLocation)
+    private readonly impactLocationRepository: Repository<ImpactLocation>
   ) { }
 
   @Query(returns => [Project])
@@ -353,6 +356,22 @@ export class ProjectResolver {
       project.categories = categories
     }
 
+    if (newProjectData.impactLocations) {
+      const impactLocationPromise = newProjectData.impactLocations.map(
+        async impactLocation => {
+          let [il] = await this.impactLocationRepository.find({ name: impactLocation })
+          if (il === undefined) {
+            il = new ImpactLocation()
+            il.name = impactLocation
+          }
+          return il
+        }
+      )
+
+      const impactLocations = await Promise.all(impactLocationPromise)
+      project.impactLocations = impactLocations;
+    }
+
     const { imageUpload, imageStatic } = newProjectData
     if (imageUpload) {
       const { filename, createReadStream, encoding } = await imageUpload
@@ -454,6 +473,19 @@ export class ProjectResolver {
         : []
     )
 
+    const impactLocationPromise = Promise.all(
+      projectInput.impactLocations
+      ? projectInput.impactLocations.map(async impactLocation => {
+        let [il] = await this.impactLocationRepository.find({ name: impactLocation })
+        if (il === undefined) {
+          il = new ImpactLocation(),
+          il.name = impactLocation
+        }
+        return il;
+      })
+      : []
+    )
+
     let imagePromise: Promise<string | undefined> = Promise.resolve(undefined)
 
     const { imageUpload, imageStatic } = projectInput
@@ -473,8 +505,9 @@ export class ProjectResolver {
       imagePromise = Promise.resolve(imageStatic)
     }
 
-    const [categories, image] = await Promise.all([
+    const [categories, impactLocations, image] = await Promise.all([
       categoriesPromise,
+      impactLocationPromise,
       imagePromise
     ])
     const slugBase = slugify(projectInput.title)
@@ -491,6 +524,7 @@ export class ProjectResolver {
     const project = this.projectRepository.create({
       ...projectInput,
       categories,
+      impactLocations,
       image,
       creationDate: new Date(),
       slug: slug.toLowerCase(),

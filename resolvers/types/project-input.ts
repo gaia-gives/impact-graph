@@ -38,8 +38,8 @@ export class ProjectInput {
   @Field({ nullable: true })
   imageStatic?: string
 
-  @Field({ nullable: true })
-  impactLocation?: string
+  @Field(type=>[String], { nullable: true, defaultValue: [] })
+  impactLocations?: string[]
 
   @Field({ nullable: true })
   organisationId?: number
