@@ -1,3 +1,4 @@
+import { ImpactLocationResolver } from './impactLocationResolver';
 import { UserResolver } from './userResolver';
 import { ProjectResolver } from './projectResolver';
 import { OrganisationResolver } from './organisationResolver';
@@ -21,5 +22,6 @@ export const resolvers: any = [
     BankAccountResolver,
     UploadResolver,
     CategoryResolver,
-    DonationResolver
+    DonationResolver,
+    ImpactLocationResolver
 ]
