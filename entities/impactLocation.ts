@@ -1,5 +1,5 @@
 import { Field, ObjectType, ID } from 'type-graphql';
-import { ManyToMany, BaseEntity, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { ManyToMany, BaseEntity, Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 import { Project } from './project';
 
 @Entity()
@@ -10,6 +10,7 @@ export class ImpactLocation extends BaseEntity {
     readonly id: number;
 
     @Field({ nullable: false })
+    @Column({ nullable: false })
     name: string;
 
     @Field(type => [ImpactLocation], { nullable: true })
