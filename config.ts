@@ -52,7 +52,7 @@ interface requiredEnv {
   TYPEORM_DATABASE_USER: string
   TYPEORM_DATABASE_PASSWORD: string
   TYPEORM_DATABASE_HOST: string
-  TYPEORM_DATABASE_PORT: string
+  TYPEORM_DATABASE_PORT: number
   TYPEORM_LOGGING: string
   REDIS_HOST: string
   REDIS_PORT: number
@@ -68,7 +68,7 @@ interface requiredEnv {
 
   PINATA_API_KEY: string
   PINATA_SECRET_API_KEY: string
-  UPLOAD_FILE_MAX_SIZE: string
+  UPLOAD_FILE_MAX_SIZE: number
   HOSTNAME_WHITELIST: string // Comma separated
   SENTRY_ID: string
   SENTRY_TOKEN: string
@@ -81,6 +81,10 @@ interface requiredEnv {
   OUR_SECRET: string
   XDAI_NODE_HTTP_URL: string
   SEGMENT_API_KEY: string
+  SERVER_ADMIN_EMAIL: string
+  XDAI_NODE_WS_URL: string
+  BSC_NODE_WS_URL: string
+  BSC_NODE_HTTP_URL: string
 }
 
 class Config {
@@ -103,7 +107,7 @@ class Config {
     })
   }
 
-  get (envVar: string): string | number {
+  public get<K extends keyof requiredEnv> (envVar: K): requiredEnv[K] {
     if (!this.env[envVar]) {
       throw new Error(`${envVar} is an invalid env variable`)
     }

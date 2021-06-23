@@ -20,11 +20,11 @@ const createSchema = async (): Promise<GraphQLSchema> => {
   const dropSchema = config.get('DROP_DATABASE') === 'true'
   await TypeORM.createConnection({
     type: 'postgres',
-    database: config.get('TYPEORM_DATABASE_NAME') as string,
-    username: config.get('TYPEORM_DATABASE_USER') as string,
-    password: config.get('TYPEORM_DATABASE_PASSWORD') as string,
-    port: config.get('TYPEORM_DATABASE_PORT') as number,
-    host: config.get('TYPEORM_DATABASE_HOST') as string,
+    database: config.get('TYPEORM_DATABASE_NAME'),
+    username: config.get('TYPEORM_DATABASE_USER'),
+    password: config.get('TYPEORM_DATABASE_PASSWORD'),
+    port: config.get('TYPEORM_DATABASE_PORT'),
+    host: config.get('TYPEORM_DATABASE_HOST'),
     entities,
     synchronize: true,
     logger: 'advanced-console',

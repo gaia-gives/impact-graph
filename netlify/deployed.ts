@@ -1,7 +1,5 @@
-import { getTypeParameterOwner } from 'typescript'
 import { Project } from '../entities/project'
 import { redis } from '../redis'
-import { In } from 'typeorm'
 import { sendEmail } from '../utils/sendEmail'
 import { createConfirmationUrl } from '../utils/createConfirmationUrl'
 import Logger from '../logger'
@@ -35,7 +33,7 @@ async function updateProjects (deployedProjects) {
 
 export async function netlifyDeployed(request, response) {
   try {
-    await redis.set('impact-graph:netlifyDeploy:isDeploying', false)
+    await redis.set('impact-graph:netlifyDeploy:isDeploying', "false")
     //Get comma separated list
     const deployedProjects = await redis.get('impact-graph:netlifyDeploy:projects:deploying')
     

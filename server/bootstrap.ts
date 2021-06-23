@@ -32,7 +32,7 @@ export async function bootstrap () {
           const { headers } = req
           if (headers.authorization) {
             token = headers.authorization.split(' ')[1].toString()
-            const secret = config.get('JWT_SECRET') as string
+            const secret = config.get('JWT_SECRET')
 
             const decodedJwt: any = jwt.verify(token, secret)
 
@@ -93,11 +93,11 @@ export async function bootstrap () {
 
     app.use(cors())
     app.use(
-      json({ limit: (config.get('UPLOAD_FILE_MAX_SIZE') as number) || 4000000 })
+      json({ limit: config.get('UPLOAD_FILE_MAX_SIZE') || 4000000 })
     )
     app.use(
       graphqlUploadExpress({
-        maxFileSize: (config.get('UPLOAD_FILE_MAX_SIZE') as number) || 2000000,
+        maxFileSize: config.get('UPLOAD_FILE_MAX_SIZE') || 2000000,
         maxFiles: 10
       })
     )

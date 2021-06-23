@@ -1,3 +1,3 @@
-const Redis = require('ioredis')
+import Redis from "ioredis"
 
-export const redis = new Redis(process.env.REDIS_PORT, process.env.REDIS_HOST)
+export const redis = new Redis(Number(process.env.REDIS_PORT), process.env.REDIS_HOST)

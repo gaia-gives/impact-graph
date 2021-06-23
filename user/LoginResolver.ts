@@ -47,7 +47,7 @@ registerEnumType(LoginType, {
 @Resolver()
 export class LoginResolver {
   hostnameWhitelist = new Set(
-    (config.get('HOSTNAME_WHITELIST') as string).split(',')
+    (config.get('HOSTNAME_WHITELIST')).split(',')
   )
 
   hostnameSignedMessageHashCache: { [id: string]: string } = {}
@@ -60,7 +60,7 @@ export class LoginResolver {
 
     if (!this.hostnameWhitelist.has(hostname)) return null
 
-    const message = config.get('OUR_SECRET') as string
+    const message = config.get('OUR_SECRET')
     const customPrefix = `\u0019${hostname} Signed Message:\n`
     const prefixWithLength = Buffer.from(
       `${customPrefix}${message.length.toString()}`,
@@ -79,7 +79,7 @@ export class LoginResolver {
     @Arg('token') token: string,
     @Ctx() ctx: MyContext
   ): Promise<Boolean | null> {
-    const secret = config.get('JWT_SECRET') as string
+    const secret = config.get('JWT_SECRET')
 
     try {
       const decodedJwt: any = jwt.verify(token, secret)
@@ -137,7 +137,7 @@ export class LoginResolver {
     // Not using sessions anymore - ctx.req.session!.userId = user.id
     const accessToken = jwt.sign(
       { userId: user.id, firstName: user.firstName },
-      config.get('JWT_SECRET') as string,
+      config.get('JWT_SECRET'),
       { expiresIn: '30d' }
     )
 
@@ -150,7 +150,7 @@ export class LoginResolver {
   }
 
   createToken(user: any) {
-    return jwt.sign(user, config.get('JWT_SECRET') as string, {
+    return jwt.sign(user, config.get('JWT_SECRET'), {
       expiresIn: '30d'
     })
   }

@@ -28,8 +28,8 @@ export const pinFile = (file: ReadableStream, filename: String, encoding: string
         maxContentLength: Infinity, // this is needed to prevent Axios from throw error with large files
         headers: {
             'Content-Type': `multipart/form-data; boundary=${data._boundary}`,
-            pinata_api_key: config.get('PINATA_API_KEY') as string,
-            pinata_secret_api_key: config.get('PINATA_SECRET_API_KEY') as string
+            pinata_api_key: config.get('PINATA_API_KEY'),
+            pinata_secret_api_key: config.get('PINATA_SECRET_API_KEY')
         }
     })
 }
