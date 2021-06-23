@@ -9,8 +9,8 @@ export class ImpactLocation extends BaseEntity {
     @PrimaryGeneratedColumn()
     readonly id: number;
 
-    @Field({ nullable: false })
-    @Column('text', { unique: true, nullable: false })
+    @Field({ nullable: true })
+    @Column('text', { unique: true, nullable: true })
     name: string;
 
     @Field()
