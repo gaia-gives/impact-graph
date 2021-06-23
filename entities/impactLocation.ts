@@ -10,8 +10,12 @@ export class ImpactLocation extends BaseEntity {
     readonly id: number;
 
     @Field({ nullable: false })
-    @Column({ nullable: false })
+    @Column('text', { unique: true, nullable: false })
     name: string;
+
+    @Field()
+    @Column({ nullable: true })
+    value: string
 
     @Field(type => [ImpactLocation], { nullable: true })
     @ManyToMany(
