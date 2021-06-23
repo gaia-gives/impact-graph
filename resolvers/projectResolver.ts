@@ -221,7 +221,7 @@ export class ProjectResolver {
     if (categoriesAreFilled && locationsAreFilled) {
       queryBuilder.andWhere(new Brackets(qb => qb
         .where('project.categories IN (:...categories)', { categories })
-        .orWhere('project.impactLocations IN (:...impactLocations)', { impactLocations: locations })
+        .andWhere('project.impactLocations IN (:...impactLocations)', { impactLocations: locations })
       ));
     }
 
