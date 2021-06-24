@@ -27,7 +27,7 @@ export class RegisterResolver {
   @Mutation(() => User)
   async register (
     @Arg('data')
-    { email, firstName, lastName, password }: RegisterInput
+    { email, password, passwordClone }: RegisterInput
   ): Promise<User> {
     console.log(`In Register Resolver : ${JSON.stringify(bcrypt, null, 2)}`)
 
@@ -35,8 +35,6 @@ export class RegisterResolver {
     const hashedPassword = bcrypt.hashSync(password, 12)
     console.log(`hashedPassword ---> : ${hashedPassword}`)
     const user = await User.create({
-      firstName,
-      lastName,
       email,
       password: hashedPassword,
       loginType: 'password'
