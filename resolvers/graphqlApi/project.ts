@@ -1,4 +1,3 @@
-import { nodemailer } from 'nodemailer';
 import gql from 'graphql-tag'
 
 const FETCH_PROJECTS = gql`
