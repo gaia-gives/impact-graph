@@ -157,10 +157,10 @@ class GetProjectsArgs {
   @Field({ nullable: true })
   admin?: number
 
-  @Field(type => [Int], { nullable: true })
+  @Field(type => [Int], { defaultValue: [] })
   categories: number[];
 
-  @Field(type => [Int], { nullable: true })
+  @Field(type => [Int], { defaultValue: [] })
   locations: number[];
 }
 
@@ -219,26 +219,26 @@ export class ProjectResolver {
       .leftJoinAndSelect('project.donations', 'donations')
       .leftJoinAndSelect('project.status', 'status')
       .leftJoinAndSelect('project.users', 'users')
+      .innerJoinAndSelect('project.categories', 'c', 
+      categoriesAreFilled ? 'c.id IN (:...categories)' : undefined, 
+      { categories: categoriesAreFilled ? categories : [] })
+      .innerJoinAndSelect('project.impactLocations', 'il', 
+      locationsAreFilled ? 'il.id IN (:...impactLocations)' : undefined, 
+      { impactLocations: locationsAreFilled ? locations : [] })
       .where('project.statusId = 5');
 
-    if (categoriesAreFilled && locationsAreFilled) {
-      queryBuilder.andWhere(new Brackets(qb => qb
-        .where('project.categories IN (:...categories)', { categories })
-        .andWhere('project.impactLocations IN (:...impactLocations)', { impactLocations: locations })
-      ));
-    }
+    // if (categoriesAreFilled && locationsAreFilled) {
+    //   queryBuilder.andWhere('c IN (:...categories)', { categories: categories })
+    //               .andWhere('il IN (:...impactLocations)', { impactLocations: locations });
+    // }
 
-    else if (categoriesAreFilled && !locationsAreFilled) {
-      queryBuilder.andWhere(new Brackets(qb => qb
-        .where('project.categories IN (:...categories)', { categories })
-      ));
-    }
+    // else if (categoriesAreFilled && !locationsAreFilled) {
+    //   queryBuilder.andWhere('c IN (:...categories)', { categories: categories });
+    // }
 
-    else if (!categoriesAreFilled && locationsAreFilled) {
-      queryBuilder.andWhere(new Brackets(qb => qb
-        .where('project.impactLocations IN (:...impactLocations)', { impactLocations: locations })
-      ));
-    }
+    // else if (!categoriesAreFilled && locationsAreFilled) {
+    //   queryBuilder.andWhere('il IN (:...impactLocations)', { impactLocations: locations });
+    // }
 
     let projects
     let totalCount
@@ -246,7 +246,6 @@ export class ProjectResolver {
         .orderBy(`project.qualityScore`, 'DESC')
         .limit(skip)
         .take(take)
-        .innerJoinAndSelect('project.categories', 'c')
         .getManyAndCount();
 
     function sum(items, prop) {

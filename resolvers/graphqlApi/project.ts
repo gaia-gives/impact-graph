@@ -2,8 +2,29 @@ import { nodemailer } from 'nodemailer';
 import gql from 'graphql-tag'
 
 const FETCH_PROJECTS = gql`
-  query FetchProjects($limit: Int, $skip: Int, $orderBy: OrderBy, $categories: number[], $locations: number[]) {
-    topProjects(take: $limit, skip: $skip, orderBy: $orderBy, categories: $categories, locations: $locations) {
+  query FetchProjects($limit: Int, $skip: Int, $orderBy: OrderBy, $categories: [Int!], $locations: [Int!]) {
+    projects(take: $limit, skip: $skip, orderBy: $orderBy, categories: $categories, locations: $locations) {
+      id
+      title
+      image
+      slug
+      creationDate
+      admin
+      categories {
+        id
+        name
+      }
+      impactLocations {
+        id
+        name
+      }
+    }
+  }
+`
+
+const FETCH_TOP_PROJECTS = gql`
+  query FetchProjects($limit: Int, $skip: Int, $orderBy: OrderBy, $category: Int) {
+    topProjects(take: $limit, skip: $skip, orderBy: $orderBy, category: $category) {
       projects {
         id
         title
@@ -211,15 +232,16 @@ const GET_PROJECT_UPDATES = gql`
 `
 
 export {
-    FETCH_PROJECTS,
-    FETCH_PROJECT,
-    FETCH_PROJECT_BY_SLUG,
-    ADD_PROJECT,
-    ADD_BANK_ACCOUNT,
-    GET_LINK_BANK_CREATION,
-    GET_DONATION_SESSION,
-    GET_STRIPE_DONATION_PDF,
-    GET_STRIPE_PROJECT_DONATIONS,
-    ADD_PROJECT_UPDATE,
-    GET_PROJECT_UPDATES
+  FETCH_PROJECTS,
+  FETCH_TOP_PROJECTS,
+  FETCH_PROJECT,
+  FETCH_PROJECT_BY_SLUG,
+  ADD_PROJECT,
+  ADD_BANK_ACCOUNT,
+  GET_LINK_BANK_CREATION,
+  GET_DONATION_SESSION,
+  GET_STRIPE_DONATION_PDF,
+  GET_STRIPE_PROJECT_DONATIONS,
+  ADD_PROJECT_UPDATE,
+  GET_PROJECT_UPDATES
 }
