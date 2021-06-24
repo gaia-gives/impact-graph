@@ -10,6 +10,7 @@ import { BankAccountResolver } from './bankAccountResolver';
 import { UploadResolver } from './uploadResolver';
 import { CategoryResolver } from './categoryResolver';
 import { DonationResolver } from './donationResolver';
+import { NewPasswordResolver } from '../user/NewPasswordResolver';
 
 export const resolvers: any = [
     UserResolver,
@@ -23,5 +24,6 @@ export const resolvers: any = [
     UploadResolver,
     CategoryResolver,
     DonationResolver,
+    NewPasswordResolver,
     ImpactLocationResolver
 ]
