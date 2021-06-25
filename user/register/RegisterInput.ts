@@ -7,11 +7,7 @@ import { PasswordMixin } from '../../types/PasswordInput'
 export class RegisterInput extends PasswordMixin(class {}) {
   @Field()
   @Length(1, 255)
-  firstName: string
-
-  @Field()
-  @Length(1, 255)
-  lastName: string
+  passwordClone: string
 
   @Field()
   @IsEmail()
