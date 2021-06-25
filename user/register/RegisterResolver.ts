@@ -35,7 +35,7 @@ export class RegisterResolver {
     const hashedPassword = bcrypt.hashSync(password, 12)
     console.log(`hashedPassword ---> : ${hashedPassword}`)
 
-    if(!bcrypt.compare(passwordClone, hashedPassword)) {
+    if(!await bcrypt.compare(passwordClone, hashedPassword)) {
       throw new Error("Password is not the same");
     }
 
@@ -44,6 +44,7 @@ export class RegisterResolver {
       password: hashedPassword,
       loginType: 'password'
     }).save()
+    console.log("after creation")
 
     await sendEmail(email, await createConfirmationUrl(user.id))
 
