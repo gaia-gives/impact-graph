@@ -36,7 +36,7 @@ export class User extends BaseEntity {
   name?: string
 
   @Field({ nullable: true })
-  @Column({ unique: true })
+  @Column({ unique: true, nullable: true })
   walletAddress?: string
 
   @Field({ nullable: true })
