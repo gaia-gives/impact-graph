@@ -11,6 +11,7 @@ import { UploadResolver } from './uploadResolver';
 import { CategoryResolver } from './categoryResolver';
 import { DonationResolver } from './donationResolver';
 import { NewPasswordResolver } from '../user/NewPasswordResolver';
+import { ConfirmUserResolver } from '../user/ConfirmUserResolver';
 
 export const resolvers: any = [
     UserResolver,
@@ -25,5 +26,6 @@ export const resolvers: any = [
     CategoryResolver,
     DonationResolver,
     NewPasswordResolver,
-    ImpactLocationResolver
+    ImpactLocationResolver,
+    ConfirmUserResolver
 ]
