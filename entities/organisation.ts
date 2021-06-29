@@ -1,4 +1,4 @@
-import { Field, ID, ObjectType } from 'type-graphql'
+import { Field, ID, ObjectType } from "type-graphql";
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -6,63 +6,45 @@ import {
   ManyToMany,
   OneToMany,
   JoinTable,
-  ColumnOptions
-} from 'typeorm'
-
-import { OrganisationUser } from './organisationUser'
-// import { OrganisationProject } from './organisationProject'
-import { User } from './user'
-import { Project } from './project'
-// import { RelationColumn } from '../helpers'
-function RelationColumn (options?: ColumnOptions) {
-  return Column({ nullable: true, ...options })
-}
+  ColumnOptions,
+} from "typeorm";
+import { User } from "./user";
+import { Project } from "./project";
 
 @Entity()
 @ObjectType()
 export class Organisation {
-  @Field(type => ID)
+  @Field((type) => ID)
   @PrimaryGeneratedColumn()
-  readonly id: number
+  readonly id: number;
 
   @Field()
   @Column()
-  title: string
+  title: string;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  description?: string
+  description?: string;
 
-  // Manually get the join table
-  // @Field(type => [OrganisationProject], { nullable: true })
-  // @OneToMany(
-  //   type => OrganisationProject,
-  //   organisationProject => organisationProject.organisation
-  // )
-  // organisationProjects?: OrganisationProject[]
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  mediaLink?: string;
 
-  // @RelationColumn()
-  // projectOrganisationsOrganisationId: number
+  @Field({ nullable: false })
+  @Column({ default: 0, nullable: false })
+  totalDonors: number;
 
-  // @Field(type => [Project])
-  // projects?: Project[]
+  @Field({ nullable: false })
+  @Column({ default: 0, nullable: false })
+  raisedInTotal: number;
 
-  @ManyToMany(type => Project)
+  @ManyToMany((type) => Project)
   @JoinTable()
-  @Field(type => [Project], { nullable: true })
-  projects: Project[]
+  @Field((type) => [Project], { nullable: true })
+  projects: Project[];
 
-  // @Column()
-  // @Field(type => [Project])
-  // projectz: Project[]
-
-  @Field(type => User)
-  @ManyToMany(
-    type => User,
-    user => user.organisations
-  )
+  @Field((type) => User)
+  @ManyToMany((type) => User, (user) => user.organisations)
   @JoinTable()
-  users: User[]
-  // @RelationColumn()
-  // authorId: number
+  users: User[];
 }
