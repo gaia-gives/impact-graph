@@ -35,8 +35,10 @@ export class UserResolver {
   }
 
   @Query(returns => User, { nullable: true })
-  user (@Arg('userId', type => Int) userId: number) {
-    return this.userRepository.findOne(userId)
+  async user (@Arg('userId', type => Int) userId: number) {
+    const user = await this.userRepository.findOne(userId)
+    console.log(user)
+    return user
   }
 
   @Query(returns => User, { nullable: true })

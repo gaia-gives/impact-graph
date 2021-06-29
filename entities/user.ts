@@ -12,6 +12,11 @@ import { OrganisationUser } from './organisationUser'
 import { Organisation } from './organisation'
 import { Project } from './project'
 
+export enum GlobalRole  {
+  ADMIN = "admin",
+  USER = "user"
+}
+
 @ObjectType()
 @Entity()
 export class User extends BaseEntity {
@@ -60,6 +65,10 @@ export class User extends BaseEntity {
 
   @Column('bool', { default: false })
   confirmed: boolean
+
+  @Field()
+  @Column({type: "enum", enum: GlobalRole, default: GlobalRole.USER})
+  globalRole: GlobalRole
 
   @OneToMany(
     type => OrganisationUser,
