@@ -35,7 +35,7 @@ export class Organisation {
   totalDonors: number;
 
   @Field({ nullable: false })
-  @Column({ default: 0, nullable: false })
+  @Column({ type: "real", default: 0, nullable: false })
   raisedInTotal: number;
 
   addDonation(amount: number) {
