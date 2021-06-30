@@ -24,6 +24,10 @@ export class Organisation {
 
   @Field({ nullable: true })
   @Column({ nullable: true })
+  descriptionHeadline?: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
   description?: string;
 
   @Field({ nullable: true })
