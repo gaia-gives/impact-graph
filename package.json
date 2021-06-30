@@ -87,7 +87,8 @@
     "tslint-eslint-rules": "^5.4.0"
   },
   "scripts": {
-    "test": "NODE_ENV=test mocha --exit -r ts-node/register resolvers/*.test.ts",
+    "integration-test": "NODE_ENV=test mocha --exit -r ts-node/register resolvers/*.test.ts",
+    "unit-test": "NODE_ENV=test mocha --exit -r ts-node/register entities/__tests__/*.test.ts",
     "start": "NODE_ENV=development ts-node-dev --project ./tsconfig.json --respawn ./index.ts",
     "serve": "tsnode --project ./tsconfig.json index.ts",
     "typeorm:cli": "NODE_ENV=development ts-node ./node_modules/typeorm/cli -f ./ormconfig.ts",

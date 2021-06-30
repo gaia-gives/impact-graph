@@ -46,14 +46,14 @@ class Project extends BaseEntity {
   @Column({ nullable: true })
   organisationId?: number
 
+  @Field(type => Organisation)
+  @ManyToOne(type => Organisation)
+  @JoinTable()
+  organisation: Organisation
+
   @Field({ nullable: true })
   @Column({ nullable: true })
   creationDate: Date
-
-  @Field(type => [Organisation])
-  @ManyToMany(type => Organisation)
-  @JoinTable()
-  organisations: Organisation[]
 
   @Field({ nullable: true })
   @Column({ nullable: true })
@@ -107,6 +107,14 @@ class Project extends BaseEntity {
     donation => donation.project
   )
   donations?: Donation[]
+
+  addDonation(args: AddDonationArgs) {
+    // TODO: Setup donation?
+    // donations.push(new Donation(...));
+    this.organisation.addDonation(args.amount);
+    this.balance += args.amount;
+    this.totalDonations++;
+  }
 
   @Field(type => Float, { nullable: true })
   @Column({ nullable: true })
@@ -173,6 +181,12 @@ class Project extends BaseEntity {
   }
 }
 
+interface AddDonationArgs {
+  amount: number;
+  userId: number;
+  donationId: number;
+}
+
 @Entity()
 @ObjectType()
 class ProjectUpdate extends BaseEntity {
@@ -205,4 +219,4 @@ class ProjectUpdate extends BaseEntity {
   isMain: boolean
 }
 
-export { Project, Category, ProjectUpdate }
+export { Project, Category, ProjectUpdate, AddDonationArgs }

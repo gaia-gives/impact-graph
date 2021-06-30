@@ -38,7 +38,7 @@ describe("Test Organisation Resolver", () => {
     });
 
     expect(result.data).to.not.be.null;
-    expect(result.data?.organisationById[0].id).to.equal('1');
+    expect(result.data?.organisationById.id).to.equal('1');
   });
 
   after(async () => {

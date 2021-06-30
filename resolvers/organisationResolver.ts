@@ -66,18 +66,18 @@ export class OrganisationResolver {
     return organisations[0].projects
   }
 
-  @Query(returns => [Organisation])
+  @Query(returns => Organisation)
   async organisationById (
     @Arg('organisationId', ) organisationId: number
-  ): Promise<Organisation[]> {
+  ): Promise<Organisation> {
     console.log(`organisationId ---> : ${organisationId}`)
 
-    const organisations = await this.organisationRepository.find({
+    const organisation = await this.organisationRepository.find({
       relations: ['projects'],
       where: { id: organisationId }
-    })
+    });
 
-    return organisations;
+    return organisation[0];
   }
 
   @Query(returns => [Organisation])

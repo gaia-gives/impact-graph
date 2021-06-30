@@ -38,7 +38,15 @@ export class Organisation {
   @Column({ default: 0, nullable: false })
   raisedInTotal: number;
 
-  @ManyToMany((type) => Project)
+  addDonation(amount: number) {
+    if (amount <= 0) {
+      throw new Error("Cannot add 0 or less than 0 donation amount");
+    }
+    this.totalDonors++;
+    this.raisedInTotal += amount;
+  }
+
+  @OneToMany((type) => Project, (project) => project.organisation)
   @JoinTable()
   @Field((type) => [Project], { nullable: true })
   projects: Project[];
