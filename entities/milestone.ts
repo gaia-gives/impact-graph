@@ -1,4 +1,4 @@
-import { Field, ObjectType, ID, Float } from "type-graphql";
+import { Field, ObjectType, ID, Float, registerEnumType } from "type-graphql";
 import {
   BaseEntity,
   Column,
@@ -13,6 +13,10 @@ export enum MilestoneStatus {
   "active" = 1,
   "reached" = 2,
 }
+registerEnumType(MilestoneStatus, {
+  name: "MilestoneStatus",
+  description: "Determines the status of the milestone"
+});
 
 @Entity()
 @ObjectType()
@@ -28,6 +32,8 @@ export class Milestone extends BaseEntity {
   @Field((type) => MilestoneStatus, { nullable: false })
   @Column({ nullable: false, default: MilestoneStatus.notReached })
   status: MilestoneStatus;
+
+
 
   setActive(): void {
     if (this.status > MilestoneStatus.active) {
