@@ -18,6 +18,7 @@ import { Category } from './category'
 import { User } from './user'
 import { ProjectStatus } from './projectStatus'
 import { ImpactLocation } from './impactLocation'
+import { Milestone, MilestoneStatus } from './milestone'
 
 @Entity()
 @ObjectType()
@@ -114,6 +115,17 @@ class Project extends BaseEntity {
     this.organisation.addDonation(args.amount);
     this.balance += args.amount;
     this.totalDonations++;
+    this.updateMilestones();
+  }
+
+  private updateMilestones() {
+    for (let milestone of this.milestones.filter(m => m.status <= MilestoneStatus.reached)) {
+      const reached = milestone.checkAndSetIfReached(this.balance);
+      if (!reached) {
+        milestone.setActive();
+        break;
+      } 
+    }
   }
 
   @Field(type => Float, { nullable: true })
@@ -175,6 +187,13 @@ class Project extends BaseEntity {
   @Field(type => Float, { nullable: true })
   @Column({ nullable: true })
   totalHearts: number = 0
+
+  @Field((type) => [Milestone], { nullable: false })
+  @OneToMany(
+    type => Milestone,
+    milestone => milestone.project, { eager: true }
+  )
+  milestones: Milestone[];
 
   owner() {
     return this.users[0]

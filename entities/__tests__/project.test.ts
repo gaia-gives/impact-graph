@@ -2,7 +2,8 @@ import { AddDonationArgs } from './../project';
 import 'mocha';
 import { expect, assert } from 'chai';
 import { Project } from '../project';
-import { mockProjectWithOrganisation } from './utility';
+import { mockProjectWithMilestones, mockProjectWithOrganisation } from './utility';
+import { MilestoneStatus } from '../milestone';
 
 let project: Project;
 
@@ -58,5 +59,44 @@ describe('test project entity logic', () => {
         project.addDonation(params);
 
         expect(project.organisation.raisedInTotal).to.equal(params.amount);
+    });
+
+    it("should set milestone to reached when donated the right amount", () => {
+        project = mockProjectWithMilestones();
+        const params: AddDonationArgs = {
+            amount: 25,
+            donationId: 1,
+            userId: 1
+        };
+
+        project.addDonation(params);
+
+        expect(project.milestones[0].status, "First milestone to be reached").to.equal(MilestoneStatus.reached);
+        expect(project.milestones[1].status, "Second milestone to be reached").to.equal(MilestoneStatus.reached);
+        expect(project.milestones[2].status, "Third milestone to be active").to.equal(MilestoneStatus.active);
+        expect(project.milestones[3].status,  "First milestone to be reached").to.equal(MilestoneStatus.notReached);
+    });
+
+    it("should set next milestone to reached when donated again", () => {
+        project = mockProjectWithMilestones();
+        const params: AddDonationArgs = {
+            amount: 25,
+            donationId: 1,
+            userId: 1
+        };
+
+        const paramsSecondDonation: AddDonationArgs = {
+            amount: 5,
+            donationId: 2,
+            userId: 2
+        };
+
+        project.addDonation(params);
+        project.addDonation(paramsSecondDonation);
+
+        expect(project.milestones[0].status, "First milestone to be reached").to.equal(MilestoneStatus.reached);
+        expect(project.milestones[1].status, "Second milestone to be reached").to.equal(MilestoneStatus.reached);
+        expect(project.milestones[2].status, "Third milestone to be reached").to.equal(MilestoneStatus.reached);
+        expect(project.milestones[3].status,  "First milestone to be active").to.equal(MilestoneStatus.active);
     });
 })

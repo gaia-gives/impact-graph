@@ -11,6 +11,7 @@ import { ProjectStatus } from './projectStatus';
 import Notification from './notification';
 import { BankAccount, StripeTransaction } from './bankAccount';
 import { ImpactLocation } from './impactLocation';
+import { Milestone } from './milestone';
 
 export const entities: any = [
     Organisation,
@@ -27,5 +28,6 @@ export const entities: any = [
     Token,
     Wallet,
     ProjectStatus,
-    ImpactLocation
+    ImpactLocation,
+    Milestone
 ]
