@@ -14,7 +14,6 @@ describe("test organisation entity logic", () => {
     organisation.addDonation(100);
 
     expect(organisation.raisedInTotal).to.equal(100);
-    expect(organisation.totalDonors).to.equal(1);
   });
 
   it("should add multiple donation", () => {
@@ -23,7 +22,6 @@ describe("test organisation entity logic", () => {
     organisation.addDonation(300);
 
     expect(organisation.raisedInTotal).to.equal(500);
-    expect(organisation.totalDonors).to.equal(3);
   });
 
   it("should reject zero donation amount", () => {

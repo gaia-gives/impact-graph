@@ -1,4 +1,4 @@
-import { Field, ID, Float, ObjectType, Authorized } from 'type-graphql'
+import { Field, ID, Float, ObjectType, Authorized, Int } from 'type-graphql'
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -107,15 +107,31 @@ class Project extends BaseEntity {
     type => Donation,
     donation => donation.project
   )
-  donations?: Donation[]
+  donations: Donation[] = [];
 
   addDonation(args: AddDonationArgs) {
-    // TODO: Setup donation?
-    // donations.push(new Donation(...));
+    // TODO: Setup donation correctly
+    this.donations.push({
+      amount: args.amount,
+      userId: args.userId,
+      id: args.donationId
+    } as Donation);
     this.organisation.addDonation(args.amount);
     this.balance += args.amount;
     this.totalDonations++;
+    this.updateTotalDonors();
     this.updateMilestones();
+  }
+  
+  private updateTotalDonors() {
+    let donorIds: number[] = [];
+    for (let donation of this.donations) {
+      if (!donorIds.includes(donation.userId)) {
+        donorIds.push(donation.userId);
+      }
+    }
+    this.totalDonors = donorIds.length;
+    this.organisation.updateTotalDonors();
   }
 
   private updateMilestones() {
@@ -180,9 +196,13 @@ class Project extends BaseEntity {
     }
   }
 
-  @Field(type => Float, { nullable: true })
+  @Field(type => Int, { nullable: true })
   @Column({ nullable: true })
   totalDonations: number = 0
+
+  @Field(type => Int, { nullable: true })
+  @Column({default: 0})
+  totalDonors: number = 0;
 
   @Field(type => Float, { nullable: true })
   @Column({ nullable: true })

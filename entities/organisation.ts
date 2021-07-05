@@ -46,14 +46,25 @@ export class Organisation {
     if (amount <= 0) {
       throw new Error("Cannot add 0 or less than 0 donation amount");
     }
-    this.totalDonors++;
     this.raisedInTotal += amount;
+  }
+
+  updateTotalDonors() {
+    const uniqueDonorUserIds: number[] = [];
+    for (const project of this.projects) {
+      for (const donation of project.donations) {
+        if (!uniqueDonorUserIds.includes(donation.userId)) {
+          uniqueDonorUserIds.push(donation.userId);
+        }
+      }
+    }
+    this.totalDonors = uniqueDonorUserIds.length;
   }
 
   @OneToMany((type) => Project, (project) => project.organisation)
   @JoinTable()
-  @Field((type) => [Project], { nullable: true })
-  projects: Project[];
+  @Field((type) => [Project], { defaultValue: [] })
+  projects: Project[] = [];
 
   @Field((type) => User)
   @ManyToMany((type) => User, (user) => user.organisations)

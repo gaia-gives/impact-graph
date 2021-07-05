@@ -37,7 +37,7 @@ describe('test project entity logic', () => {
         expect(project.balance).to.equal(params.amount);
     });
 
-    it("should add donation and raise organisations totalDonors by one", () => {
+    it("should add donation and raise organisations totalDonations by one", () => {
         const params: AddDonationArgs = {
             amount: 100,
             donationId: 1,
@@ -47,6 +47,35 @@ describe('test project entity logic', () => {
         project.addDonation(params);
 
         expect(project.organisation.totalDonors).to.equal(1);
+    });
+
+    it("should add donation by different and same users and raise totalDonors accordingly and not count same userId", () => {
+        const don1: AddDonationArgs = {
+            amount: 100,
+            donationId: 1,
+            userId: 1
+        };
+        const don2: AddDonationArgs = {
+            amount: 100,
+            donationId: 1,
+            userId: 1
+        };
+        const don3: AddDonationArgs = {
+            amount: 100,
+            donationId: 1,
+            userId: 2
+        };
+        const don4: AddDonationArgs = {
+            amount: 100,
+            donationId: 1,
+            userId: 3
+        };
+
+        project.addDonation(don1);
+        project.addDonation(don2);
+        project.addDonation(don3);
+
+        expect(project.totalDonors).to.equal(2);
     });
 
     it("should add donation and raise organisations raisedInTotal by amount", () => {

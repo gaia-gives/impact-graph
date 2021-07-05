@@ -33,6 +33,7 @@ const mockProjectWithOrganisation = (): Project => {
   project.totalDonations = 0;
   project.totalHearts = 0;
   project.milestones = [];
+  project.organisation.projects.push(project);
   return project;
 };
 
