@@ -15,7 +15,7 @@ export enum MilestoneStatus {
 }
 registerEnumType(MilestoneStatus, {
   name: "MilestoneStatus",
-  description: "Determines the status of the milestone"
+  description: "Determines the status of the milestone",
 });
 
 @Entity()
@@ -32,8 +32,6 @@ export class Milestone extends BaseEntity {
   @Field((type) => MilestoneStatus, { nullable: false })
   @Column({ nullable: false, default: MilestoneStatus.notReached })
   status: MilestoneStatus;
-
-
 
   setActive(): void {
     if (this.status > MilestoneStatus.active) {
@@ -52,6 +50,10 @@ export class Milestone extends BaseEntity {
     }
     return reached;
   }
+
+  @Field()
+  @Column("text", { nullable: true })
+  title?: string;
 
   @Field()
   @Column("text", { nullable: true })
