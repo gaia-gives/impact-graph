@@ -321,7 +321,7 @@ export class ProjectResolver {
 
   @Query((returns) => Project)
   async project(@Args() { id }: GetProjectArgs) {
-    const project = await this.projectRepository.findOneOrFail({ id });
+    const project = await this.projectRepository.findOneOrFail({ id }, { relations: ["organisation"] });
     project.milestones.sort((a,b) => a.status > b.status ? -1 : 1);
     return project;
   }
