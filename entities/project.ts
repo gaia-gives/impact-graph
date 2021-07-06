@@ -107,10 +107,13 @@ class Project extends BaseEntity {
     type => Donation,
     donation => donation.project
   )
-  donations: Donation[] = [];
+  donations: Donation[];
 
   addDonation(args: AddDonationArgs) {
     // TODO: Setup donation correctly
+    if (!this.donations) {
+      this.donations = [];
+    }
     this.donations.push({
       amount: args.amount,
       userId: args.userId,

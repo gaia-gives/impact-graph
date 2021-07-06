@@ -64,7 +64,7 @@ export class Organisation {
   @OneToMany((type) => Project, (project) => project.organisation)
   @JoinTable()
   @Field((type) => [Project], { defaultValue: [] })
-  projects: Project[] = [];
+  projects: Project[];
 
   @Field((type) => User)
   @ManyToMany((type) => User, (user) => user.organisations)
