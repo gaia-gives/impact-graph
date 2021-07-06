@@ -93,7 +93,7 @@ describe('test project entity logic', () => {
     it("should set milestone to reached when donated the right amount", () => {
         project = mockProjectWithMilestones();
         const params: AddDonationArgs = {
-            amount: 25,
+            amount: 35,
             donationId: 1,
             userId: 1
         };
@@ -103,7 +103,7 @@ describe('test project entity logic', () => {
         expect(project.milestones[0].status, "First milestone to be reached").to.equal(MilestoneStatus.reached);
         expect(project.milestones[1].status, "Second milestone to be reached").to.equal(MilestoneStatus.reached);
         expect(project.milestones[2].status, "Third milestone to be active").to.equal(MilestoneStatus.active);
-        expect(project.milestones[3].status,  "First milestone to be reached").to.equal(MilestoneStatus.notReached);
+        expect(project.milestones[3].status,  "Fourth milestone to be reached").to.equal(MilestoneStatus.notReached);
     });
 
     it("should set next milestone to reached when donated again", () => {
@@ -115,7 +115,7 @@ describe('test project entity logic', () => {
         };
 
         const paramsSecondDonation: AddDonationArgs = {
-            amount: 5,
+            amount: 50,
             donationId: 2,
             userId: 2
         };
@@ -126,6 +126,6 @@ describe('test project entity logic', () => {
         expect(project.milestones[0].status, "First milestone to be reached").to.equal(MilestoneStatus.reached);
         expect(project.milestones[1].status, "Second milestone to be reached").to.equal(MilestoneStatus.reached);
         expect(project.milestones[2].status, "Third milestone to be reached").to.equal(MilestoneStatus.reached);
-        expect(project.milestones[3].status,  "First milestone to be active").to.equal(MilestoneStatus.active);
+        expect(project.milestones[3].status,  "Fourth milestone to be active").to.equal(MilestoneStatus.active);
     });
 })

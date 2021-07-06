@@ -49,6 +49,7 @@ const mockMilestone = (
   milestone.description = "Test description for milestone " + milestone.id;
   milestone.mediaLink = "Test media link " + milestone.id;
   milestone.status = MilestoneStatus.notReached;
+  milestone.balance = 0;
 
   return milestone;
 };
@@ -61,6 +62,7 @@ const mockProjectWithMilestones = (): Project => {
     mockMilestone(project, 1, 30),
     mockMilestone(project, 1, 40)
   );
+  project.milestones[0].status = MilestoneStatus.active;
   return project;
 };
 

@@ -41,10 +41,10 @@ export class Milestone extends BaseEntity {
     }
   }
 
-  checkAndSetIfReached(currentAmountRaised: number): boolean {
-    if (this.status === MilestoneStatus.reached) return true;
+  contributeToMilestone(amount: number): boolean {
     let reached = false;
-    if (currentAmountRaised >= this.threshold) {
+    this.balance += amount;
+    if (this.balance >= this.threshold) {
       this.status = MilestoneStatus.reached;
       reached = true;
     }
@@ -70,4 +70,8 @@ export class Milestone extends BaseEntity {
   @Field((type) => ID, { nullable: false })
   @Column({ nullable: false })
   projectId: number;
+
+  @Field((type) => Float, { defaultValue: 0 })
+  @Column({ nullable: false, default: 0 })
+  balance: number;
 }

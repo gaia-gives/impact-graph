@@ -1,4 +1,4 @@
-import { Field, ID, Float, ObjectType, Authorized, Int } from 'type-graphql'
+import { Field, ID, Float, ObjectType, Authorized, Int } from "type-graphql";
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -8,105 +8,102 @@ import {
   RelationId,
   JoinTable,
   BaseEntity,
-  OneToMany
-} from 'typeorm'
+  OneToMany,
+} from "typeorm";
 
-import { Organisation } from './organisation'
-import { Donation } from './donation'
-import { Reaction } from './reaction'
-import { Category } from './category'
-import { User } from './user'
-import { ProjectStatus } from './projectStatus'
-import { ImpactLocation } from './impactLocation'
-import { Milestone, MilestoneStatus } from './milestone'
+import { Organisation } from "./organisation";
+import { Donation } from "./donation";
+import { Reaction } from "./reaction";
+import { Category } from "./category";
+import { User } from "./user";
+import { ProjectStatus } from "./projectStatus";
+import { ImpactLocation } from "./impactLocation";
+import { Milestone, MilestoneStatus } from "./milestone";
 
 @Entity()
 @ObjectType()
 class Project extends BaseEntity {
-  @Field(type => ID)
+  @Field((type) => ID)
   @PrimaryGeneratedColumn()
-  readonly id: number
+  readonly id: number;
 
   @Field()
   @Column()
-  title: string
+  title: string;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  slug?: string
+  slug?: string;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  admin?: string
+  admin?: string;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  description?: string
+  description?: string;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  organisationId?: number
+  organisationId?: number;
 
-  @Field(type => Organisation)
-  @ManyToOne(type => Organisation)
+  @Field((type) => Organisation)
+  @ManyToOne((type) => Organisation)
   @JoinTable()
-  organisation: Organisation
+  organisation: Organisation;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  creationDate: Date
+  creationDate: Date;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  coOrdinates?: string
+  coOrdinates?: string;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  image?: string
+  image?: string;
 
-  @Field(type => [ImpactLocation], { nullable: true })
+  @Field((type) => [ImpactLocation], { nullable: true })
   @ManyToMany(
-    type => ImpactLocation,
-    impactLocation => impactLocation.projects,
+    (type) => ImpactLocation,
+    (impactLocation) => impactLocation.projects,
     { nullable: true, eager: true, cascade: true }
   )
   @JoinTable()
-  impactLocations: ImpactLocation[]
+  impactLocations: ImpactLocation[];
 
-  @Field(type => [Category], { nullable: true })
-  @ManyToMany(
-    type => Category,
-    category => category.projects,
-    { nullable: true, eager: true, cascade: true }
-  )
+  @Field((type) => [Category], { nullable: true })
+  @ManyToMany((type) => Category, (category) => category.projects, {
+    nullable: true,
+    eager: true,
+    cascade: true,
+  })
   @JoinTable()
-  categories: Category[]
+  categories: Category[];
 
-  @Field(type => Float, { nullable: true })
-  @Column('float', { nullable: true })
-  balance: number = 0
-
-  @Field({ nullable: true })
-  @Column({ nullable: true })
-  stripeAccountId?: string
+  @Field((type) => Float, { nullable: true })
+  @Column("float", { nullable: true })
+  balance: number = 0;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  walletAddress?: string
+  stripeAccountId?: string;
 
-  @Field(type => Boolean)
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  walletAddress?: string;
+
+  @Field((type) => Boolean)
   @Column()
-  verified: boolean
+  verified: boolean;
 
-  @Field(type => Boolean)
+  @Field((type) => Boolean)
   @Column()
-  giveBacks: boolean
+  giveBacks: boolean;
 
-  @Field(type => [Donation], { nullable: true })
-  @OneToMany(
-    type => Donation,
-    donation => donation.project
-  )
+  @Field((type) => [Donation], { nullable: true })
+  @OneToMany((type) => Donation, (donation) => donation.project)
   donations: Donation[];
 
   addDonation(args: AddDonationArgs) {
@@ -117,15 +114,15 @@ class Project extends BaseEntity {
     this.donations.push({
       amount: args.amount,
       userId: args.userId,
-      id: args.donationId
+      id: args.donationId,
     } as Donation);
     this.organisation.addDonation(args.amount);
     this.balance += args.amount;
     this.totalDonations++;
     this.updateTotalDonors();
-    this.updateMilestones();
+    this.updateMilestones(args.amount);
   }
-  
+
   private updateTotalDonors() {
     let donorIds: number[] = [];
     for (let donation of this.donations) {
@@ -137,53 +134,73 @@ class Project extends BaseEntity {
     this.organisation.updateTotalDonors();
   }
 
-  private updateMilestones() {
-    for (let milestone of this.milestones.filter(m => m.status <= MilestoneStatus.reached)) {
-      const reached = milestone.checkAndSetIfReached(this.balance);
-      if (!reached) {
-        milestone.setActive();
-        break;
-      } 
+  private updateMilestones(amountDonated: number) {
+    const activeMilestone = this.milestones.find(
+      (milestone) => milestone.status === MilestoneStatus.active
+    );
+    if (activeMilestone) {
+      const correctedAmount = this.getAmountWithoutSurplusAndSurplus(amountDonated, activeMilestone.threshold, activeMilestone.balance);
+      const reached = activeMilestone.contributeToMilestone(correctedAmount.amountWithoutSurplus);
+      if (reached) {
+        const shouldBeActiveNext = this.milestones.find(
+          (milestone) => milestone.status === MilestoneStatus.notReached
+        );
+        if (shouldBeActiveNext) {
+          shouldBeActiveNext.setActive();
+          this.donateToNextMilestoneIfAmountSurpassesCurrent(correctedAmount.surplus);
+        }
+      }
     }
   }
 
-  @Field(type => Float, { nullable: true })
-  @Column({ nullable: true })
-  qualityScore: number = 0
-
-  @ManyToMany(
-    type => User,
-    user => user.projects,
-    { eager: true }
-  )
-  @JoinTable()
-  @Field(type => [User], { nullable: true })
-  users: User[]
-
-  @Field(type => [Reaction], { nullable: true })
-  @OneToMany(
-    type => Reaction,
-    reaction => reaction.project
-  )
-  reactions?: Reaction[]
-
-  @Field(type => Float, { nullable: true })
-  reactionsCount() {
-    return this.reactions ? this.reactions.length : 0
+  private donateToNextMilestoneIfAmountSurpassesCurrent(surplus: number) {
+    if (surplus > 0) { this.updateMilestones(surplus); }
   }
 
-  @Field(type => ProjectStatus)
-  @ManyToOne(type => ProjectStatus, { eager: true })
-  status: ProjectStatus
+  private getAmountWithoutSurplusAndSurplus(
+    amount: number,
+    milestoneThreshold: number,
+    milestoneBalance: number
+  ): { amountWithoutSurplus: number; surplus: number } {
+    if (amount > milestoneThreshold) {
+      const surplus = amount - (milestoneThreshold - milestoneBalance);
+      const amountWithoutSurplus = amount - surplus;
+      return { amountWithoutSurplus, surplus };
+    } else {
+      return { amountWithoutSurplus: amount, surplus: 0 };
+    }
+  }
+
+  @Field((type) => Float, { nullable: true })
+  @Column({ nullable: true })
+  qualityScore: number = 0;
+
+  @ManyToMany((type) => User, (user) => user.projects, { eager: true })
+  @JoinTable()
+  @Field((type) => [User], { nullable: true })
+  users: User[];
+
+  @Field((type) => [Reaction], { nullable: true })
+  @OneToMany((type) => Reaction, (reaction) => reaction.project)
+  reactions?: Reaction[];
+
+  @Field((type) => Float, { nullable: true })
+  reactionsCount() {
+    return this.reactions ? this.reactions.length : 0;
+  }
+
+  @Field((type) => ProjectStatus)
+  @ManyToOne((type) => ProjectStatus, { eager: true })
+  status: ProjectStatus;
 
   @RelationId((project: Project) => project.status)
-  statusId: number
+  statusId: number;
 
   mayUpdateStatus(user: User) {
-    if (this.users.filter(o => o.id === user.id).length > 0) {
-      return true
+    if (this.users.filter((o) => o.id === user.id).length > 0) {
+      return true;
     } else {
-      return false
+      return false;
     }
   }
 
@@ -193,33 +210,32 @@ class Project extends BaseEntity {
    */
   updateQualityScoreHeart(loved: boolean) {
     if (loved) {
-      this.qualityScore = this.qualityScore + 10
+      this.qualityScore = this.qualityScore + 10;
     } else {
-      this.qualityScore = this.qualityScore - 10
+      this.qualityScore = this.qualityScore - 10;
     }
   }
 
-  @Field(type => Int, { nullable: true })
+  @Field((type) => Int, { nullable: true })
   @Column({ nullable: true })
-  totalDonations: number = 0
+  totalDonations: number = 0;
 
-  @Field(type => Int, { nullable: true })
-  @Column({default: 0})
+  @Field((type) => Int, { nullable: true })
+  @Column({ default: 0 })
   totalDonors: number = 0;
 
-  @Field(type => Float, { nullable: true })
+  @Field((type) => Float, { nullable: true })
   @Column({ nullable: true })
-  totalHearts: number = 0
+  totalHearts: number = 0;
 
   @Field((type) => [Milestone], { nullable: false })
-  @OneToMany(
-    type => Milestone,
-    milestone => milestone.project, { eager: true }
-  )
+  @OneToMany((type) => Milestone, (milestone) => milestone.project, {
+    eager: true,
+  })
   milestones: Milestone[];
 
   owner() {
-    return this.users[0]
+    return this.users[0];
   }
 }
 
@@ -232,33 +248,33 @@ interface AddDonationArgs {
 @Entity()
 @ObjectType()
 class ProjectUpdate extends BaseEntity {
-  @Field(type => ID)
+  @Field((type) => ID)
   @PrimaryGeneratedColumn()
-  readonly id: number
+  readonly id: number;
 
-  @Field(type => String)
+  @Field((type) => String)
   @Column()
-  title: string
+  title: string;
 
-  @Field(type => ID)
+  @Field((type) => ID)
   @Column()
-  projectId: number
+  projectId: number;
 
-  @Field(type => ID)
+  @Field((type) => ID)
   @Column()
-  userId: number
+  userId: number;
 
-  @Field(type => String)
+  @Field((type) => String)
   @Column()
-  content: string
+  content: string;
 
-  @Field(type => Date)
+  @Field((type) => Date)
   @Column()
-  createdAt: Date
+  createdAt: Date;
 
-  @Field(type => Boolean)
+  @Field((type) => Boolean)
   @Column({ nullable: true })
-  isMain: boolean
+  isMain: boolean;
 }
 
-export { Project, Category, ProjectUpdate, AddDonationArgs }
+export { Project, Category, ProjectUpdate, AddDonationArgs };

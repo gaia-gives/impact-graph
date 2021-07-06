@@ -17,7 +17,7 @@ describe('test milestone entity tests', () => {
     });
 
     it("should set active status to reached", () => {
-        milestone.checkAndSetIfReached(150);
+        milestone.contributeToMilestone(150);
 
         expect(milestone.status).to.equal(MilestoneStatus.reached);
     });
@@ -30,7 +30,7 @@ describe('test milestone entity tests', () => {
 
     it("should not set active to reached if goal not reached", () => {
         milestone.setActive();
-        milestone.checkAndSetIfReached(50);
+        milestone.contributeToMilestone(50);
 
         expect(milestone.status).to.equal(MilestoneStatus.active);
     });
