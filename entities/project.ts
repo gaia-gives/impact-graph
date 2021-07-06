@@ -228,7 +228,7 @@ class Project extends BaseEntity {
   @Column({ nullable: true })
   totalHearts: number = 0;
 
-  @Field((type) => [Milestone], { nullable: false })
+  @Field((type) => [Milestone], { defaultValue: [] })
   @OneToMany((type) => Milestone, (milestone) => milestone.project, {
     eager: true,
   })
