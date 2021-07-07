@@ -167,6 +167,9 @@ class GetProjectsArgs {
 
   @Field((type) => [Int], { defaultValue: [] })
   locations: number[];
+
+  @Field((type) => String, { defaultValue: "" })
+  searchTerm: string;
 }
 
 @Service()
@@ -213,7 +216,7 @@ export class ProjectResolver {
 
   @Query((returns) => [Project])
   async projects(
-    @Args() { take, skip, categories, locations }: GetProjectsArgs
+    @Args() { take, skip, categories, locations, searchTerm }: GetProjectsArgs
   ): Promise<Project[]> {
     const categoriesAreFilled = categories && categories.length > 0;
     const locationsAreFilled = locations && locations.length > 0;
@@ -236,20 +239,15 @@ export class ProjectResolver {
         locationsAreFilled ? "il.id IN (:...impactLocations)" : undefined,
         { impactLocations: locationsAreFilled ? locations : [] }
       )
-      .where("project.statusId = 5");
-
-    // if (categoriesAreFilled && locationsAreFilled) {
-    //   queryBuilder.andWhere('c IN (:...categories)', { categories: categories })
-    //               .andWhere('il IN (:...impactLocations)', { impactLocations: locations });
-    // }
-
-    // else if (categoriesAreFilled && !locationsAreFilled) {
-    //   queryBuilder.andWhere('c IN (:...categories)', { categories: categories });
-    // }
-
-    // else if (!categoriesAreFilled && locationsAreFilled) {
-    //   queryBuilder.andWhere('il IN (:...impactLocations)', { impactLocations: locations });
-    // }
+      .where("project.statusId = 5")
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where(":searchTerm = ''").orWhere(
+            "project.title ILIKE :searchTerm",
+            { searchTerm: `%${searchTerm}%` }
+          );
+        })
+      );
 
     let projects;
     let totalCount;
