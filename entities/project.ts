@@ -45,6 +45,10 @@ class Project extends BaseEntity {
 
   @Field({ nullable: true })
   @Column({ nullable: true })
+  subHeadline?: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
   organisationId?: number;
 
   @Field((type) => Organisation)
@@ -139,22 +143,32 @@ class Project extends BaseEntity {
       (milestone) => milestone.status === MilestoneStatus.active
     );
     if (activeMilestone) {
-      const correctedAmount = this.getAmountWithoutSurplusAndSurplus(amountDonated, activeMilestone.threshold, activeMilestone.balance);
-      const reached = activeMilestone.contributeToMilestone(correctedAmount.amountWithoutSurplus);
+      const correctedAmount = this.getAmountWithoutSurplusAndSurplus(
+        amountDonated,
+        activeMilestone.threshold,
+        activeMilestone.balance
+      );
+      const reached = activeMilestone.contributeToMilestone(
+        correctedAmount.amountWithoutSurplus
+      );
       if (reached) {
         const shouldBeActiveNext = this.milestones.find(
           (milestone) => milestone.status === MilestoneStatus.notReached
         );
         if (shouldBeActiveNext) {
           shouldBeActiveNext.setActive();
-          this.donateToNextMilestoneIfAmountSurpassesCurrent(correctedAmount.surplus);
+          this.donateToNextMilestoneIfAmountSurpassesCurrent(
+            correctedAmount.surplus
+          );
         }
       }
     }
   }
 
   private donateToNextMilestoneIfAmountSurpassesCurrent(surplus: number) {
-    if (surplus > 0) { this.updateMilestones(surplus); }
+    if (surplus > 0) {
+      this.updateMilestones(surplus);
+    }
   }
 
   private getAmountWithoutSurplusAndSurplus(
