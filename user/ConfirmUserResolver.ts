@@ -8,14 +8,14 @@ import { confirmUserPrefix } from '../constants/redisPrefixes'
 export class ConfirmUserResolver {
   @Mutation(() => Boolean)
   async confirmUser (@Arg('token') token: string): Promise<boolean> {
-    const userId = await redis.get(confirmUserPrefix + token)
+    const prefixAndToken = confirmUserPrefix + token;
+    const userId = await redis.get(prefixAndToken)
+    await redis.del(prefixAndToken)
 
     if (!userId) {
       return false
     }
-
     await User.update({ id: parseInt(userId, 10) }, { confirmed: true })
-    await redis.del(token)
 
     return true
   }
