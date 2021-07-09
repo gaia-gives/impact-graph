@@ -42,7 +42,8 @@ export class RegisterResolver {
     const user = await User.create({
       email,
       password: hashedPassword,
-      loginType: 'password'
+      loginType: 'password',
+      confirmed: false
     }).save()
     console.log("after creation")
 
