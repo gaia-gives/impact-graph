@@ -1,9 +1,7 @@
 import {
   Resolver,
   Query,
-  FieldResolver,
   Arg,
-  Root,
   Mutation,
   Ctx,
   Int
@@ -17,6 +15,8 @@ import { RegisterInput } from '../user/register/RegisterInput'
 import { Organisation } from '../entities/organisation'
 import { MyContext } from '../types/MyContext'
 import { getAnalytics } from '../analytics'
+import * as bcrypt from "bcryptjs";
+import { ERROR_CODES } from '../utils/errorCodes'
 
 const analytics = getAnalytics()
 
@@ -53,12 +53,16 @@ export class UserResolver {
     @Arg('email', { nullable: true }) email: string,
     @Arg('name', { nullable: true }) name: string,
     @Arg('url', { nullable: true }) url: string,
+    @Arg('password', { nullable: true }) password: string,
     @Ctx() { req: { user } }: MyContext
   ): Promise<boolean> {
-    if (!user) throw new Error('Authentication required.')
-    let dbUser = await User.findOne({ id: user.userId })
+    if (!user) throw new Error(ERROR_CODES.AUTHENTICATION_REQUIRED);
+    let dbUser = await User.findOne({ id: user.userId }, { select: ["password"] });
 
-    if (dbUser) {
+    const authorizedToEdit = await bcrypt.compare(password, dbUser?.password ?? '');
+    if (!authorizedToEdit) throw new Error(ERROR_CODES.UNAUTHORIZED);
+
+    if (dbUser && authorizedToEdit) {
       let fullName: string = ''
       if (!name) {
         fullName = firstName + ' ' + lastName
