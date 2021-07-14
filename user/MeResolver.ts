@@ -81,7 +81,7 @@ export class MeResolver {
 
   @Authorized()
   @Mutation(() => Boolean)
-  async updateEmail(
+  async updateMyEmail(
     @Arg("newEmail", { nullable: false }) newEmail: string,
     @Arg("password", { nullable: false }) password: string,
     @Ctx() { req: { user } }: MyContext
@@ -102,7 +102,7 @@ export class MeResolver {
 
   @Authorized()
   @Mutation(() => Boolean)
-  async updatePassword(
+  async updateMyPassword(
     @Arg("newPassword", { nullable: false }) newPassword: string,
     @Arg("password", { nullable: false }) password: string,
     @Ctx() { req: { user } }: MyContext
@@ -129,7 +129,7 @@ export class MeResolver {
 
   @Authorized()
   @Mutation(() => Boolean)
-  async updateFirstNameAndLastName(
+  async updateMyFirstNameAndLastName(
     @Arg("newFirstName", { nullable: false }) newFirstName: string,
     @Arg("newLastName", { nullable: false }) newLastName: string,
     @Arg("password", { nullable: false }) password: string,
