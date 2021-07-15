@@ -12,6 +12,7 @@ import { CategoryResolver } from './categoryResolver';
 import { DonationResolver } from './donationResolver';
 import { NewPasswordResolver } from '../user/NewPasswordResolver';
 import { ConfirmUserResolver } from '../user/ConfirmUserResolver';
+import { ApplicationResolver } from './applicationResolver';
 
 export const resolvers: any = [
     UserResolver,
@@ -27,5 +28,6 @@ export const resolvers: any = [
     DonationResolver,
     NewPasswordResolver,
     ImpactLocationResolver,
-    ConfirmUserResolver
+    ConfirmUserResolver,
+    ApplicationResolver
 ]

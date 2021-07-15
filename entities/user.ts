@@ -1,4 +1,4 @@
-import { Field, ID, ObjectType } from 'type-graphql'
+import { Field, ID, ObjectType } from "type-graphql";
 import {
   PrimaryGeneratedColumn,
   Column,
@@ -6,94 +6,96 @@ import {
   OneToMany,
   ManyToMany,
   BaseEntity,
-  JoinTable
-} from 'typeorm'
-import { OrganisationUser } from './organisationUser'
-import { Organisation } from './organisation'
-import { Project } from './project'
+  JoinTable,
+  ManyToOne,
+  JoinColumn,
+} from "typeorm";
+import { OrganisationUser } from "./organisationUser";
+import { Organisation } from "./organisation";
+import { Project } from "./project";
+import { Application } from "./application";
+import { application } from "express";
 
-export enum GlobalRole  {
+export enum GlobalRole {
   ADMIN = "admin",
-  USER = "user"
+  USER = "user",
 }
 
 @ObjectType()
 @Entity()
 export class User extends BaseEntity {
-  @Field(type => ID)
+  @Field((type) => ID)
   @PrimaryGeneratedColumn()
-  readonly id: number
+  readonly id: number;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  email?: string
+  email?: string;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  firstName?: string
+  firstName?: string;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  lastName?: string
+  lastName?: string;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  name?: string
+  name?: string;
 
   @Field({ nullable: true })
   @Column({ unique: true, nullable: true })
-  walletAddress?: string
+  walletAddress?: string;
 
   @Column({ nullable: true, select: false })
-  password?: string
+  password?: string;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  avatar?: string
+  avatar?: string;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  url?: string
+  url?: string;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  location?: string
+  location?: string;
 
   @Column()
-  loginType: string
+  loginType: string;
 
-  @Column('bool', { default: false })
-  confirmed: boolean
+  @Column("bool", { default: false })
+  confirmed: boolean;
 
   @Field()
-  @Column({type: "enum", enum: GlobalRole, default: GlobalRole.USER})
-  globalRole: GlobalRole
+  @Column({ type: "enum", enum: GlobalRole, default: GlobalRole.USER })
+  globalRole: GlobalRole;
 
   @OneToMany(
-    type => OrganisationUser,
-    organisationUser => organisationUser.user
+    (type) => OrganisationUser,
+    (organisationUser) => organisationUser.user
   )
-  organisationUsers?: OrganisationUser[]
+  organisationUsers?: OrganisationUser[];
 
-  @Field(type => Organisation)
-  @ManyToMany(
-    type => Organisation,
-    organisation => organisation.users
-  )
-  organisations: Organisation[]
+  @Field((type) => Organisation)
+  @ManyToMany((type) => Organisation, (organisation) => organisation.users)
+  organisations: Organisation[];
 
-  @Field(type => Project)
-  @ManyToMany(
-    type => Project,
-    project => project.users
-  )
+  @Field((type) => Project)
+  @ManyToMany((type) => Project, (project) => project.users)
   @JoinTable()
-  projects?: Project[]
+  projects?: Project[];
 
-  @Column('bool', { default: false })
-  segmentIdentified: boolean
+  @Column("bool", { default: false })
+  segmentIdentified: boolean;
 
-  segmentUserId () {
-    return `givethId-${this.id}`
+  segmentUserId() {
+    return `givethId-${this.id}`;
   }
+
+  @Field(() => [Application])
+  @OneToMany(() => Application, (application) => application.user)
+  applications: Application[];
 }

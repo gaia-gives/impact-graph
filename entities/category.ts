@@ -1,33 +1,36 @@
-import { Field, ID, ObjectType } from 'type-graphql'
+import { Field, ID, ObjectType } from "type-graphql";
 import {
   PrimaryGeneratedColumn,
   Column,
   Entity,
   BaseEntity,
-  Index,
-  ManyToMany
-} from 'typeorm'
-import { Project } from './project'
+  ManyToMany,
+} from "typeorm";
+import { Application } from "./application";
+import { Project } from "./project";
 
 @Entity()
 @ObjectType()
-export class Category extends BaseEntity{
-  @Field(type => ID)
+export class Category extends BaseEntity {
+  @Field((type) => ID)
   @PrimaryGeneratedColumn()
   id: number;
 
   @Field()
-  @Column('text', { unique: true, nullable: true })
-  name: string
+  @Column("text", { unique: true, nullable: true })
+  name: string;
 
   @Field()
   @Column({ nullable: true })
-  value: string
+  value: string;
 
   @Field()
   @Column({ nullable: true })
-  source: string
+  source: string;
 
-  @ManyToMany(type => Project, project => project.categories)
+  @ManyToMany((type) => Project, (project) => project.categories)
   projects: Project[];
+
+  @ManyToMany((type) => Application, (application) => application.categories)
+  applications: Application[];
 }
