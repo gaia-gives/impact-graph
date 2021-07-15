@@ -65,10 +65,10 @@ class CreateApplicationArgs {
   })
   fundingType?: FundingType;
 
-  @Field({ nullable: false, defaultValue: false })
+  @Field({ nullable: false })
   acceptFundingFromCorporateSocialResponsibilityPartner!: boolean;
 
-  @Field({ nullable: false, defaultValue: 4000 })
+  @Field({ nullable: false })
   plannedFunding!: number;
 
   @Field({ description: "How the organization plans to use the account" })

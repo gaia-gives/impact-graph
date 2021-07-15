@@ -50,8 +50,8 @@ export class Application extends BaseEntity {
   @PrimaryGeneratedColumn("uuid")
   public id!: string;
 
-  @Field()
-  @Column()
+  @Field({ nullable: false })
+  @Column({ nullable: false })
   public legalName!: string;
 
   @Field({ nullable: true })
@@ -62,12 +62,12 @@ export class Application extends BaseEntity {
   @Column()
   public email: string;
 
-  @Field()
-  @Column()
+  @Field({ nullable: false})
+  @Column({ nullable: false})
   public missionStatement!: string;
 
-  @Field()
-  @Column()
+  @Field({ nullable: false})
+  @Column({ nullable: false})
   public plannedProjects!: string;
 
   @Field((type) => ImpactLocation, {
@@ -76,13 +76,12 @@ export class Application extends BaseEntity {
   @ManyToOne(() => ImpactLocation)
   public primaryImpactLocation: ImpactLocation;
 
-  @RelationId((application: Application) => application.primaryImpactLocationId)
-  @Column()
+  @RelationId((application: Application) => application.primaryImpactLocation)
   public primaryImpactLocationId: number;
 
   @Field({ description: "How the organization plans to use the account" })
-  @Column()
-  public accountUsagePlan: string;
+  @Column({ nullable: false })
+  public accountUsagePlan!: string;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
@@ -106,17 +105,17 @@ export class Application extends BaseEntity {
   public mainInterestReason?: MainInterestReason;
 
   @Field(() => FundingType, {
-    nullable: false,
+    nullable: true,
     defaultValue: FundingType.single,
   })
-  @Column({ nullable: false, default: FundingType.single })
+  @Column({ default: FundingType.single })
   public fundingType?: FundingType;
 
-  @Field({ nullable: false, defaultValue: false })
-  @Column({ nullable: false, default: false })
+  @Field({ nullable: false})
+  @Column({ default: false })
   public acceptFundingFromCorporateSocialResponsibilityPartner: boolean;
 
-  @Field({ nullable: false, defaultValue: 4000 })
+  @Field({ nullable: false })
   @Column({ nullable: false })
   public plannedFunding!: number;
 
