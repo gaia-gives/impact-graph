@@ -1,3 +1,4 @@
+import { ImpactLocation } from './../entities/impactLocation';
 import {
   Resolver,
   Query,
@@ -12,18 +13,19 @@ import {
 import { Repository } from "typeorm";
 import { InjectRepository } from "typeorm-typedi-extensions";
 
-import { Application } from "../entities/application";
+import {
+  Application,
+  FundingType,
+  MainInterestReason,
+  OrganisationType,
+} from "../entities/application";
 import { Category } from "../entities/category";
-import { User } from "../entities/user";
 import { MyContext } from "../types/MyContext";
 
 @ArgsType()
 class CreateApplicationArgs {
   @Field({ nullable: false })
-  legalName: string;
-
-  @Field({ nullable: false })
-  dba: string;
+  legalName!: string;
 
   @Field({ nullable: true })
   address: string;
@@ -32,7 +34,15 @@ class CreateApplicationArgs {
   email: string;
 
   @Field({ nullable: false })
-  missionStatement: string;
+  missionStatement!: string;
+
+  @Field({ nullable: false })
+  plannedProjects!: string;
+
+  @Field({ nullable: true })
+  primaryImpactLocationId: number;
+
+  primaryImpactLocation?: ImpactLocation;
 
   @Field({ nullable: true })
   website: string;
@@ -42,6 +52,27 @@ class CreateApplicationArgs {
 
   @Field(() => [Int])
   categoryIds: number[];
+
+  @Field(() => OrganisationType, { nullable: true })
+  organisationType?: OrganisationType;
+
+  @Field(() => MainInterestReason, { nullable: true })
+  mainInterestReason?: MainInterestReason;
+
+  @Field(() => FundingType, {
+    nullable: true,
+    defaultValue: FundingType.single,
+  })
+  fundingType?: FundingType;
+
+  @Field({ nullable: false, defaultValue: false })
+  acceptFundingFromCorporateSocialResponsibilityPartner!: boolean;
+
+  @Field({ nullable: false, defaultValue: 4000 })
+  plannedFunding!: number;
+
+  @Field({ description: "How the organization plans to use the account" })
+  accountUsagePlan!: string;
 }
 
 @Resolver(() => Application)
@@ -51,8 +82,8 @@ export class ApplicationResolver {
     private readonly applicationRepository: Repository<Application>,
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>
+    @InjectRepository(ImpactLocation)
+    private readonly impactLocationRepository: Repository<ImpactLocation>
   ) {}
 
   @Query(() => [Application])
@@ -76,12 +107,15 @@ export class ApplicationResolver {
     const categories = await this.categoryRepository.findByIds(
       createApplicationArgs.categoryIds
     );
+    const impactLocation = await this.impactLocationRepository.findOne(createApplicationArgs.primaryImpactLocationId);
     const user = await this.categoryRepository.findOne(ctx.req.user.userId);
+
+    createApplicationArgs.primaryImpactLocation = impactLocation;
 
     const application = this.applicationRepository.create({
       ...createApplicationArgs,
       user,
-      categories,
+      categories
     });
     return application.save();
   }

@@ -1,5 +1,6 @@
+import { Application } from './application';
 import { Field, ObjectType, ID } from 'type-graphql';
-import { ManyToMany, BaseEntity, Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { ManyToMany, BaseEntity, Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Project } from './project';
 
 @Entity()
@@ -24,4 +25,12 @@ export class ImpactLocation extends BaseEntity {
         { eager: false }
     )
     projects: Project[];
+
+    @Field(type => [Application], { nullable: true })
+    @OneToMany(
+        type => Application,
+        application => application.primaryImpactLocation,
+        { eager: false }
+    )
+    applications: Application[];
 }
