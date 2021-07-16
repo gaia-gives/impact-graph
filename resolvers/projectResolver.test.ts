@@ -1,22 +1,29 @@
 import { ApolloServer } from "apollo-server-express";
+import * as TypeORM from "typeorm";
 import "mocha";
-import { createServerWithDummyUser } from "../server/testServerFactory";
+import { createTestServer } from "../server/testServerFactory";
 import { ADD_PROJECT, FETCH_PROJECTS } from "./graphqlApi/project";
 import { expect } from "chai";
 
-let apolloServer: ApolloServer;
+let connection: TypeORM.Connection;
+let server: ApolloServer;
 
 describe("Test Project Resolver", () => {
-  before(async () => {
-    apolloServer = await createServerWithDummyUser();
-    await apolloServer.start();
+  beforeEach(async () => {
+    [connection, server] = await createTestServer();
+    await server.start();
+  });
+
+  afterEach(async () => {
+    await server.stop();
+    await connection.close();
   });
 
   it("Create Project", async () => {
     const sampleProject = {
       title: "title1",
     };
-    const result = await apolloServer.executeOperation({
+    const result = await server.executeOperation({
       query: ADD_PROJECT,
       variables: {
         project: sampleProject,
@@ -30,7 +37,7 @@ describe("Test Project Resolver", () => {
   it("should query projects by impactLocations and categories", async () => {
     const params = { categoryIds: [5], impactLocationIds: [1] };
 
-    const result = await apolloServer.executeOperation({
+    const result = await server.executeOperation({
       query: FETCH_PROJECTS,
       variables: {
         categories: params.categoryIds,
@@ -45,7 +52,7 @@ describe("Test Project Resolver", () => {
   it("should query projects by only impactLocations", async () => {
     const params = { impactLocationIds: [3] };
 
-    const result = await apolloServer.executeOperation({
+    const result = await server.executeOperation({
       query: FETCH_PROJECTS,
       variables: {
         locations: params.impactLocationIds,
@@ -59,7 +66,7 @@ describe("Test Project Resolver", () => {
   it("should query projects by only categories", async () => {
     const params = { categories: [5] };
 
-    const result = await apolloServer.executeOperation({
+    const result = await server.executeOperation({
       query: FETCH_PROJECTS,
       variables: {
         categories: params.categories,
@@ -73,17 +80,11 @@ describe("Test Project Resolver", () => {
   it("should query projects without filter parameter given", async () => {
     const params = { categories: [5] };
 
-    const result = await apolloServer.executeOperation({
+    const result = await server.executeOperation({
       query: FETCH_PROJECTS,
     });
 
     expect(result.data).to.not.be.null;
     expect(result.data?.projects).to.be.lengthOf(5);
-  });
-
-  after(async () => {
-    if (apolloServer) {
-      await apolloServer.stop();
-    }
   });
 });

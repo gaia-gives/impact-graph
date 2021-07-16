@@ -8,7 +8,7 @@ import {
   PubSub
 } from 'type-graphql'
 
-import Notification from '../entities/notification'
+import {Notification} from '../entities/notification'
 import NotificationPayload from '../entities/notificationPayload'
 
 @Resolver(of => Notification)

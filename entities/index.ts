@@ -8,28 +8,30 @@ import { Token } from "./token";
 import { Donation } from "./donation";
 import { Wallet } from "./wallet";
 import { ProjectStatus } from "./projectStatus";
-import Notification from "./notification";
+import { Notification } from "./notification";
 import { BankAccount, StripeTransaction } from "./bankAccount";
 import { ImpactLocation } from "./impactLocation";
 import { Milestone } from "./milestone";
 import { Application } from "./application";
 
-export const entities: any = [
+const entities = [
   Organisation,
   OrganisationUser,
   User,
   Project,
+  ProjectUpdate,
+  Reaction,
+  Category,
+  Token,
+  Donation,
+  Wallet,
+  ProjectStatus,
   Notification,
   BankAccount,
   StripeTransaction,
-  Category,
-  ProjectUpdate,
-  Reaction,
-  Donation,
-  Token,
-  Wallet,
-  ProjectStatus,
   ImpactLocation,
   Milestone,
   Application,
 ];
+
+export default entities;

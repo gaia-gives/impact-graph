@@ -1,7 +1,7 @@
 import { ObjectType, Field, ID } from 'type-graphql'
 
 @ObjectType()
-export default class Notification {
+export class Notification {
   @Field(type => ID)
   id: number
 

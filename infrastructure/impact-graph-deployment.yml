@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: impact-graph
-          image: gaiagivescr.azurecr.io/impact-graph
+          image: gaiagivescr.azurecr.io/impact-graph:db84684cfe6c0d3c28d9c34468e0d2bc0b299d5d
           imagePullPolicy: Always
           ports:
             - containerPort: 3000

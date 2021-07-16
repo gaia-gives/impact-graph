@@ -1,23 +1,30 @@
 import { ApolloServer } from "apollo-server-express";
 import "mocha";
 import { expect } from "chai";
-import { createServerWithDummyUser } from "../server/testServerFactory";
+import { createTestServer } from "../server/testServerFactory";
 import {
   GET_APPLICATION,
   GET_APPLICATIONS,
   CREATE_APPLICATION,
 } from "./graphqlApi/application";
+import * as TypeORM from "typeorm"
 
-let apolloServer: ApolloServer;
+let server: ApolloServer;
+let connection: TypeORM.Connection;
 
 describe("application resolver", () => {
-  before(async () => {
-    apolloServer = await createServerWithDummyUser();
-    await apolloServer.start();
+  beforeEach(async () => {
+    [connection, server] = await createTestServer();
+    await server.start();
+  });
+
+  afterEach(async () => {
+    await server.stop();
+    await connection.close();
   });
 
   it("should query application", async () => {
-    const result = await apolloServer.executeOperation({
+    const result = await server.executeOperation({
       query: GET_APPLICATION,
       variables: {
         id: 1,
@@ -29,16 +36,10 @@ describe("application resolver", () => {
   });
 
   it("should query applications", async () => {
-    const result = await apolloServer.executeOperation({
+    const result = await server.executeOperation({
       query: GET_APPLICATIONS,
     });
 
     expect(result.data).to.not.be.null;
-  });
-
-  after(async () => {
-    if (apolloServer) {
-      await apolloServer.stop();
-    }
   });
 });

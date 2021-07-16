@@ -42,8 +42,6 @@ class CreateApplicationArgs {
   @Field({ nullable: true })
   primaryImpactLocationId: number;
 
-  primaryImpactLocation?: ImpactLocation;
-
   @Field({ nullable: true })
   website: string;
 
@@ -107,15 +105,14 @@ export class ApplicationResolver {
     const categories = await this.categoryRepository.findByIds(
       createApplicationArgs.categoryIds
     );
-    const impactLocation = await this.impactLocationRepository.findOne(createApplicationArgs.primaryImpactLocationId);
+    const primaryImpactLocation = await this.impactLocationRepository.findOne(createApplicationArgs.primaryImpactLocationId);
     const user = await this.categoryRepository.findOne(ctx.req.user.userId);
-
-    createApplicationArgs.primaryImpactLocation = impactLocation;
 
     const application = this.applicationRepository.create({
       ...createApplicationArgs,
       user,
-      categories
+      categories,
+      primaryImpactLocation
     });
     return application.save();
   }
