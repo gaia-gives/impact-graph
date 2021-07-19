@@ -11,6 +11,8 @@ import Logger from "../logger";
 import { ERROR_CODES } from "../utils/errorCodes";
 import * as bcrypt from "bcryptjs";
 import { getAnalytics } from "../analytics";
+import { sendEmail } from "../utils/sendEmail";
+import { createConfirmationUrl } from "../utils/createConfirmationUrl";
 
 const analytics = getAnalytics();
 
@@ -68,7 +70,7 @@ export class MeResolver {
 
     const dbUser = await this.userRepository.findOne(
       { id: userId },
-      { select: ["password"] }
+      { select: ["id", "password"] }
     );
     const authorizedEdit = await bcrypt.compare(
       password,
@@ -91,7 +93,8 @@ export class MeResolver {
       password
     );
     if (dbUser) {
-      User.update(dbUser, { email: newEmail });
+      await User.update(dbUser, { email: newEmail, confirmed: false });
+      await sendEmail(newEmail, await createConfirmationUrl(dbUser.id));
       analytics.identifyUser(dbUser);
       analytics.track("Updated email", dbUser.segmentUserId(), newEmail, null);
       return true;
