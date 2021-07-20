@@ -13,6 +13,25 @@ import { Category } from "./category";
 import { ImpactLocation } from "./impactLocation";
 import { User } from "./user";
 
+export enum ApplicationState {
+  DRAFT = "DRAFT",
+  PENDING = "PENDING",
+  ACCEPTED = "ACCEPTED",
+  REJECTED = "REJECTED",
+}
+registerEnumType(ApplicationState, {
+  name: "ApplicationState",
+});
+
+export enum ApplicationStep {
+  STEP_1 = "STEP_1",
+  STEP_2 = "STEP_2",
+}
+
+registerEnumType(ApplicationStep, {
+  name: "ApplicationStep",
+});
+
 export enum OrganisationType {
   registeredNonProfit = "registeredNonProfit",
   socialEnterprise = "socialEnterprise",
@@ -62,12 +81,12 @@ export class Application extends BaseEntity {
   @Column()
   public email: string;
 
-  @Field({ nullable: false})
-  @Column({ nullable: false})
+  @Field({ nullable: false })
+  @Column({ nullable: false })
   public missionStatement!: string;
 
-  @Field({ nullable: false})
-  @Column({ nullable: false})
+  @Field({ nullable: false })
+  @Column({ nullable: false })
   public plannedProjects!: string;
 
   @Field((type) => ImpactLocation, {
@@ -111,7 +130,7 @@ export class Application extends BaseEntity {
   @Column({ default: FundingType.single })
   public fundingType?: FundingType;
 
-  @Field({ nullable: false})
+  @Field({ nullable: false })
   @Column({ default: false })
   public acceptFundingFromCorporateSocialResponsibilityPartner: boolean;
 
@@ -122,4 +141,12 @@ export class Application extends BaseEntity {
   @Field(() => User)
   @ManyToOne(() => User, (user) => user.applications)
   public user: User;
+
+  @Field(() => ApplicationState)
+  @Column({nullable: false, default: ApplicationState.DRAFT})
+  public applicationState: ApplicationState;
+  
+  @Field(() => ApplicationStep)
+  @Column({nullable: false, default: ApplicationStep.STEP_1})
+  public applicationStep: ApplicationStep;
 }

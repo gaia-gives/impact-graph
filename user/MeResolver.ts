@@ -133,24 +133,13 @@ export class MeResolver {
   @Authorized()
   @Mutation(() => Boolean)
   async updateMyFirstNameAndLastName(
-    @Arg("newFirstName", { nullable: false }) newFirstName: string,
-    @Arg("newLastName", { nullable: false }) newLastName: string,
-    @Arg("password", { nullable: false }) password: string,
+    @Arg("firstName", { nullable: false }) firstName: string,
+    @Arg("lastName", { nullable: false }) lastName: string,
     @Ctx() { req: { user } }: MyContext
   ) {
-    const dbUser = await this.assertAuthenticatedAndAuthorized(
-      user?.userId,
-      password
-    );
+    const dbUser = await this.userRepository.findOne({ id: user.userId });
     if (dbUser) {
-      User.update(dbUser, { firstName: newFirstName, lastName: newLastName });
-      analytics.identifyUser(dbUser);
-      analytics.track(
-        "Updated password",
-        dbUser.segmentUserId(),
-        { newFirstName, newLastName },
-        null
-      );
+      User.update(dbUser, { firstName, lastName });
       return true;
     } else {
       return false;
