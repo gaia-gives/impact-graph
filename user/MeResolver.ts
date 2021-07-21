@@ -1,3 +1,4 @@
+import { createConfirmNewMailUrl } from './../utils/createConfirmNewMailUrl';
 import { Resolver, Query, Ctx, Authorized, Mutation, Arg } from "type-graphql";
 import { InjectRepository } from "typeorm-typedi-extensions";
 
@@ -93,8 +94,8 @@ export class MeResolver {
       password
     );
     if (dbUser) {
-      await User.update(dbUser, { email: newEmail, confirmed: false });
-      await sendEmail(newEmail, await createConfirmationUrl(dbUser.id));
+      await User.update(dbUser, { newEmail: newEmail });
+      await sendEmail(newEmail, await createConfirmNewMailUrl(dbUser.id));
       analytics.identifyUser(dbUser);
       analytics.track("Updated email", dbUser.segmentUserId(), newEmail, null);
       return true;
