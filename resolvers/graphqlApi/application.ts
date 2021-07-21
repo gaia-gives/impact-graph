@@ -1,3 +1,4 @@
+import { OrganisationType, MainInterestReason, FundingType, ApplicationStep } from './../../entities/application';
 import gql from "graphql-tag";
 
 export const GET_APPLICATION = gql`
@@ -33,8 +34,8 @@ export const CREATE_APPLICATION = gql`
     $accountUsagePlan: String!
     $socialMediaUrls: [String!]!
     $categoryIds: [Int!]!
-    $applicationStep: String!
-    $applicationState: String!
+    $applicationStep: ApplicationStep
+    $applicationState: ApplicationState
   ) {
     createApplication(
       legalName: $legalName

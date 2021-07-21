@@ -103,7 +103,6 @@ describe("application resolver", async () => {
       }, 
     });
 
-    console.log(result);
     expect(result.data).to.not.be.undefined.and.not.be.null;
     expect(result.data?.createApplication.applicationState).to.equal(
       ApplicationState.DRAFT

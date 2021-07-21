@@ -1,3 +1,4 @@
+import { User } from './../entities/user';
 import { ApplicationStep } from "./../entities/application";
 import { ImpactLocation } from "./../entities/impactLocation";
 import {
@@ -90,7 +91,9 @@ export class ApplicationResolver {
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
     @InjectRepository(ImpactLocation)
-    private readonly impactLocationRepository: Repository<ImpactLocation>
+    private readonly impactLocationRepository: Repository<ImpactLocation>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<Category>,
   ) {}
 
   @Authorized()
@@ -120,7 +123,7 @@ export class ApplicationResolver {
     const primaryImpactLocation = await this.impactLocationRepository.findOne(
       createApplicationArgs.primaryImpactLocationId
     );
-    const user = await this.categoryRepository.findOne(ctx.req.user.userId);
+    const user = await this.userRepository.findOne(ctx.req.user.userId);
 
     const application = this.applicationRepository.create({
       ...createApplicationArgs,
