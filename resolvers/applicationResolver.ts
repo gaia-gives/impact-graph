@@ -1,4 +1,5 @@
-import { ImpactLocation } from './../entities/impactLocation';
+import { ApplicationStep } from "./../entities/application";
+import { ImpactLocation } from "./../entities/impactLocation";
 import {
   Resolver,
   Query,
@@ -9,12 +10,14 @@ import {
   Field,
   Int,
   Ctx,
+  Authorized
 } from "type-graphql";
 import { Repository } from "typeorm";
 import { InjectRepository } from "typeorm-typedi-extensions";
 
 import {
   Application,
+  ApplicationState,
   FundingType,
   MainInterestReason,
   OrganisationType,
@@ -71,6 +74,12 @@ class CreateApplicationArgs {
 
   @Field({ description: "How the organization plans to use the account" })
   accountUsagePlan!: string;
+
+  @Field({ nullable: false })
+  applicationState: ApplicationState;
+
+  @Field({ nullable: false })
+  applicationStep: ApplicationStep;
 }
 
 @Resolver(() => Application)
@@ -84,11 +93,13 @@ export class ApplicationResolver {
     private readonly impactLocationRepository: Repository<ImpactLocation>
   ) {}
 
+  @Authorized()
   @Query(() => [Application])
   applications() {
     return this.applicationRepository.find();
   }
 
+  @Authorized()
   @Query(() => Application)
   application(@Arg("id", { nullable: false }) id: string) {
     return this.applicationRepository.findOne({
@@ -97,6 +108,7 @@ export class ApplicationResolver {
     });
   }
 
+  @Authorized()
   @Mutation(() => Application)
   async createApplication(
     @Args() createApplicationArgs: CreateApplicationArgs,
@@ -105,15 +117,17 @@ export class ApplicationResolver {
     const categories = await this.categoryRepository.findByIds(
       createApplicationArgs.categoryIds
     );
-    const primaryImpactLocation = await this.impactLocationRepository.findOne(createApplicationArgs.primaryImpactLocationId);
+    const primaryImpactLocation = await this.impactLocationRepository.findOne(
+      createApplicationArgs.primaryImpactLocationId
+    );
     const user = await this.categoryRepository.findOne(ctx.req.user.userId);
 
     const application = this.applicationRepository.create({
       ...createApplicationArgs,
       user,
       categories,
-      primaryImpactLocation
+      primaryImpactLocation,
     });
-    return application.save();
+    return await application.save();
   }
 }

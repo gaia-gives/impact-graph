@@ -7,7 +7,8 @@ import Container from "typedi";
 import entities from "../entities";
 import resolvers from "../resolvers";
 import { userCheck } from "../auth/userCheck";
-import { TupleType } from "typescript";
+import fs from "fs/promises";
+import path from "path";
 
 const createTestSchema = () =>
   TypeGraphQL.buildSchema({
@@ -33,34 +34,44 @@ const createTestConnection = async () => {
   });
 };
 
-const createTestServer: () => Promise<[TypeORM.Connection, ApolloServer]> = async () => {
-  const connection = await createTestConnection();
-  const schema = await createTestSchema();
-
-  const server = new ApolloServer({
-    schema,
-    context: ({ req = {}, res = {} }: any) => {
-      req.user = {
-        email: "dummy@example.com",
-        name: "dummy-user",
-        userId: 1,
-      };
-      req.userwalletAddress = "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-
-      return {
-        req,
-        res,
-      };
-    },
-    playground: {
-      endpoint: "/graphql",
-    },
-    uploads: {
-      maxFileSize: config.get("UPLOAD_FILE_MAX_SIZE") || 2000000,
-    },
-    plugins: [ApolloServerPluginUsageReportingDisabled()],
-  });
-  return [connection, server];
+const seedDatabase = async (connection: TypeORM.Connection) => {
+  const filePath = path.join(__dirname, "..", "data/seed.sql")
+  const data = await fs.readFile(filePath);
+  const sql = data.toString("utf-8");
+  return await connection.query(sql);
 };
+
+const createTestServer: () => Promise<[TypeORM.Connection, ApolloServer]> =
+  async () => {
+    const connection = await createTestConnection();
+    const schema = await createTestSchema();
+
+    const server = new ApolloServer({
+      schema,
+      context: ({ req = {}, res = {} }: any) => {
+        req.user = {
+          email: "test@testmail.com",
+          name: "john-doe",
+          userId: 1,
+        };
+        req.userwalletAddress = "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+
+        return {
+          req,
+          res,
+        };
+      },
+      playground: {
+        endpoint: "/graphql",
+      },
+      uploads: {
+        maxFileSize: config.get("UPLOAD_FILE_MAX_SIZE") || 2000000,
+      },
+      plugins: [ApolloServerPluginUsageReportingDisabled()],
+    });
+
+    await seedDatabase(connection);
+    return [connection, server];
+  };
 
 export { createTestServer };
