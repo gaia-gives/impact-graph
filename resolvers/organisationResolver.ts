@@ -70,7 +70,6 @@ export class OrganisationResolver {
   async organisationById (
     @Arg('organisationId', ) organisationId: number
   ): Promise<Organisation> {
-    console.log(`organisationId ---> : ${organisationId}`)
 
     const organisation = await this.organisationRepository.find({
       relations: ['projects'],

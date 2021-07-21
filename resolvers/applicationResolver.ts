@@ -76,10 +76,10 @@ class CreateApplicationArgs {
   @Field({ description: "How the organization plans to use the account" })
   accountUsagePlan!: string;
 
-  @Field({ nullable: false })
+  @Field(() => ApplicationState, { nullable: true })
   applicationState: ApplicationState;
 
-  @Field({ nullable: false })
+  @Field(() => ApplicationStep, { nullable: true })
   applicationStep: ApplicationStep;
 }
 

@@ -10,12 +10,12 @@ let connection: TypeORM.Connection;
 let server: ApolloServer;
 
 describe("Test Organisation Resolver", () => {
-  beforeEach(async () => {
+  before(async () => {
     [connection, server] = await createTestServer();
     await server.start();
   });
 
-  afterEach(async () => {
+  after(async () => {
     await server.stop();
     await connection.close();
   });

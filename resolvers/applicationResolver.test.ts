@@ -47,12 +47,12 @@ const createApplication: () => Promise<string> = async () => {
 };
 
 describe("application resolver", async () => {
-  beforeEach(async () => {
+  before(async () => {
     [connection, server] = await createTestServer();
     await server.start();
   });
 
-  afterEach(async () => {
+  after(async () => {
     await server.stop();
     await connection.close();
   });
@@ -79,31 +79,34 @@ describe("application resolver", async () => {
   });
 
   it("should create application", async () => {
-    const result = await server.executeOperation({
-      query: CREATE_APPLICATION,
-      variables: {
-        legalName: "Test",
-        address: "Street 1;21345;City;Germany",
-        email: "testemail@email.com",
-        missionStatement: "Our mission is to fulfill our mission",
-        plannedProjects: "Planned is nothing yet",
-        primaryImpactLocationId: 1,
-        website: "ourwebsite.com",
-        socialMediaUrls: ["facebook.com/blank/404", "instagram.com/test"],
-        categoryIds: [1, 4],
-        organisationType: OrganisationType.informalInitiative,
-        mainInterestReason: MainInterestReason.fundraising,
-        fundingType: FundingType.ongoing,
-        acceptFundingFromCorporateSocialResponsibilityPartner: true,
-        plannedFunding: 4000,
-        accountUsagePlan:
-          "We want to break free from our own homepage which led to nowhere",
-        applicationStep: ApplicationStep.STEP_1,
-        applicationState: ApplicationState.DRAFT
-      }, 
-    });
+    const result = await server.executeOperation(
+      {
+        query: CREATE_APPLICATION,
+        variables: {
+          legalName: "Test",
+          address: "Street 1;21345;City;Germany",
+          email: "testemail@email.com",
+          missionStatement: "Our mission is to fulfill our mission",
+          plannedProjects: "Planned is nothing yet",
+          primaryImpactLocationId: 1,
+          website: "ourwebsite.com",
+          socialMediaUrls: ["facebook.com/blank/404", "instagram.com/test"],
+          categoryIds: [1, 4],
+          organisationType: OrganisationType.informalInitiative,
+          mainInterestReason: MainInterestReason.fundraising,
+          fundingType: FundingType.ongoing,
+          acceptFundingFromCorporateSocialResponsibilityPartner: true,
+          plannedFunding: 4000,
+          accountUsagePlan:
+            "We want to break free from our own homepage which led to nowhere",
+          applicationStep: ApplicationStep.STEP_1,
+          applicationState: ApplicationState.DRAFT,
+        },
+      },
+      { connection: connection }
+    );
 
-    expect(result.data).to.not.be.undefined.and.not.be.null;
+    expect(result.data).to.not.be.undefined.and.to.not.be.null;
     expect(result.data?.createApplication.applicationState).to.equal(
       ApplicationState.DRAFT
     );
