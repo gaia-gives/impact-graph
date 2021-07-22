@@ -1,4 +1,4 @@
-import { Field, ID, ObjectType, registerEnumType } from "type-graphql";
+import { registerEnumType, ObjectType, Field, Float, ID, Int } from "type-graphql";
 import {
   BaseEntity,
   Column,
@@ -65,49 +65,47 @@ registerEnumType(FundingType, {
 @ObjectType()
 @Entity()
 export class Application extends BaseEntity {
-  @Field(() => ID)
+  @Field(() => ID, { nullable: true })
   @PrimaryGeneratedColumn("uuid")
   public id!: string;
 
-  @Field({ nullable: false })
-  @Column({ nullable: false })
-  public legalName!: string;
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  public legalName: string;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
   public address: string;
 
-  @Field()
-  @Column()
+  @Field({ nullable: true })
+  @Column({ nullable: true })
   public email: string;
 
-  @Field({ nullable: false })
-  @Column({ nullable: false })
-  public missionStatement!: string;
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  public missionStatement: string;
 
-  @Field({ nullable: false })
-  @Column({ nullable: false })
-  public plannedProjects!: string;
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  public plannedProjects: string;
 
-  @Field((type) => ImpactLocation, {
-    description: "Place of primary impact location of the organization?",
-  })
+  @Field(() => ImpactLocation, { nullable: true })
   @ManyToOne(() => ImpactLocation)
   public primaryImpactLocation: ImpactLocation;
 
   @RelationId((application: Application) => application.primaryImpactLocation)
   public primaryImpactLocationId: number;
 
-  @Field({ description: "How the organization plans to use the account" })
-  @Column({ nullable: false })
-  public accountUsagePlan!: string;
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  public accountUsagePlan: string;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
   public website: string;
 
-  @Field(() => [String])
-  @Column("varchar", { array: true, nullable: true, default: [] })
+  @Field(() => [String], { nullable: true })
+  @Column("varchar", { array: true, nullable: true })
   public socialMediaUrls: string[];
 
   @Field(() => [Category])
@@ -115,7 +113,7 @@ export class Application extends BaseEntity {
   @ManyToMany(() => Category)
   public categories: Category[];
 
-  @Field(() => OrganisationType, { nullable: true })
+  @Field(() => OrganisationType)
   @Column({ nullable: true })
   public organisationType?: OrganisationType;
 
@@ -123,34 +121,31 @@ export class Application extends BaseEntity {
   @Column({ nullable: true })
   public mainInterestReason?: MainInterestReason;
 
-  @Field(() => FundingType, {
-    nullable: true,
-    defaultValue: FundingType.single,
-  })
-  @Column({ default: FundingType.single })
+  @Field(() => FundingType, { nullable: true })
+  @Column({ nullable: true })
   public fundingType?: FundingType;
 
-  @Field({ nullable: false })
+  @Field(() => Boolean, { nullable: true })
   @Column({ default: false })
   public acceptFundingFromCorporateSocialResponsibilityPartner: boolean;
 
-  @Field({ nullable: false })
-  @Column({ nullable: false })
+  @Field(() => Float, { nullable: true })
+  @Column({ nullable: true })
   public plannedFunding!: number;
 
-  @Field(() => User)
+  @Field(() => User, { nullable: true })
   @ManyToOne(() => User, (user) => user.applications)
   public user: User;
 
-  @Column({ nullable: false })
+  @Column({ nullable: true })
   @RelationId((application: Application) => application.user)
   public userId: number;
 
-  @Field(() => ApplicationState)
-  @Column({nullable: false, default: ApplicationState.DRAFT})
+  @Field(() => ApplicationState, { nullable: true })
+  @Column({ nullable: false, default: ApplicationState.DRAFT })
   public applicationState: ApplicationState;
-  
-  @Field(() => ApplicationStep)
-  @Column({nullable: false, default: ApplicationStep.STEP_1})
+
+  @Field(() => ApplicationStep, { nullable: true })
+  @Column({ nullable: false, default: ApplicationStep.STEP_1 })
   public applicationStep: ApplicationStep;
 }

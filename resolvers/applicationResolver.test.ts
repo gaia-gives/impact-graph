@@ -19,7 +19,7 @@ import * as TypeORM from "typeorm";
 let server: ApolloServer;
 let connection: TypeORM.Connection;
 
-const createApplication: () => Promise<string> = async () => {
+const createApplicationDraft: () => Promise<string> = async () => {
   const result = await server.executeOperation({
     query: CREATE_APPLICATION,
     variables: {
@@ -43,7 +43,7 @@ const createApplication: () => Promise<string> = async () => {
       applicationState: ApplicationState.DRAFT,
     },
   });
-  return result.data?.createApplication.id;
+  return result.data?.createOrUpdateApplicationDraft.id;
 };
 
 describe("application resolver", async () => {
@@ -57,8 +57,8 @@ describe("application resolver", async () => {
     await connection.close();
   });
 
-  it("should query application", async () => {
-    const applicationId = await createApplication();
+  it("should query application draft", async () => {
+    const applicationId = await createApplicationDraft();
     const result = await server.executeOperation({
       query: GET_APPLICATION,
       variables: {
@@ -66,6 +66,7 @@ describe("application resolver", async () => {
       },
     });
 
+    console.log(result);
     expect(result.data).to.not.be.undefined;
     expect(result.data?.application.id).to.equal(applicationId);
   });
@@ -74,11 +75,10 @@ describe("application resolver", async () => {
     const result = await server.executeOperation({
       query: GET_APPLICATIONS,
     });
-
     expect(result.data).to.not.be.undefined;
   });
 
-  it("should create application", async () => {
+  it("should create application draft", async () => {
     const result = await server.executeOperation(
       {
         query: CREATE_APPLICATION,
@@ -106,11 +106,12 @@ describe("application resolver", async () => {
       { connection: connection }
     );
 
+    console.log(result);
     expect(result.data).to.not.be.undefined.and.to.not.be.null;
-    expect(result.data?.createApplication.applicationState).to.equal(
+    expect(result.data?.createOrUpdateApplicationDraft.applicationState).to.equal(
       ApplicationState.DRAFT
     );
-    expect(result.data?.createApplication.applicationStep).to.equal(
+    expect(result.data?.createOrUpdateApplicationDraft.applicationStep).to.equal(
       ApplicationStep.STEP_1
     );
   });

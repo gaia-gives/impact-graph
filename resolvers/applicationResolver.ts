@@ -1,5 +1,4 @@
 import { User } from "./../entities/user";
-import { ApplicationStep } from "./../entities/application";
 import { ImpactLocation } from "./../entities/impactLocation";
 import {
   Resolver,
@@ -7,81 +6,19 @@ import {
   Arg,
   Mutation,
   Args,
-  ArgsType,
-  Field,
-  Int,
   Ctx,
   Authorized,
 } from "type-graphql";
 import { Repository } from "typeorm";
 import { InjectRepository } from "typeorm-typedi-extensions";
 
-import {
-  Application,
-  ApplicationState,
-  FundingType,
-  MainInterestReason,
-  OrganisationType,
-} from "../entities/application";
+import { Application, ApplicationState } from "../entities/application";
 import { Category } from "../entities/category";
 import { MyContext } from "../types/MyContext";
-
-@ArgsType()
-class CreateApplicationArgs {
-  @Field({ nullable: false })
-  legalName!: string;
-
-  @Field({ nullable: true })
-  address: string;
-
-  @Field({ nullable: false })
-  email: string;
-
-  @Field({ nullable: false })
-  missionStatement!: string;
-
-  @Field({ nullable: false })
-  plannedProjects!: string;
-
-  @Field({ nullable: true })
-  primaryImpactLocationId: number;
-
-  @Field({ nullable: true })
-  website: string;
-
-  @Field(() => [String], { nullable: true })
-  socialMediaUrls: string[];
-
-  @Field(() => [Int])
-  categoryIds: number[];
-
-  @Field(() => OrganisationType, { nullable: true })
-  organisationType?: OrganisationType;
-
-  @Field(() => MainInterestReason, { nullable: true })
-  mainInterestReason?: MainInterestReason;
-
-  @Field(() => FundingType, {
-    nullable: true,
-    defaultValue: FundingType.single,
-  })
-  fundingType?: FundingType;
-
-  @Field({ nullable: false })
-  acceptFundingFromCorporateSocialResponsibilityPartner!: boolean;
-
-  @Field({ nullable: false })
-  plannedFunding!: number;
-
-  @Field({ description: "How the organization plans to use the account" })
-  accountUsagePlan!: string;
-
-  @Field(() => ApplicationState, { nullable: true })
-  applicationState: ApplicationState;
-
-  @Field(() => ApplicationStep, { nullable: true })
-  applicationStep: ApplicationStep;
-}
+import { ApplicationDraft } from "./types/application/application-draft";
+import { defaultTo } from "ramda";
+import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
+import { ApplicationSubmit } from "./types/application/application-submit";
 
 @Resolver(() => Application)
 export class ApplicationResolver {
@@ -93,7 +30,7 @@ export class ApplicationResolver {
     @InjectRepository(ImpactLocation)
     private readonly impactLocationRepository: Repository<ImpactLocation>,
     @InjectRepository(User)
-    private readonly userRepository: Repository<Category>
+    private readonly userRepository: Repository<User>
   ) {}
 
   @Authorized()
@@ -116,7 +53,7 @@ export class ApplicationResolver {
   async applicationByUserId(@Ctx() ctx: MyContext) {
     const userId = ctx.req.user?.userId;
     if (userId) {
-      console.log("applicationUserId -->", userId)
+      console.log("applicationUserId -->", userId);
       return this.applicationRepository.findOne({
         where: { userId },
         relations: ["categories", "user", "primaryImpactLocation"],
@@ -126,26 +63,94 @@ export class ApplicationResolver {
     }
   }
 
-  @Authorized()
-  @Mutation(() => Application)
-  async createApplication(
-    @Args() createApplicationArgs: CreateApplicationArgs,
-    @Ctx() ctx: MyContext
+  private async createApplicationDraft(
+    applicationDraft: ApplicationDraft,
+    user: User,
+    categories: Category[],
+    primaryImpactLocation: ImpactLocation
   ) {
-    const categories = await this.categoryRepository.findByIds(
-      createApplicationArgs.categoryIds
-    );
-    const primaryImpactLocation = await this.impactLocationRepository.findOne(
-      createApplicationArgs.primaryImpactLocationId
-    );
-    const user = await this.userRepository.findOne(ctx.req.user.userId);
-
     const application = this.applicationRepository.create({
-      ...createApplicationArgs,
+      ...applicationDraft,
       user,
       categories,
       primaryImpactLocation,
     });
     return await application.save();
+  }
+
+  private async updateApplicationDraft(
+    applicationDraft: ApplicationDraft,
+    categories: Category[],
+    primaryImpactLocation: ImpactLocation
+  ) {
+    const applicationToUpdate = await this.applicationRepository.findOne(
+      applicationDraft.id
+    );
+    if (applicationToUpdate) {
+      const partial: QueryDeepPartialEntity<Application> = {
+        ...applicationDraft,
+        categories,
+        primaryImpactLocation,
+      };
+      return await Application.update(applicationToUpdate, partial);
+    } else {
+      throw new Error("Application with given id not found!");
+    }
+  }
+
+  @Authorized()
+  @Mutation(() => Application)
+  async createOrUpdateApplicationDraft(
+    @Args() applicationDraft: ApplicationDraft,
+    @Ctx() ctx: MyContext
+  ) {
+    const categories = await this.categoryRepository.findByIds(
+      defaultTo([], applicationDraft.categoryIds)
+    );
+    const primaryImpactLocation = await this.impactLocationRepository.findOne(
+      defaultTo(0, applicationDraft.primaryImpactLocationId)
+    );
+    if (!primaryImpactLocation) throw new Error(`Cannot find primary impact location with id ${applicationDraft.primaryImpactLocationId}`)
+
+    const user = await this.userRepository.findOne(ctx.req.user.userId);
+    if (applicationDraft.id && user) {
+      return await this.createApplicationDraft(
+        applicationDraft,
+        user,
+        categories,
+        primaryImpactLocation
+      );
+    } else {
+      return await this.updateApplicationDraft(applicationDraft, categories, primaryImpactLocation)
+    }
+  }
+
+  @Authorized()
+  @Mutation(() => Boolean, {
+    description: "For updating the draft of an application",
+  })
+  async submitApplication(@Args() applicationSubmit: ApplicationSubmit) {
+    const applicationToUpdate = await this.applicationRepository.findOne(
+      applicationSubmit.id
+    );
+    if (applicationToUpdate) {
+      const categories = await this.categoryRepository.findByIds(
+        defaultTo([], applicationSubmit.categoryIds)
+      );
+      const primaryImpactLocation = await this.impactLocationRepository.findOne(
+        defaultTo(0, applicationSubmit.primaryImpactLocationId)
+      );
+
+      const partial: QueryDeepPartialEntity<Application> = {
+        ...applicationSubmit,
+        categories,
+        primaryImpactLocation,
+        applicationState: ApplicationState.PENDING,
+      };
+      await Application.update(applicationToUpdate, partial);
+      return true;
+    } else {
+      throw new Error("Application with given id not found");
+    }
   }
 }

@@ -18,26 +18,26 @@ export const GET_APPLICATIONS = gql`
 `;
 
 export const CREATE_APPLICATION = gql`
-  mutation createApplication (
-    $legalName: String!
+  mutation createOrUpdateApplicationDraft (
+    $legalName: String
     $address: String
-    $email: String!
-    $missionStatement: String!
-    $plannedProjects: String!
+    $email: String
+    $missionStatement: String
+    $plannedProjects: String
     $website: String
     $primaryImpactLocationId: Float
     $organisationType: OrganisationType
     $mainInterestReason: MainInterestReason
     $fundingType: FundingType
-    $acceptFundingFromCorporateSocialResponsibilityPartner: Boolean!
-    $plannedFunding: Float!
-    $accountUsagePlan: String!
-    $socialMediaUrls: [String!]!
-    $categoryIds: [Int!]!
-    $applicationStep: ApplicationStep
-    $applicationState: ApplicationState
+    $acceptFundingFromCorporateSocialResponsibilityPartner: Boolean
+    $plannedFunding: Float
+    $accountUsagePlan: String
+    $socialMediaUrls: [String!]
+    $categoryIds: [Int!]
+    $applicationStep: ApplicationStep!
+    $applicationState: ApplicationState!
   ) {
-    createApplication(
+    createOrUpdateApplicationDraft(
       legalName: $legalName
       address: $address
       email: $email
