@@ -1,4 +1,4 @@
-import { User } from './../entities/user';
+import { User } from "./../entities/user";
 import { ApplicationStep } from "./../entities/application";
 import { ImpactLocation } from "./../entities/impactLocation";
 import {
@@ -11,7 +11,7 @@ import {
   Field,
   Int,
   Ctx,
-  Authorized
+  Authorized,
 } from "type-graphql";
 import { Repository } from "typeorm";
 import { InjectRepository } from "typeorm-typedi-extensions";
@@ -93,7 +93,7 @@ export class ApplicationResolver {
     @InjectRepository(ImpactLocation)
     private readonly impactLocationRepository: Repository<ImpactLocation>,
     @InjectRepository(User)
-    private readonly userRepository: Repository<Category>,
+    private readonly userRepository: Repository<Category>
   ) {}
 
   @Authorized()
@@ -107,8 +107,23 @@ export class ApplicationResolver {
   application(@Arg("id", { nullable: false }) id: string) {
     return this.applicationRepository.findOne({
       where: { id },
-      relations: ["categories"],
+      relations: ["categories", "user"],
     });
+  }
+
+  @Authorized()
+  @Query(() => Application)
+  async applicationByUserId(@Ctx() ctx: MyContext) {
+    const userId = ctx.req.user?.userId;
+    if (userId) {
+      console.log("applicationUserId -->", userId)
+      return this.applicationRepository.findOne({
+        where: { userId },
+        relations: ["categories", "user", "primaryImpactLocation"],
+      });
+    } else {
+      return {};
+    }
   }
 
   @Authorized()

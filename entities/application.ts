@@ -1,4 +1,4 @@
-import { Field, ID, Int, ObjectType, registerEnumType } from "type-graphql";
+import { Field, ID, ObjectType, registerEnumType } from "type-graphql";
 import {
   BaseEntity,
   Column,
@@ -107,7 +107,7 @@ export class Application extends BaseEntity {
   public website: string;
 
   @Field(() => [String])
-  @Column("varchar", { array: true, nullable: true })
+  @Column("varchar", { array: true, nullable: true, default: [] })
   public socialMediaUrls: string[];
 
   @Field(() => [Category])
@@ -141,6 +141,10 @@ export class Application extends BaseEntity {
   @Field(() => User)
   @ManyToOne(() => User, (user) => user.applications)
   public user: User;
+
+  @Column({ nullable: false })
+  @RelationId((application: Application) => application.user)
+  public userId: number;
 
   @Field(() => ApplicationState)
   @Column({nullable: false, default: ApplicationState.DRAFT})
