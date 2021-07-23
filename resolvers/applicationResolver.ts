@@ -8,7 +8,9 @@ import {
   Args,
   Ctx,
   Authorized,
+  ID,
 } from "type-graphql";
+import { GraphQLUpload, FileUpload } from 'graphql-upload';
 import { Repository } from "typeorm";
 import { InjectRepository } from "typeorm-typedi-extensions";
 import { Application, ApplicationState } from "../entities/application";
@@ -133,5 +135,20 @@ export class ApplicationResolver {
     } else {
       throw new Error("Application with given id not found");
     }
+  }
+
+  @Mutation(() => Application)
+  async uploadApplicationDocument(
+    @Arg("id", () => ID!) id: string,
+    @Arg("document", () => GraphQLUpload) document: FileUpload,
+    @Ctx() ctx: MyContext
+  ) {
+    const user = await this.categoryRepository.findOne(ctx.req.user.userId);
+    const application = await this.applicationRepository.findOne({
+      id: id,
+      user,
+    })
+
+    return application
   }
 }
