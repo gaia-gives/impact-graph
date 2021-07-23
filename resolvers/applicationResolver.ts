@@ -16,7 +16,6 @@ import { Category } from "../entities/category";
 import { MyContext } from "../types/MyContext";
 import { ApplicationDraft } from "./types/application/application-draft";
 import { defaultTo } from "ramda";
-import { QueryDeepPartialEntity as DeepPartial } from "typeorm/query-builder/QueryPartialEntity";
 import { ApplicationSubmit } from "./types/application/application-submit";
 
 @Resolver(() => Application)
@@ -78,19 +77,12 @@ export class ApplicationResolver {
   }
 
   private async updateApplicationDraft(
-    applicationDraft: ApplicationDraft,
-    categories: Category[],
-    primaryImpactLocation: ImpactLocation
+    applicationDraft: ApplicationDraft
   ) {
     const applicationToUpdate = await this.applicationRepository.findOne(
       applicationDraft.id
     );
     if (applicationToUpdate) {
-      const partial: DeepPartial<Application> = {
-        ...applicationDraft,
-        categories,
-        primaryImpactLocation,
-      };
       await Application.merge(applicationToUpdate, applicationDraft);
       return await applicationToUpdate.save();
     } else {
@@ -112,18 +104,16 @@ export class ApplicationResolver {
     );
     if (!primaryImpactLocation) throw new Error(`Cannot find primary impact location with id ${applicationDraft.primaryImpactLocationId}`)
 
-    const {  id,  ...draftData } = applicationDraft;
-
     const user = await this.userRepository.findOne(ctx.req.user.userId);
     if (applicationDraft.id && user) {
       return await this.createApplicationDraft(
-        draftData,
+        applicationDraft,
         user,
         categories,
         primaryImpactLocation
       );
     } else {
-      return await this.updateApplicationDraft(applicationDraft, categories, primaryImpactLocation)
+      return await this.updateApplicationDraft(applicationDraft)
     }
   }
 
@@ -136,9 +126,6 @@ export class ApplicationResolver {
       applicationSubmit.id
     );
     if (applicationToUpdate) {
-
-      const { id, ...submitData } = applicationSubmit;
-
       applicationSubmit.applicationState = ApplicationState.PENDING;
       await Application.merge(applicationToUpdate, applicationSubmit);
       await applicationToUpdate.save();

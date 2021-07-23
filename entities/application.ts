@@ -90,7 +90,7 @@ export class Application extends BaseEntity {
   public plannedProjects: string;
 
   @Field(() => ImpactLocation, { nullable: true })
-  @ManyToOne(() => ImpactLocation)
+  @ManyToOne(() => ImpactLocation, { cascade: true })
   public primaryImpactLocation: ImpactLocation;
   
   @Column({ nullable: true })
@@ -111,7 +111,7 @@ export class Application extends BaseEntity {
 
   @Field(() => [Category])
   @JoinTable()
-  @ManyToMany(() => Category)
+  @ManyToMany(() => Category, { cascade: true })
   public categories: Category[];
 
   @Field(() => OrganisationType)
@@ -135,7 +135,7 @@ export class Application extends BaseEntity {
   public plannedFunding!: number;
 
   @Field(() => User, { nullable: true })
-  @ManyToOne(() => User, (user) => user.applications)
+  @ManyToOne(() => User, (user) => user.applications, { cascade: true })
   public user: User;
 
   @Column({ nullable: true })
