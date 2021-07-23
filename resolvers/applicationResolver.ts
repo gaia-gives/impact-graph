@@ -10,7 +10,7 @@ import {
   Authorized,
   ID,
 } from "type-graphql";
-import { GraphQLUpload, FileUpload } from 'graphql-upload';
+import { GraphQLUpload, FileUpload } from "graphql-upload";
 import { Repository } from "typeorm";
 import { InjectRepository } from "typeorm-typedi-extensions";
 import { Application, ApplicationState } from "../entities/application";
@@ -78,9 +78,7 @@ export class ApplicationResolver {
     return await application.save();
   }
 
-  private async updateApplicationDraft(
-    applicationDraft: ApplicationDraft
-  ) {
+  private async updateApplicationDraft(applicationDraft: ApplicationDraft) {
     const applicationToUpdate = await this.applicationRepository.findOne(
       applicationDraft.id
     );
@@ -104,10 +102,13 @@ export class ApplicationResolver {
     const primaryImpactLocation = await this.impactLocationRepository.findOne(
       defaultTo(0, applicationDraft.primaryImpactLocationId)
     );
-    if (!primaryImpactLocation) throw new Error(`Cannot find primary impact location with id ${applicationDraft.primaryImpactLocationId}`)
+    if (!primaryImpactLocation)
+      throw new Error(
+        `Cannot find primary impact location with id ${applicationDraft.primaryImpactLocationId}`
+      );
 
     const user = await this.userRepository.findOne(ctx.req.user.userId);
-    if (applicationDraft.id && user) {
+    if (!applicationDraft.id && user) {
       return await this.createApplicationDraft(
         applicationDraft,
         user,
@@ -115,7 +116,7 @@ export class ApplicationResolver {
         primaryImpactLocation
       );
     } else {
-      return await this.updateApplicationDraft(applicationDraft)
+      return await this.updateApplicationDraft(applicationDraft);
     }
   }
 
@@ -123,17 +124,37 @@ export class ApplicationResolver {
   @Mutation(() => Boolean, {
     description: "For updating the draft of an application",
   })
-  async submitApplication(@Args() applicationSubmit: ApplicationSubmit) {
+  async submitApplication(
+    @Args() applicationSubmit: ApplicationSubmit,
+    @Ctx() ctx: MyContext
+  ) {
     const applicationToUpdate = await this.applicationRepository.findOne(
       applicationSubmit.id
     );
-    if (applicationToUpdate) {
+    if (!applicationToUpdate) {
+      const categories = await this.categoryRepository.findByIds(
+        defaultTo([], applicationSubmit.categoryIds)
+      );
+      const primaryImpactLocation = await this.impactLocationRepository.findOne(
+        defaultTo(0, applicationSubmit.primaryImpactLocationId)
+      );
+      const userId = parseInt(ctx.req.user.userId);
+      const user = await this.userRepository.findOne(userId);
+      const application = await this.createApplicationDraft(
+        applicationSubmit,
+        user!,
+        categories,
+        primaryImpactLocation!
+      );
+      Application.update(application, {
+        applicationState: ApplicationState.PENDING,
+      });
+      return true;
+    } else {
       applicationSubmit.applicationState = ApplicationState.PENDING;
       await Application.merge(applicationToUpdate, applicationSubmit);
       await applicationToUpdate.save();
       return true;
-    } else {
-      throw new Error("Application with given id not found");
     }
   }
 
@@ -147,8 +168,16 @@ export class ApplicationResolver {
     const application = await this.applicationRepository.findOne({
       id: id,
       user,
-    })
+    });
 
-    return application
+    // const workingDir = process.cwd();
+    // const applicationDir = path.join(
+    //   workingDir,
+    //   "blob",
+    //   "applications",
+    //   application!.id
+    // );
+
+    return application;
   }
 }
