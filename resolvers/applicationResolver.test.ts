@@ -26,6 +26,10 @@ const createApplicationDraft: () => Promise<string> = async () => {
     variables: {
       legalName: "Test",
       address: "Street 1;21345;City;Germany",
+      city: "Test",
+      postcode: "12345",
+      contactPerson: "qwertz",
+      country: "Germamy",
       email: "testemail@email.com",
       missionStatement: "Our mission is to fulfill our mission",
       plannedProjects: "Planned is nothing yet",
@@ -67,6 +71,7 @@ describe("application resolver", async () => {
       },
     });
 
+    console.log(result);
     expect(result.data).to.not.be.undefined;
     expect(result.data?.application.id).to.equal(applicationId);
   });
@@ -85,6 +90,10 @@ describe("application resolver", async () => {
         variables: {
           legalName: "Test",
           address: "Street 1;21345;City;Germany",
+          city: "Test",
+          postcode: "12345",
+          contactPerson: "qwertz",
+          country: "Germamy",
           email: "testemail@email.com",
           missionStatement: "Our mission is to fulfill our mission",
           plannedProjects: "Planned is nothing yet",
@@ -106,6 +115,7 @@ describe("application resolver", async () => {
       { connection: connection }
     );
 
+    console.log(result);
     expect(result.data).to.not.be.undefined.and.to.not.be.null;
     expect(
       result.data?.createOrUpdateApplicationDraft.applicationState
@@ -124,6 +134,10 @@ describe("application resolver", async () => {
           id: id,
           legalName: "Test",
           address: "Street 1;21345;City;Germany",
+          city: "Test",
+          postcode: "12345",
+          contactPerson: "qwertz",
+          country: "Germamy",
           email: "testemail@email.com",
           missionStatement: "Our mission is to fulfill our mission",
           plannedProjects: "Planned is nothing yet",
@@ -145,6 +159,7 @@ describe("application resolver", async () => {
       { connection: connection }
     );
 
+    console.log(result);
     expect(result.data).to.not.be.undefined.and.to.not.be.null;
     expect(result.data?.submitApplication).to.be.true;
   });

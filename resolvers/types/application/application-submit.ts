@@ -1,18 +1,36 @@
 import { ArgsType, Field, ID, Int } from "type-graphql";
-import { ApplicationState, ApplicationStep, FundingType, MainInterestReason, OrganisationType } from "../../../entities/application";
+import {
+  ApplicationState,
+  ApplicationStep,
+  FundingType,
+  MainInterestReason,
+  OrganisationType,
+} from "../../../entities/application";
 
 @ArgsType()
-export class ApplicationSubmit  {
+export class ApplicationSubmit {
   @Field(() => String)
   public id!: string;
 
   @Field({ nullable: false })
   public legalName!: string;
 
-  @Field({ nullable: true })
+  @Field({ nullable: false })
   public address: string;
 
-  @Field()
+  @Field({ nullable: false })
+  public city: string;
+
+  @Field({ nullable: false })
+  public postcode: string;
+
+  @Field({ nullable: false })
+  public country: string;
+
+  @Field({ nullable: false })
+  public contactPerson: string;
+
+  @Field({ nullable: false })
   public email: string;
 
   @Field({ nullable: false })
@@ -58,7 +76,7 @@ export class ApplicationSubmit  {
 
   @Field(() => ApplicationState)
   public applicationState: ApplicationState;
-  
+
   @Field(() => ApplicationStep)
   public applicationStep: ApplicationStep;
 }

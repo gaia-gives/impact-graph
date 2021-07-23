@@ -22,6 +22,18 @@ export class ApplicationDraft {
   public email?: string;
 
   @Field({ nullable: true })
+  city?: string;
+
+  @Field({ nullable: true })
+  postcode?: string;
+
+  @Field({ nullable: true })
+  country?: string;
+
+  @Field({ nullable: true })
+  contactPerson?: string;
+
+  @Field({ nullable: true })
   public missionStatement?: string;
 
   @Field({ nullable: true })

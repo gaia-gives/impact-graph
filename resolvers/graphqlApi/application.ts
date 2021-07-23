@@ -1,4 +1,3 @@
-import { OrganisationType, MainInterestReason, FundingType, ApplicationStep } from './../../entities/application';
 import gql from "graphql-tag";
 
 export const GET_APPLICATION = gql`
@@ -18,10 +17,14 @@ export const GET_APPLICATIONS = gql`
 `;
 
 export const CREATE_APPLICATION = gql`
-  mutation createOrUpdateApplicationDraft (
-    $id: String,
+  mutation createOrUpdateApplicationDraft(
+    $id: String
     $legalName: String
     $address: String
+    $city: String
+    $postcode: String
+    $country: String
+    $contactPerson: String
     $email: String
     $missionStatement: String
     $plannedProjects: String
@@ -42,6 +45,10 @@ export const CREATE_APPLICATION = gql`
       id: $id
       legalName: $legalName
       address: $address
+      city: $city
+      postcode: $postcode
+      country: $country
+      contactPerson: $contactPerson
       email: $email
       missionStatement: $missionStatement
       plannedProjects: $plannedProjects
@@ -70,6 +77,10 @@ export const SUBMIT_APPLICATION = gql`
     $id: String!
     $legalName: String!
     $address: String!
+    $city: String!
+    $postcode: String!
+    $country: String!
+    $contactPerson: String!
     $email: String!
     $missionStatement: String!
     $plannedProjects: String!
@@ -90,6 +101,10 @@ export const SUBMIT_APPLICATION = gql`
       id: $id
       legalName: $legalName
       address: $address
+      city: $city
+      postcode: $postcode
+      country: $country
+      contactPerson: $contactPerson
       email: $email
       missionStatement: $missionStatement
       plannedProjects: $plannedProjects

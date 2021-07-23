@@ -82,6 +82,22 @@ export class Application extends BaseEntity {
   public email: string;
 
   @Field({ nullable: true })
+  @Column({ nullable: true})
+  city?: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true})
+  postcode?: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true})
+  country?: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true})
+  contactPerson?: string;
+
+  @Field({ nullable: true })
   @Column({ nullable: true })
   public missionStatement: string;
 
