@@ -92,8 +92,9 @@ export class Application extends BaseEntity {
   @Field(() => ImpactLocation, { nullable: true })
   @ManyToOne(() => ImpactLocation)
   public primaryImpactLocation: ImpactLocation;
-
-  @RelationId((application: Application) => application.primaryImpactLocation)
+  
+  @Column({ nullable: true })
+  @RelationId("primaryImpactLocation")
   public primaryImpactLocationId: number;
 
   @Field({ nullable: true })

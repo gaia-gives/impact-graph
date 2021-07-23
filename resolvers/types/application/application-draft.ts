@@ -9,7 +9,7 @@ import {
 
 @ArgsType()
 export class ApplicationDraft {
-  @Field(() => ID, { nullable: true })
+  @Field(() => String, { nullable: true })
   public id?: string;
 
   @Field({ nullable: true })
@@ -27,7 +27,7 @@ export class ApplicationDraft {
   @Field({ nullable: true })
   public plannedProjects?: string;
 
-  @Field(() => Float, {
+  @Field(() => Int, {
     description: "Place of primary impact location of the organization?", nullable: true
   })
   public primaryImpactLocationId?: number;

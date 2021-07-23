@@ -11,13 +11,12 @@ import {
 } from "type-graphql";
 import { Repository } from "typeorm";
 import { InjectRepository } from "typeorm-typedi-extensions";
-
 import { Application, ApplicationState } from "../entities/application";
 import { Category } from "../entities/category";
 import { MyContext } from "../types/MyContext";
 import { ApplicationDraft } from "./types/application/application-draft";
 import { defaultTo } from "ramda";
-import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
+import { QueryDeepPartialEntity as DeepPartial } from "typeorm/query-builder/QueryPartialEntity";
 import { ApplicationSubmit } from "./types/application/application-submit";
 
 @Resolver(() => Application)
@@ -87,12 +86,13 @@ export class ApplicationResolver {
       applicationDraft.id
     );
     if (applicationToUpdate) {
-      const partial: QueryDeepPartialEntity<Application> = {
+      const partial: DeepPartial<Application> = {
         ...applicationDraft,
         categories,
         primaryImpactLocation,
       };
-      return await Application.update(applicationToUpdate, partial);
+      await Application.merge(applicationToUpdate, applicationDraft);
+      return await applicationToUpdate.save();
     } else {
       throw new Error("Application with given id not found!");
     }
@@ -112,10 +112,12 @@ export class ApplicationResolver {
     );
     if (!primaryImpactLocation) throw new Error(`Cannot find primary impact location with id ${applicationDraft.primaryImpactLocationId}`)
 
+    const {  id,  ...draftData } = applicationDraft;
+
     const user = await this.userRepository.findOne(ctx.req.user.userId);
     if (applicationDraft.id && user) {
       return await this.createApplicationDraft(
-        applicationDraft,
+        draftData,
         user,
         categories,
         primaryImpactLocation
@@ -134,20 +136,12 @@ export class ApplicationResolver {
       applicationSubmit.id
     );
     if (applicationToUpdate) {
-      const categories = await this.categoryRepository.findByIds(
-        defaultTo([], applicationSubmit.categoryIds)
-      );
-      const primaryImpactLocation = await this.impactLocationRepository.findOne(
-        defaultTo(0, applicationSubmit.primaryImpactLocationId)
-      );
 
-      const partial: QueryDeepPartialEntity<Application> = {
-        ...applicationSubmit,
-        categories,
-        primaryImpactLocation,
-        applicationState: ApplicationState.PENDING,
-      };
-      await Application.update(applicationToUpdate, partial);
+      const { id, ...submitData } = applicationSubmit;
+
+      applicationSubmit.applicationState = ApplicationState.PENDING;
+      await Application.merge(applicationToUpdate, applicationSubmit);
+      await applicationToUpdate.save();
       return true;
     } else {
       throw new Error("Application with given id not found");

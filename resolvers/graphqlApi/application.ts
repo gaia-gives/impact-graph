@@ -19,13 +19,14 @@ export const GET_APPLICATIONS = gql`
 
 export const CREATE_APPLICATION = gql`
   mutation createOrUpdateApplicationDraft (
+    $id: String,
     $legalName: String
     $address: String
     $email: String
     $missionStatement: String
     $plannedProjects: String
     $website: String
-    $primaryImpactLocationId: Float
+    $primaryImpactLocationId: Int
     $organisationType: OrganisationType
     $mainInterestReason: MainInterestReason
     $fundingType: FundingType
@@ -38,6 +39,7 @@ export const CREATE_APPLICATION = gql`
     $applicationState: ApplicationState!
   ) {
     createOrUpdateApplicationDraft(
+      id: $id
       legalName: $legalName
       address: $address
       email: $email
@@ -60,5 +62,49 @@ export const CREATE_APPLICATION = gql`
       applicationStep
       applicationState
     }
+  }
+`;
+
+export const SUBMIT_APPLICATION = gql`
+  mutation SubmitApplication(
+    $id: String!
+    $legalName: String!
+    $address: String!
+    $email: String!
+    $missionStatement: String!
+    $plannedProjects: String!
+    $website: String!
+    $primaryImpactLocationId: Int!
+    $organisationType: OrganisationType!
+    $mainInterestReason: MainInterestReason!
+    $fundingType: FundingType!
+    $acceptFundingFromCorporateSocialResponsibilityPartner: Boolean!
+    $plannedFunding: Float!
+    $accountUsagePlan: String!
+    $socialMediaUrls: [String!]!
+    $categoryIds: [Int!]!
+    $applicationStep: ApplicationStep!
+    $applicationState: ApplicationState!
+  ) {
+    submitApplication(
+      id: $id
+      legalName: $legalName
+      address: $address
+      email: $email
+      missionStatement: $missionStatement
+      plannedProjects: $plannedProjects
+      website: $website
+      primaryImpactLocationId: $primaryImpactLocationId
+      organisationType: $organisationType
+      mainInterestReason: $mainInterestReason
+      fundingType: $fundingType
+      acceptFundingFromCorporateSocialResponsibilityPartner: $acceptFundingFromCorporateSocialResponsibilityPartner
+      plannedFunding: $plannedFunding
+      accountUsagePlan: $accountUsagePlan
+      socialMediaUrls: $socialMediaUrls
+      categoryIds: $categoryIds
+      applicationStep: $applicationStep
+      applicationState: $applicationState
+    )
   }
 `;

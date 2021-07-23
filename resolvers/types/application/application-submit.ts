@@ -1,12 +1,9 @@
-import { ArgsType, Field, ID, ObjectType, Int } from "type-graphql";
+import { ArgsType, Field, ID, Int } from "type-graphql";
 import { ApplicationState, ApplicationStep, FundingType, MainInterestReason, OrganisationType } from "../../../entities/application";
-import { Category } from "../../../entities/category";
-import { ImpactLocation } from "../../../entities/impactLocation";
-import { User } from "../../../entities/user";
 
 @ArgsType()
 export class ApplicationSubmit  {
-  @Field(() => ID)
+  @Field(() => String)
   public id!: string;
 
   @Field({ nullable: false })

@@ -13,6 +13,7 @@ import {
   GET_APPLICATION,
   GET_APPLICATIONS,
   CREATE_APPLICATION,
+  SUBMIT_APPLICATION,
 } from "./graphqlApi/application";
 import * as TypeORM from "typeorm";
 
@@ -66,7 +67,6 @@ describe("application resolver", async () => {
       },
     });
 
-    console.log(result);
     expect(result.data).to.not.be.undefined;
     expect(result.data?.application.id).to.equal(applicationId);
   });
@@ -106,13 +106,46 @@ describe("application resolver", async () => {
       { connection: connection }
     );
 
-    console.log(result);
     expect(result.data).to.not.be.undefined.and.to.not.be.null;
-    expect(result.data?.createOrUpdateApplicationDraft.applicationState).to.equal(
-      ApplicationState.DRAFT
+    expect(
+      result.data?.createOrUpdateApplicationDraft.applicationState
+    ).to.equal(ApplicationState.DRAFT);
+    expect(
+      result.data?.createOrUpdateApplicationDraft.applicationStep
+    ).to.equal(ApplicationStep.STEP_1);
+  });
+
+  it("should submit application draft", async () => {
+    const id = await createApplicationDraft();
+    const result = await server.executeOperation(
+      {
+        query: SUBMIT_APPLICATION,
+        variables: {
+          id: id,
+          legalName: "Test",
+          address: "Street 1;21345;City;Germany",
+          email: "testemail@email.com",
+          missionStatement: "Our mission is to fulfill our mission",
+          plannedProjects: "Planned is nothing yet",
+          primaryImpactLocationId: 1,
+          website: "ourwebsite.com",
+          socialMediaUrls: ["facebook.com/blank/404", "instagram.com/test"],
+          categoryIds: [1, 4],
+          organisationType: OrganisationType.informalInitiative,
+          mainInterestReason: MainInterestReason.fundraising,
+          fundingType: FundingType.ongoing,
+          acceptFundingFromCorporateSocialResponsibilityPartner: true,
+          plannedFunding: 4000,
+          accountUsagePlan:
+            "We want to break free from our own homepage which led to nowhere",
+          applicationStep: ApplicationStep.STEP_1,
+          applicationState: ApplicationState.DRAFT,
+        },
+      },
+      { connection: connection }
     );
-    expect(result.data?.createOrUpdateApplicationDraft.applicationStep).to.equal(
-      ApplicationStep.STEP_1
-    );
+
+    expect(result.data).to.not.be.undefined.and.to.not.be.null;
+    expect(result.data?.submitApplication).to.be.true;
   });
 });
