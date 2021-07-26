@@ -56,7 +56,7 @@ export class ApplicationResolver {
       console.log("applicationUserId -->", userId);
       return this.applicationRepository.findOne({
         where: { userId },
-        relations: ["categories", "user", "primaryImpactLocation"],
+        relations: ["categories", "user"],
       });
     } else {
       return {};
