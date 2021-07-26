@@ -34,7 +34,7 @@ export const CREATE_APPLICATION = gql`
     $mainInterestReason: MainInterestReason
     $fundingType: FundingType
     $acceptFundingFromCorporateSocialResponsibilityPartner: Boolean
-    $plannedFunding: Float
+    $plannedFunding: FundingGoal
     $accountUsagePlan: String
     $socialMediaUrls: [String!]
     $categoryIds: [Int!]
@@ -90,7 +90,7 @@ export const SUBMIT_APPLICATION = gql`
     $mainInterestReason: MainInterestReason!
     $fundingType: FundingType!
     $acceptFundingFromCorporateSocialResponsibilityPartner: Boolean!
-    $plannedFunding: Float!
+    $plannedFunding: FundingGoal!
     $accountUsagePlan: String!
     $socialMediaUrls: [String!]!
     $categoryIds: [Int!]!

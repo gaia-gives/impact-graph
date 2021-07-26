@@ -1,3 +1,4 @@
+import { FundingGoal } from './../../../entities/application';
 import { ArgsType, Field, ID, Int } from "type-graphql";
 import {
   ApplicationState,
@@ -71,8 +72,8 @@ export class ApplicationSubmit {
   @Field({ nullable: false })
   public acceptFundingFromCorporateSocialResponsibilityPartner: boolean;
 
-  @Field({ nullable: false })
-  public plannedFunding!: number;
+  @Field(() => FundingGoal, { nullable: false })
+  public plannedFunding!: FundingGoal;
 
   @Field(() => ApplicationState)
   public applicationState: ApplicationState;

@@ -4,6 +4,7 @@ import {
   FundingType,
   ApplicationState,
   ApplicationStep,
+  FundingGoal,
 } from "./../entities/application";
 import { ApolloServer } from "apollo-server-express";
 import "mocha";
@@ -41,7 +42,7 @@ const createApplicationDraft: () => Promise<string> = async () => {
       mainInterestReason: MainInterestReason.fundraising,
       fundingType: FundingType.ongoing,
       acceptFundingFromCorporateSocialResponsibilityPartner: true,
-      plannedFunding: 4000,
+      plannedFunding: FundingGoal.m,
       accountUsagePlan:
         "We want to break free from our own homepage which led to nowhere",
       applicationStep: ApplicationStep.STEP_1,
@@ -105,7 +106,7 @@ describe("application resolver", async () => {
           mainInterestReason: MainInterestReason.fundraising,
           fundingType: FundingType.ongoing,
           acceptFundingFromCorporateSocialResponsibilityPartner: true,
-          plannedFunding: 4000,
+          plannedFunding: FundingGoal.m,
           accountUsagePlan:
             "We want to break free from our own homepage which led to nowhere",
           applicationStep: ApplicationStep.STEP_1,
@@ -149,7 +150,7 @@ describe("application resolver", async () => {
           mainInterestReason: MainInterestReason.fundraising,
           fundingType: FundingType.ongoing,
           acceptFundingFromCorporateSocialResponsibilityPartner: true,
-          plannedFunding: 4000,
+          plannedFunding: FundingGoal.l,
           accountUsagePlan:
             "We want to break free from our own homepage which led to nowhere",
           applicationStep: ApplicationStep.STEP_1,

@@ -62,6 +62,17 @@ registerEnumType(FundingType, {
   description: "What is the main funding method used by the organization",
 });
 
+export enum FundingGoal {
+  xs = "xs",
+  s = "s",
+  m = "m",
+  l = "l",
+}
+registerEnumType(FundingGoal, {
+  name: "FundingGoal",
+  description: "How much do you plan to collect for your project?",
+});
+
 @ObjectType()
 @Entity()
 export class Application extends BaseEntity {
@@ -71,15 +82,15 @@ export class Application extends BaseEntity {
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  public legalName: string;
+  public legalName?: string;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  public address: string;
+  public address?: string;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  public email: string;
+  public email?: string;
 
   @Field({ nullable: true })
   @Column({ nullable: true})
@@ -99,11 +110,11 @@ export class Application extends BaseEntity {
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  public missionStatement: string;
+  public missionStatement?: string;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  public plannedProjects: string;
+  public plannedProjects?: string;
 
   @Field(() => ImpactLocation, { nullable: true })
   @ManyToOne(() => ImpactLocation, { cascade: true })
@@ -111,11 +122,11 @@ export class Application extends BaseEntity {
   
   @Column({ nullable: true })
   @RelationId("primaryImpactLocation")
-  public primaryImpactLocationId: number;
+  public primaryImpactLocationId?: number;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  public accountUsagePlan: string;
+  public accountUsagePlan?: string;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
@@ -144,11 +155,11 @@ export class Application extends BaseEntity {
 
   @Field(() => Boolean, { nullable: true })
   @Column({ default: false })
-  public acceptFundingFromCorporateSocialResponsibilityPartner: boolean;
+  public acceptFundingFromCorporateSocialResponsibilityPartner?: boolean;
 
-  @Field(() => Float, { nullable: true })
+  @Field(() => FundingGoal, { nullable: true })
   @Column({ nullable: true })
-  public plannedFunding!: number;
+  public plannedFunding?: FundingGoal;
 
   @Field(() => User, { nullable: true })
   @ManyToOne(() => User, (user) => user.applications, { cascade: true })
@@ -156,7 +167,7 @@ export class Application extends BaseEntity {
 
   @Column({ nullable: true })
   @RelationId((application: Application) => application.user)
-  public userId: number;
+  public userId?: number;
 
   @Field(() => ApplicationState, { nullable: true })
   @Column({ nullable: false, default: ApplicationState.DRAFT })
