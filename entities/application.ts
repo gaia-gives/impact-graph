@@ -39,7 +39,7 @@ export enum OrganisationType {
 }
 registerEnumType(OrganisationType, {
   name: "OrganisationType",
-  description: "The type of the organization",
+  description: "The type of the organization"
 });
 
 export enum MainInterestReason {
@@ -130,7 +130,7 @@ export class Application extends BaseEntity {
   @ManyToMany(() => Category, { cascade: true })
   public categories: Category[];
 
-  @Field(() => OrganisationType)
+  @Field(() => OrganisationType, { nullable: true })
   @Column({ nullable: true })
   public organisationType?: OrganisationType;
 
