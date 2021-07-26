@@ -40,10 +40,10 @@ export class ApplicationSubmit {
   @Field({ nullable: false })
   public plannedProjects!: string;
 
-  @Field((type) => Int!, {
+  @Field((type) => String!, {
     description: "Place of primary impact location of the organization?",
   })
-  public primaryImpactLocationId: number;
+  public primaryImpactLocation: string;
 
   @Field({ description: "How the organization plans to use the account" })
   public accountUsagePlan!: string;

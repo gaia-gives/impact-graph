@@ -1,4 +1,4 @@
-import { FundingGoal } from './../../../entities/application';
+import { FundingGoal } from "./../../../entities/application";
 import { Field, ID, Int, ArgsType, Float } from "type-graphql";
 import {
   ApplicationState,
@@ -40,12 +40,16 @@ export class ApplicationDraft {
   @Field({ nullable: true })
   public plannedProjects?: string;
 
-  @Field(() => Int, {
-    description: "Place of primary impact location of the organization?", nullable: true
+  @Field({
+    description: "Place of primary impact location of the organization?",
+    nullable: true,
   })
-  public primaryImpactLocationId?: number;
+  public primaryImpactLocation?: string;
 
-  @Field({ description: "How the organization plans to use the account", nullable: true })
+  @Field({
+    description: "How the organization plans to use the account",
+    nullable: true,
+  })
   public accountUsagePlan?: string;
 
   @Field({ nullable: true })

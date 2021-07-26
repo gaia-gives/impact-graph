@@ -66,14 +66,12 @@ export class ApplicationResolver {
   private async createApplicationDraft(
     applicationDraft: ApplicationDraft,
     user: User,
-    categories: Category[],
-    primaryImpactLocation: ImpactLocation
+    categories: Category[]
   ) {
     const application = this.applicationRepository.create({
       ...applicationDraft,
       user,
       categories,
-      primaryImpactLocation,
     });
     return await application.save();
   }
@@ -99,21 +97,13 @@ export class ApplicationResolver {
     const categories = await this.categoryRepository.findByIds(
       defaultTo([], applicationDraft.categoryIds)
     );
-    const primaryImpactLocation = await this.impactLocationRepository.findOne(
-      defaultTo(0, applicationDraft.primaryImpactLocationId)
-    );
-    if (!primaryImpactLocation)
-      throw new Error(
-        `Cannot find primary impact location with id ${applicationDraft.primaryImpactLocationId}`
-      );
 
     const user = await this.userRepository.findOne(ctx.req.user.userId);
     if (!applicationDraft.id && user) {
       return await this.createApplicationDraft(
         applicationDraft,
         user,
-        categories,
-        primaryImpactLocation
+        categories
       );
     } else {
       return await this.updateApplicationDraft(applicationDraft);
@@ -135,16 +125,12 @@ export class ApplicationResolver {
       const categories = await this.categoryRepository.findByIds(
         defaultTo([], applicationSubmit.categoryIds)
       );
-      const primaryImpactLocation = await this.impactLocationRepository.findOne(
-        defaultTo(0, applicationSubmit.primaryImpactLocationId)
-      );
       const userId = parseInt(ctx.req.user.userId);
       const user = await this.userRepository.findOne(userId);
       const application = await this.createApplicationDraft(
         applicationSubmit,
         user!,
-        categories,
-        primaryImpactLocation!
+        categories
       );
       Application.update(application, {
         applicationState: ApplicationState.PENDING,
