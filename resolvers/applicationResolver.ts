@@ -19,8 +19,10 @@ import { ApplicationDraft } from "./types/application/application-draft";
 import { defaultTo } from "ramda";
 import { ApplicationSubmit } from "./types/application/application-submit";
 import { Upload } from "../types/Upload";
-import { createWriteStream } from "fs";
+import { createWriteStream, fstat } from "fs";
 import path from "path"
+import { Stream } from "stream";
+const fs = require('fs');
 
 @Resolver(() => Application)
 export class ApplicationResolver {
@@ -148,25 +150,34 @@ export class ApplicationResolver {
   async uploadApplicationDocument(
     @Arg("id", () => ID!) id: string,
     @Arg("document", () => GraphQLUpload) document: FileUpload,
-    @Ctx() ctx: MyContext,
+    @Ctx() ctx: MyContext,)
     {
-      createReadStream,
-      filename
-    }: Upload): Promise<Boolean>
-    {
+    const { createReadStream} = await document;
     const user = await this.categoryRepository.findOne(ctx.req.user.userId);
     const application = await this.applicationRepository.findOne({
       id: id,
       user,
     });
+    
+    const applicationDirectory = path.join(__dirname, "public", "applications", application!.id);
 
-    var uploadPath = path.join(__dirname, "public", "applications", application!.id, id)
+    if (this.directoryDoesNotExist(applicationDirectory)) {
+      this.createDirectory(applicationDirectory)
+    }
 
-    return new Promise(async (resolve, reject) =>
-      createReadStream()
-      .pipe(createWriteStream(uploadPath))
-      .on("finish", () => resolve(true))
-      .on("error", () => reject(false))
-    )
+    var uploadPath = path.join(applicationDirectory, id)
+
+    const stream = createReadStream();
+    await stream.pipe(createWriteStream(uploadPath))
+    
+    return Application
+  }
+
+  directoryDoesNotExist(path: string) {
+    return !fs.existsSync(path);
+  }
+
+  createDirectory(path: string) {
+    fs.mkdirSync(path);
   }
 }
