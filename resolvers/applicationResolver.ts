@@ -53,7 +53,6 @@ export class ApplicationResolver {
   async applicationByUserId(@Ctx() ctx: MyContext) {
     const userId = ctx.req.user?.userId;
     if (userId) {
-      console.log("applicationUserId -->", userId);
       return this.applicationRepository.findOne({
         where: { userId },
         relations: ["categories", "user"],
@@ -99,10 +98,12 @@ export class ApplicationResolver {
     );
 
     const user = await this.userRepository.findOne(ctx.req.user.userId);
-    if (!applicationDraft.id && user) {
+    const update = applicationDraft.id && user;
+
+    if (!update) {
       return await this.createApplicationDraft(
         applicationDraft,
-        user,
+        user!,
         categories
       );
     } else {
