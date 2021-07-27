@@ -18,10 +18,8 @@ import { MyContext } from "../types/MyContext";
 import { ApplicationDraft } from "./types/application/application-draft";
 import { defaultTo } from "ramda";
 import { ApplicationSubmit } from "./types/application/application-submit";
-import { Upload } from "../types/Upload";
-import { createWriteStream, fstat } from "fs";
+import { createWriteStream } from "fs";
 import path from "path"
-import { Stream } from "stream";
 const fs = require('fs');
 
 @Resolver(() => Application)
