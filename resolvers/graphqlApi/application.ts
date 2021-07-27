@@ -36,7 +36,9 @@ export const CREATE_APPLICATION = gql`
     $acceptFundingFromCorporateSocialResponsibilityPartner: Boolean
     $plannedFunding: FundingGoal
     $accountUsagePlan: String
-    $socialMediaUrls: [String!]
+    $facebook: String
+    $instagram: String
+    $other: String
     $categoryIds: [Int!]
     $applicationStep: ApplicationStep!
     $applicationState: ApplicationState!
@@ -60,10 +62,12 @@ export const CREATE_APPLICATION = gql`
       acceptFundingFromCorporateSocialResponsibilityPartner: $acceptFundingFromCorporateSocialResponsibilityPartner
       plannedFunding: $plannedFunding
       accountUsagePlan: $accountUsagePlan
-      socialMediaUrls: $socialMediaUrls
       categoryIds: $categoryIds
       applicationStep: $applicationStep
       applicationState: $applicationState
+      facebook: $facebook
+      instagram: $instagram
+      other: $other
     ) {
       id
       applicationStep
@@ -92,7 +96,9 @@ export const SUBMIT_APPLICATION = gql`
     $acceptFundingFromCorporateSocialResponsibilityPartner: Boolean!
     $plannedFunding: FundingGoal!
     $accountUsagePlan: String!
-    $socialMediaUrls: [String!]!
+    $facebook: String
+    $instagram: String
+    $other: String
     $categoryIds: [Int!]!
     $applicationStep: ApplicationStep!
     $applicationState: ApplicationState!
@@ -116,10 +122,12 @@ export const SUBMIT_APPLICATION = gql`
       acceptFundingFromCorporateSocialResponsibilityPartner: $acceptFundingFromCorporateSocialResponsibilityPartner
       plannedFunding: $plannedFunding
       accountUsagePlan: $accountUsagePlan
-      socialMediaUrls: $socialMediaUrls
       categoryIds: $categoryIds
       applicationStep: $applicationStep
       applicationState: $applicationState
+      facebook: $facebook
+      instagram: $instagram
+      other: $other
     )
   }
 `;

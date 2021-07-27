@@ -32,8 +32,8 @@ Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie co
 INSERT INTO "user" ("email", "firstName", "lastName", "name", "walletAddress", "password", "loginType", "confirmed", "globalRole")
     VALUES ('test@testmail.com', 'John', 'Doe', 'John Doe', '0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', '$2a$12$5bYAU4SMWQDpKr1gF2SkZOqKp0Ts1PxNuLExP5e2SoWxFt.Zw9WX6', 'password', TRUE, 'admin');
 
-INSERT INTO "application" ("legalName", "address", "email", "missionStatement", "plannedProjects", "accountUsagePlan", "website", "organisationType", "mainInterestReason", "fundingType", "acceptFundingFromCorporateSocialResponsibilityPartner", "plannedFunding", "primaryImpactLocation", "userId", "applicationState", "applicationStep", "socialMediaUrls")
-    VALUES ('Testorga', 'Street1;343432;BigCity;Liberia', 'aiosjfisajf@asdadf.de', 'We want to have impact', 'Some projects are definetely planned, yes', 'We want to use everything', 'Webite.com', 'registeredNonProfit', 'fundraising', 'ongoing', FALSE, 400, 'South Africa', 1, 'DRAFT', 'STEP_1', '{}');
+INSERT INTO "application" ("legalName", "address", "email", "missionStatement", "plannedProjects", "accountUsagePlan", "website", "organisationType", "mainInterestReason", "fundingType", "acceptFundingFromCorporateSocialResponsibilityPartner", "plannedFunding", "primaryImpactLocation", "userId", "applicationState", "applicationStep")
+    VALUES ('Testorga', 'Street1;343432;BigCity;Liberia', 'aiosjfisajf@asdadf.de', 'We want to have impact', 'Some projects are definetely planned, yes', 'We want to use everything', 'Webite.com', 'registeredNonProfit', 'fundraising', 'ongoing', FALSE, 400, 'South Africa', 1, 'DRAFT', 'STEP_1');
 
     
 

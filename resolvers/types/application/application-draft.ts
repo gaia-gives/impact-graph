@@ -55,8 +55,14 @@ export class ApplicationDraft {
   @Field({ nullable: true })
   public website?: string;
 
-  @Field(() => [String!], { nullable: true })
-  public socialMediaUrls?: string[];
+  @Field({ nullable: true })
+  public facebook?: string;
+
+  @Field({ nullable: true })
+  public instagram?: string;
+
+  @Field({ nullable: true })
+  public other?: string;
 
   @Field(() => [Int!], { nullable: true })
   public categoryIds?: number[];

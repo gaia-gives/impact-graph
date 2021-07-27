@@ -1,5 +1,4 @@
 import { User } from "./../entities/user";
-import { ImpactLocation } from "./../entities/impactLocation";
 import {
   Resolver,
   Query,
@@ -30,8 +29,6 @@ export class ApplicationResolver {
     private readonly applicationRepository: Repository<Application>,
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
-    @InjectRepository(ImpactLocation)
-    private readonly impactLocationRepository: Repository<ImpactLocation>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>
   ) {}

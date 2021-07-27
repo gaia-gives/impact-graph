@@ -36,7 +36,9 @@ const createApplicationDraft: () => Promise<string> = async () => {
       plannedProjects: "Planned is nothing yet",
       primaryImpactLocation: "Middle of nowhere",
       website: "ourwebsite.com",
-      socialMediaUrls: ["facebook.com/blank/404", "instagram.com/test"],
+      facebook: "facebook.com/blank/404",
+      instagram: "instagram.com/test",
+      other: "other",
       categoryIds: [1, 4],
       organisationType: OrganisationType.informalInitiative,
       mainInterestReason: MainInterestReason.fundraising,
@@ -71,8 +73,6 @@ describe("application resolver", async () => {
         id: applicationId,
       },
     });
-
-    console.log(result);
     expect(result.data).to.not.be.undefined;
     expect(result.data?.application.id).to.equal(applicationId);
   });
@@ -100,7 +100,9 @@ describe("application resolver", async () => {
           plannedProjects: "Planned is nothing yet",
           primaryImpactLocation: "Middle of nowhere",
           website: "ourwebsite.com",
-          socialMediaUrls: ["facebook.com/blank/404", "instagram.com/test"],
+          facebook: "facebook.com/blank/404",
+          instagram: "instagram.com/test",
+          other: "other",
           categoryIds: [1, 4],
           organisationType: OrganisationType.informalInitiative,
           mainInterestReason: MainInterestReason.fundraising,
@@ -115,8 +117,6 @@ describe("application resolver", async () => {
       },
       { connection: connection }
     );
-
-    console.log(result);
     expect(result.data).to.not.be.undefined.and.to.not.be.null;
     expect(
       result.data?.createOrUpdateApplicationDraft.applicationState
@@ -144,7 +144,9 @@ describe("application resolver", async () => {
           plannedProjects: "Planned is nothing yet",
           primaryImpactLocation: "Bangladesh",
           website: "ourwebsite.com",
-          socialMediaUrls: ["facebook.com/blank/404", "instagram.com/test"],
+          facebook: "facebook.com/blank/404",
+          instagram: "instagram.com/test",
+          other: "other",
           categoryIds: [1, 4],
           organisationType: OrganisationType.informalInitiative,
           mainInterestReason: MainInterestReason.fundraising,
@@ -159,8 +161,6 @@ describe("application resolver", async () => {
       },
       { connection: connection }
     );
-
-    console.log(result);
     expect(result.data).to.not.be.undefined.and.to.not.be.null;
     expect(result.data?.submitApplication).to.be.true;
   });

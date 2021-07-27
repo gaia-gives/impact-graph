@@ -51,8 +51,14 @@ export class ApplicationSubmit {
   @Field({ nullable: true })
   public website: string;
 
-  @Field(() => [String])
-  public socialMediaUrls: string[];
+  @Field({ nullable: true })
+  public facebook?: string;
+
+  @Field({ nullable: true })
+  public instagram?: string;
+
+  @Field({ nullable: true })
+  public other?: string;
 
   @Field(() => [Int!]!, { nullable: true })
   public categoryIds: number[];

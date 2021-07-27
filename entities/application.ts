@@ -127,9 +127,17 @@ export class Application extends BaseEntity {
   @Column({ nullable: true })
   public website: string;
 
-  @Field(() => [String], { nullable: true })
-  @Column("varchar", { array: true, nullable: true })
-  public socialMediaUrls: string[];
+  @Field({nullable: true})
+  @Column({ nullable: true })
+  public facebook: string;
+
+  @Field({nullable: true})
+  @Column({ nullable: true })
+  public instagram: string;
+
+  @Field({nullable: true})
+  @Column({ nullable: true })
+  public other: string;
 
   @Field(() => [Category])
   @JoinTable()
