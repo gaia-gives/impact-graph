@@ -10,7 +10,6 @@ import {
   RelationId,
 } from "typeorm";
 import { Category } from "./category";
-import { ImpactLocation } from "./impactLocation";
 import { User } from "./user";
 
 export enum ApplicationState {
@@ -116,14 +115,10 @@ export class Application extends BaseEntity {
   @Column({ nullable: true })
   public plannedProjects?: string;
 
-  @Field(() => ImpactLocation, { nullable: true })
-  @ManyToOne(() => ImpactLocation, { cascade: true })
-  public primaryImpactLocation: ImpactLocation;
-  
+  @Field({ nullable: true })
   @Column({ nullable: true })
-  @RelationId("primaryImpactLocation")
-  public primaryImpactLocationId?: number;
-
+  public primaryImpactLocation?: string;
+  
   @Field({ nullable: true })
   @Column({ nullable: true })
   public accountUsagePlan?: string;

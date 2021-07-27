@@ -25,12 +25,4 @@ export class ImpactLocation extends BaseEntity {
         { eager: false }
     )
     projects: Project[];
-
-    @Field(type => [Application], { nullable: true })
-    @OneToMany(
-        type => Application,
-        application => application.primaryImpactLocation,
-        { eager: false }
-    )
-    applications: Application[];
 }

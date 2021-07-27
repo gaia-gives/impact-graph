@@ -29,7 +29,7 @@ export const CREATE_APPLICATION = gql`
     $missionStatement: String
     $plannedProjects: String
     $website: String
-    $primaryImpactLocationId: Int
+    $primaryImpactLocation: String
     $organisationType: OrganisationType
     $mainInterestReason: MainInterestReason
     $fundingType: FundingType
@@ -53,7 +53,7 @@ export const CREATE_APPLICATION = gql`
       missionStatement: $missionStatement
       plannedProjects: $plannedProjects
       website: $website
-      primaryImpactLocationId: $primaryImpactLocationId
+      primaryImpactLocation: $primaryImpactLocation
       organisationType: $organisationType
       mainInterestReason: $mainInterestReason
       fundingType: $fundingType
@@ -85,7 +85,7 @@ export const SUBMIT_APPLICATION = gql`
     $missionStatement: String!
     $plannedProjects: String!
     $website: String!
-    $primaryImpactLocationId: Int!
+    $primaryImpactLocation: String!
     $organisationType: OrganisationType!
     $mainInterestReason: MainInterestReason!
     $fundingType: FundingType!
@@ -109,7 +109,7 @@ export const SUBMIT_APPLICATION = gql`
       missionStatement: $missionStatement
       plannedProjects: $plannedProjects
       website: $website
-      primaryImpactLocationId: $primaryImpactLocationId
+      primaryImpactLocation: $primaryImpactLocation
       organisationType: $organisationType
       mainInterestReason: $mainInterestReason
       fundingType: $fundingType
