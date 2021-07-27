@@ -178,6 +178,6 @@ export class ApplicationResolver {
   }
 
   createDirectory(path: string) {
-    fs.mkdirSync(path);
+    fs.mkdirSync(path, { recursive: true });
   }
 }
