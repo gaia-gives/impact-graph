@@ -90,4 +90,7 @@ export class ApplicationDraft {
 
   @Field(() => ApplicationStep)
   public applicationStep: ApplicationStep;
+
+  @Field(() => [String], { nullable: true})
+  public validationMaterials: string[];
 }

@@ -49,6 +49,7 @@ const createApplicationDraft: () => Promise<string> = async () => {
         "We want to break free from our own homepage which led to nowhere",
       applicationStep: ApplicationStep.STEP_1,
       applicationState: ApplicationState.DRAFT,
+      validationMaterials: ["abcd", "efgh"],
     },
   });
   return result.data?.createOrUpdateApplicationDraft.id;
@@ -113,6 +114,7 @@ describe("application resolver", async () => {
             "We want to break free from our own homepage which led to nowhere",
           applicationStep: ApplicationStep.STEP_1,
           applicationState: ApplicationState.DRAFT,
+          validationMaterials: ["abcd", "efgh"],
         },
       },
       { connection: connection }
@@ -157,6 +159,7 @@ describe("application resolver", async () => {
             "We want to break free from our own homepage which led to nowhere",
           applicationStep: ApplicationStep.STEP_1,
           applicationState: ApplicationState.DRAFT,
+          validationMaterials: ["abcd", "efgh"],
         },
       },
       { connection: connection }

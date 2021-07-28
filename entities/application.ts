@@ -179,4 +179,9 @@ export class Application extends BaseEntity {
   @Field(() => ApplicationStep, { nullable: true })
   @Column({ nullable: false, default: ApplicationStep.STEP_1 })
   public applicationStep: ApplicationStep;
+
+  @Field(() => [String!], { nullable: true})
+  @Column("varchar", { array: true, nullable: true, default: [] })
+  public validationMaterials: string[];
+
 }

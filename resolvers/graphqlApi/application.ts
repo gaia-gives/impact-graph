@@ -42,6 +42,7 @@ export const CREATE_APPLICATION = gql`
     $categoryIds: [Int!]
     $applicationStep: ApplicationStep!
     $applicationState: ApplicationState!
+    $validationMaterials: [String!]
   ) {
     createOrUpdateApplicationDraft(
       id: $id
@@ -68,6 +69,7 @@ export const CREATE_APPLICATION = gql`
       facebook: $facebook
       instagram: $instagram
       other: $other
+      validationMaterials: $validationMaterials
     ) {
       id
       applicationStep
@@ -102,6 +104,7 @@ export const SUBMIT_APPLICATION = gql`
     $categoryIds: [Int!]!
     $applicationStep: ApplicationStep!
     $applicationState: ApplicationState!
+    $validationMaterials: [String!]
   ) {
     submitApplication(
       id: $id
@@ -128,6 +131,7 @@ export const SUBMIT_APPLICATION = gql`
       facebook: $facebook
       instagram: $instagram
       other: $other
+      validationMaterials: $validationMaterials
     )
   }
 `;
