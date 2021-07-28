@@ -1,9 +1,8 @@
-import { ProjectInput } from './types/project-input';
 import { ApolloServer } from "apollo-server-express";
 import * as TypeORM from "typeorm";
 import "mocha";
-import { createTestServer } from "../server/testServerFactory";
-import { ADD_PROJECT, FETCH_PROJECTS } from "./graphqlApi/project";
+import { createTestServer } from "../../server/testServerFactory";
+import { FETCH_PROJECTS } from "./../graphqlApi/project";
 import { expect } from "chai";
 
 let connection: TypeORM.Connection;

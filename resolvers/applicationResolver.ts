@@ -1,3 +1,4 @@
+import { FileReference } from "./../entities/fileReference";
 import { ResolverResult } from "./types/ResolverResult";
 import { User } from "./../entities/user";
 import {
@@ -10,6 +11,7 @@ import {
   Authorized,
   ID,
   ObjectType,
+  Field,
 } from "type-graphql";
 import { GraphQLUpload, FileUpload } from "graphql-upload";
 import { Repository } from "typeorm";
@@ -21,9 +23,16 @@ import { ApplicationDraft } from "./types/application/application-draft";
 import { defaultTo } from "ramda";
 import { ApplicationSubmit } from "./types/application/application-submit";
 import { saveFile } from "../utils/saveFile";
+import { deleteFile } from "../utils/deleteFile";
 
 @ObjectType()
-class ApplicationDocumentUploadResult extends ResolverResult {}
+export class ApplicationDocumentUploadResult extends ResolverResult {
+  @Field(() => [FileReference!], { nullable: true })
+  savedFiles?: FileReference[];
+}
+
+@ObjectType()
+export class DeleteUploadedDocumentResult extends ResolverResult {}
 
 @Resolver(() => Application)
 export class ApplicationResolver {
@@ -33,7 +42,9 @@ export class ApplicationResolver {
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>
+    private readonly userRepository: Repository<User>,
+    @InjectRepository(FileReference)
+    private readonly fileReferenceRepository: Repository<FileReference>
   ) {}
 
   @Authorized()
@@ -148,15 +159,17 @@ export class ApplicationResolver {
     }
   }
 
+  @Authorized()
   @Mutation(() => ApplicationDocumentUploadResult)
   async uploadApplicationDocument(
     @Arg("id", () => ID!) id: string,
+    @Arg("mapsToField", () => String) mapsToField: string,
     @Arg("documents", () => [GraphQLUpload]) documents: FileUpload[],
     @Ctx() ctx: MyContext
   ) {
     const result = new ApplicationDocumentUploadResult();
     const user = await this.userRepository.findOne(ctx.req.user.userId);
-    
+
     if (!user) {
       result.setUnsuccessful({
         code: "UNKNOWN_ID",
@@ -167,12 +180,22 @@ export class ApplicationResolver {
         id: id,
         user,
       });
-      
+
       if (application) {
+        const savedFiles: FileReference[] = [];
         for (const document of documents) {
-          const { createReadStream, filename } = await document;
-          await saveFile(id, createReadStream, filename);
+          const { createReadStream, filename, mimetype } = await document;
+          const path = await saveFile(id, createReadStream, filename);
+          const reference = FileReference.create({
+            application: application,
+            filename: filename,
+            path: path,
+            mapsToField: mapsToField,
+            mimetype: mimetype,
+          });
+          savedFiles.push(await reference.save());
         }
+        result.savedFiles = savedFiles;
       } else {
         result.setUnsuccessful({
           code: "UNKNOWN_ID",
@@ -182,5 +205,34 @@ export class ApplicationResolver {
     }
 
     return result;
+  }
+
+  @Authorized()
+  @Mutation(() => DeleteUploadedDocumentResult)
+  async deleteUploadedFile(
+    @Arg("id", () => ID!) id: string,
+    @Ctx() ctx: MyContext
+  ) {
+    const result = new DeleteUploadedDocumentResult();
+    const user = await this.userRepository.findOne(ctx.req.user.userId);
+    if (!user) {
+      result.setUnsuccessful({
+        code: "UNKNOWN_ID",
+        message: "No user with given id",
+      });
+      return result;
+    } else {
+      const fileRef = await this.fileReferenceRepository.findOne(id);
+      if (fileRef) {
+        deleteFile(fileRef.path);
+        fileRef.remove();
+      } else {
+        result.setUnsuccessful({
+          code: "UNKNOWN_ID",
+          message: "There was an error deleting the file",
+        });
+      }
+      return result;
+    }
   }
 }

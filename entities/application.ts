@@ -1,4 +1,12 @@
-import { registerEnumType, ObjectType, Field, Float, ID, Int } from "type-graphql";
+import { FileReference } from "./fileReference";
+import {
+  registerEnumType,
+  ObjectType,
+  Field,
+  Float,
+  ID,
+  Int,
+} from "type-graphql";
 import {
   BaseEntity,
   Column,
@@ -6,6 +14,7 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   RelationId,
 } from "typeorm";
@@ -38,7 +47,7 @@ export enum OrganisationType {
 }
 registerEnumType(OrganisationType, {
   name: "OrganisationType",
-  description: "The type of the organization"
+  description: "The type of the organization",
 });
 
 export enum MainInterestReason {
@@ -92,19 +101,19 @@ export class Application extends BaseEntity {
   public email?: string;
 
   @Field({ nullable: true })
-  @Column({ nullable: true})
+  @Column({ nullable: true })
   city?: string;
 
   @Field({ nullable: true })
-  @Column({ nullable: true})
+  @Column({ nullable: true })
   postcode?: string;
 
   @Field({ nullable: true })
-  @Column({ nullable: true})
+  @Column({ nullable: true })
   country?: string;
 
   @Field({ nullable: true })
-  @Column({ nullable: true})
+  @Column({ nullable: true })
   contactPerson?: string;
 
   @Field({ nullable: true })
@@ -118,7 +127,7 @@ export class Application extends BaseEntity {
   @Field({ nullable: true })
   @Column({ nullable: true })
   public primaryImpactLocation?: string;
-  
+
   @Field({ nullable: true })
   @Column({ nullable: true })
   public accountUsagePlan?: string;
@@ -127,15 +136,15 @@ export class Application extends BaseEntity {
   @Column({ nullable: true })
   public website: string;
 
-  @Field({nullable: true})
+  @Field({ nullable: true })
   @Column({ nullable: true })
   public facebook: string;
 
-  @Field({nullable: true})
+  @Field({ nullable: true })
   @Column({ nullable: true })
   public instagram: string;
 
-  @Field({nullable: true})
+  @Field({ nullable: true })
   @Column({ nullable: true })
   public other: string;
 
@@ -180,8 +189,19 @@ export class Application extends BaseEntity {
   @Column({ nullable: false, default: ApplicationStep.STEP_1 })
   public applicationStep: ApplicationStep;
 
-  @Field(() => [String!], { nullable: true})
+  @Field(() => [String!], { nullable: true })
   @Column("varchar", { array: true, nullable: true, default: [] })
   public validationMaterials: string[];
 
+  @Field(() => String, { nullable: true })
+  @Column({ nullable: true })
+  public organisationalStructure: string;
+
+  @Field(() => [FileReference!], { nullable: true })
+  @OneToMany(
+    () => FileReference,
+    (fileReference) => fileReference.application,
+    { cascade: true }
+  )
+  public fileReferences: FileReference[];
 }

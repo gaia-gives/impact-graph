@@ -1,3 +1,4 @@
+import { FileReference } from './fileReference';
 import { Organisation } from "./organisation";
 import { OrganisationUser } from "./organisationUser";
 import { User } from "./user";
@@ -32,6 +33,7 @@ const entities = [
   ImpactLocation,
   Milestone,
   Application,
+  FileReference
 ];
 
 export default entities;

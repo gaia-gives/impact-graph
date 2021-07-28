@@ -90,7 +90,7 @@
     "tslint-eslint-rules": "^5.4.0"
   },
   "scripts": {
-    "integration-test": "NODE_ENV=test mocha --timeout 10000 --exit -r ts-node/register resolvers/*.test.ts",
+    "integration-test": "NODE_ENV=test mocha --timeout 10000 --exit -r ts-node/register resolvers/__tests__/*.test.ts",
     "unit-test": "NODE_ENV=test mocha --exit -r ts-node/register entities/__tests__/*.test.ts",
     "start": "NODE_ENV=development ts-node-dev --project ./tsconfig.json --respawn ./index.ts",
     "serve": "tsnode --project ./tsconfig.json index.ts",

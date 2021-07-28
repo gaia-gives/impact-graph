@@ -1,3 +1,4 @@
+import { DELETE_FILE, UPLOAD_FILE } from "./../graphqlApi/application";
 import {
   OrganisationType,
   MainInterestReason,
@@ -5,21 +6,26 @@ import {
   ApplicationState,
   ApplicationStep,
   FundingGoal,
-} from "./../entities/application";
+} from "../../entities/application";
 import { ApolloServer } from "apollo-server-express";
 import "mocha";
 import { expect } from "chai";
-import { createTestServer } from "../server/testServerFactory";
+import { createTestServer } from "../../server/testServerFactory";
 import {
   GET_APPLICATION,
   GET_APPLICATIONS,
   CREATE_APPLICATION,
   SUBMIT_APPLICATION,
-} from "./graphqlApi/application";
+} from "../graphqlApi/application";
 import * as TypeORM from "typeorm";
+import fs from "fs/promises";
+import path from "path";
+import { createReadStream } from "fs";
 
 let server: ApolloServer;
 let connection: TypeORM.Connection;
+
+const testFilePath = path.join(process.cwd(), "resolvers", "__tests__", "testFile.txt");
 
 const createApplicationDraft: () => Promise<string> = async () => {
   const result = await server.executeOperation({
@@ -166,5 +172,50 @@ describe("application resolver", async () => {
     );
     expect(result.data).to.not.be.undefined.and.to.not.be.null;
     expect(result.data?.submitApplication).to.be.true;
+  });
+
+  it("should upload a file", async () => {
+      const application = createApplicationDraft();
+      console.log(testFilePath);
+      const file = await fs.readFile(testFilePath);
+      const stream = createReadStream(file);
+      const result = await server.executeOperation({
+        query: UPLOAD_FILE,
+        variables: {
+          id: application,
+          documents: [stream],
+          mapsToField: "Test"
+        },
+      });
+  
+      console.log(result);
+      expect(result.data).to.not.be.undefined.and.to.not.be.null;
+      expect(result.data?.success).to.be.true;
+
+  });
+
+  it("should delete an existing file", async () => {
+    const application = createApplicationDraft();
+    const file = await fs.readFile(testFilePath);
+    const stream = createReadStream(file);
+    const fileUpload = await server.executeOperation({
+      query: UPLOAD_FILE,
+      variables: {
+        id: application,
+        documents: [stream],
+        mapsToField: "Test"
+      },
+    });
+
+    const result = await server.executeOperation({
+      query: DELETE_FILE,
+      variables: {
+        id: fileUpload.data!.fileReferences[0]
+      }
+    });
+
+    console.log(result);
+    expect(result.data).to.not.be.undefined.and.to.not.be.null;
+    expect(result.data?.success).to.be.true;
   });
 });

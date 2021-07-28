@@ -1,3 +1,4 @@
+import { GraphQLUpload } from "graphql-upload";
 import gql from "graphql-tag";
 
 export const GET_APPLICATION = gql`
@@ -133,5 +134,46 @@ export const SUBMIT_APPLICATION = gql`
       other: $other
       validationMaterials: $validationMaterials
     )
+  }
+`;
+
+export const UPLOAD_FILE = gql`
+  mutation uploadFile (
+    $id: ID!
+    $documents: [Upload!]!
+    $mapsToField: String!
+  ) {
+    uploadApplicationDocument(
+    id: $id
+    documents: $documents
+    mapsToField: $mapsToField
+    ) {
+      success
+      problems {
+        code
+        message
+      }
+      savedFiles {
+        id
+        filename
+        mimetype
+      }
+    }
+  }
+`;
+
+export const DELETE_FILE = gql`
+  mutation deleteFile(
+    $id: String!
+  ) {
+    deleteUploadedFile(
+      id: $id
+    ) {
+      success
+      problems {
+        code
+        message
+      }
+    }
   }
 `;

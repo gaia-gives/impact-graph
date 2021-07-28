@@ -1,10 +1,9 @@
 import { ApolloServer } from "apollo-server-express";
 import * as TypeORM from "typeorm";
 import "mocha";
-import { createTestClient } from "apollo-server-testing";
 import { expect } from "chai";
-import { createTestServer } from "../server/testServerFactory";
-import { ORGANISATIONS, ORGANISATION_BY_ID } from "./graphqlApi/organisation";
+import { createTestServer } from "../../server/testServerFactory";
+import { ORGANISATIONS, ORGANISATION_BY_ID } from "./../graphqlApi/organisation";
 
 let connection: TypeORM.Connection;
 let server: ApolloServer;

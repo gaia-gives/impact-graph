@@ -1,6 +1,6 @@
 import { createWriteStream } from "fs";
 import path from "path";
-const fs = require("fs");
+import fs from "fs";
 
 export async function saveFile(id: string, createReadStream: any, fileName: string) {
   const applicationDirectory = path.join(
@@ -18,6 +18,7 @@ export async function saveFile(id: string, createReadStream: any, fileName: stri
 
   const stream = createReadStream();
   await stream.pipe(createWriteStream(uploadPath));
+  return uploadPath;
 }
 
 function directoryDoesNotExist(path: string) {
