@@ -14,7 +14,7 @@ export async function saveFile(id: string, createReadStream: any, fileName: stri
     createDirectory(applicationDirectory);
   }
 
-  var uploadPath = path.join(applicationDirectory, id, fileName);
+  var uploadPath = path.join(applicationDirectory, fileName);
 
   const stream = createReadStream();
   await stream.pipe(createWriteStream(uploadPath));
