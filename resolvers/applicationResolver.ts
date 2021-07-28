@@ -1,3 +1,4 @@
+import { ResolverResult } from "./types/ResolverResult";
 import { User } from "./../entities/user";
 import {
   Resolver,
@@ -8,6 +9,7 @@ import {
   Ctx,
   Authorized,
   ID,
+  ObjectType,
 } from "type-graphql";
 import { GraphQLUpload, FileUpload } from "graphql-upload";
 import { Repository } from "typeorm";
@@ -18,9 +20,10 @@ import { MyContext } from "../types/MyContext";
 import { ApplicationDraft } from "./types/application/application-draft";
 import { defaultTo } from "ramda";
 import { ApplicationSubmit } from "./types/application/application-submit";
-import { createWriteStream } from "fs";
-import path from "path"
-const fs = require('fs');
+import { saveFile } from "../utils/saveFile";
+
+@ObjectType()
+class ApplicationDocumentUploadResult extends ResolverResult {}
 
 @Resolver(() => Application)
 export class ApplicationResolver {
@@ -145,38 +148,39 @@ export class ApplicationResolver {
     }
   }
 
-  @Mutation(() => Application)
+  @Mutation(() => ApplicationDocumentUploadResult)
   async uploadApplicationDocument(
     @Arg("id", () => ID!) id: string,
-    @Arg("document", () => GraphQLUpload) document: FileUpload,
-    @Ctx() ctx: MyContext,)
-    {
-    const { createReadStream} = await document;
-    const user = await this.categoryRepository.findOne(ctx.req.user.userId);
-    const application = await this.applicationRepository.findOne({
-      id: id,
-      user,
-    });
+    @Arg("documents", () => [GraphQLUpload]) documents: FileUpload[],
+    @Ctx() ctx: MyContext
+  ) {
+    const result = new ApplicationDocumentUploadResult();
+    const user = await this.userRepository.findOne(ctx.req.user.userId);
     
-    const applicationDirectory = path.join(__dirname, "public", "applications", application!.id);
-
-    if (this.directoryDoesNotExist(applicationDirectory)) {
-      this.createDirectory(applicationDirectory)
+    if (!user) {
+      result.setUnsuccessful({
+        code: "UNKNOWN_ID",
+        message: "User not found with given id!",
+      });
+    } else {
+      const application = await this.applicationRepository.findOne({
+        id: id,
+        user,
+      });
+      
+      if (application) {
+        for (const document of documents) {
+          const { createReadStream, filename } = await document;
+          await saveFile(id, createReadStream, filename);
+        }
+      } else {
+        result.setUnsuccessful({
+          code: "UNKNOWN_ID",
+          message: "Application not found with given id!",
+        });
+      }
     }
 
-    var uploadPath = path.join(applicationDirectory, id)
-
-    const stream = createReadStream();
-    await stream.pipe(createWriteStream(uploadPath))
-    
-    return Application
-  }
-
-  directoryDoesNotExist(path: string) {
-    return !fs.existsSync(path);
-  }
-
-  createDirectory(path: string) {
-    fs.mkdirSync(path, { recursive: true });
+    return result;
   }
 }
