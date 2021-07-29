@@ -1,4 +1,3 @@
-import { GraphQLUpload } from "graphql-upload";
 import gql from "graphql-tag";
 
 export const GET_APPLICATION = gql`
@@ -43,7 +42,6 @@ export const CREATE_APPLICATION = gql`
     $categoryIds: [Int!]
     $applicationStep: ApplicationStep!
     $applicationState: ApplicationState!
-    $validationMaterials: [String!]
   ) {
     createOrUpdateApplicationDraft(
       id: $id
@@ -70,11 +68,17 @@ export const CREATE_APPLICATION = gql`
       facebook: $facebook
       instagram: $instagram
       other: $other
-      validationMaterials: $validationMaterials
     ) {
-      id
-      applicationStep
-      applicationState
+      success
+      problems {
+        code
+        message
+      }
+      application {
+        id
+        applicationStep
+        applicationState
+      }
     }
   }
 `;
@@ -105,9 +109,8 @@ export const SUBMIT_APPLICATION = gql`
     $categoryIds: [Int!]!
     $applicationStep: ApplicationStep!
     $applicationState: ApplicationState!
-    $validationMaterials: [String!]
   ) {
-    submitApplication(
+    submitApplicationStepOne(
       id: $id
       legalName: $legalName
       address: $address
@@ -132,21 +135,22 @@ export const SUBMIT_APPLICATION = gql`
       facebook: $facebook
       instagram: $instagram
       other: $other
-      validationMaterials: $validationMaterials
-    )
+    ) {
+      success
+      problems {
+        code
+        message
+      }
+    }
   }
 `;
 
 export const UPLOAD_FILE = gql`
-  mutation uploadFile (
-    $id: ID!
-    $documents: [Upload!]!
-    $mapsToField: String!
-  ) {
+  mutation uploadFile($id: ID!, $documents: [Upload!]!, $mapsToField: String!) {
     uploadApplicationDocument(
-    id: $id
-    documents: $documents
-    mapsToField: $mapsToField
+      id: $id
+      documents: $documents
+      mapsToField: $mapsToField
     ) {
       success
       problems {
@@ -163,12 +167,8 @@ export const UPLOAD_FILE = gql`
 `;
 
 export const DELETE_FILE = gql`
-  mutation deleteFile(
-    $id: String!
-  ) {
-    deleteUploadedFile(
-      id: $id
-    ) {
+  mutation deleteFile($id: String!) {
+    deleteUploadedFile(id: $id) {
       success
       problems {
         code

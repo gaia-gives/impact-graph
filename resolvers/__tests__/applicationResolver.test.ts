@@ -54,11 +54,10 @@ const createApplicationDraft: () => Promise<string> = async () => {
       accountUsagePlan:
         "We want to break free from our own homepage which led to nowhere",
       applicationStep: ApplicationStep.STEP_1,
-      applicationState: ApplicationState.DRAFT,
-      validationMaterials: ["abcd", "efgh"],
+      applicationState: ApplicationState.DRAFT
     },
   });
-  return result.data?.createOrUpdateApplicationDraft.id;
+  return result.data?.createOrUpdateApplicationDraft.application.id;
 };
 
 describe("application resolver", async () => {
@@ -119,18 +118,17 @@ describe("application resolver", async () => {
           accountUsagePlan:
             "We want to break free from our own homepage which led to nowhere",
           applicationStep: ApplicationStep.STEP_1,
-          applicationState: ApplicationState.DRAFT,
-          validationMaterials: ["abcd", "efgh"],
+          applicationState: ApplicationState.DRAFT
         },
       },
       { connection: connection }
     );
     expect(result.data).to.not.be.undefined.and.to.not.be.null;
     expect(
-      result.data?.createOrUpdateApplicationDraft.applicationState
+      result.data?.createOrUpdateApplicationDraft.application.applicationState
     ).to.equal(ApplicationState.DRAFT);
     expect(
-      result.data?.createOrUpdateApplicationDraft.applicationStep
+      result.data?.createOrUpdateApplicationDraft.application.applicationStep
     ).to.equal(ApplicationStep.STEP_1);
   });
 
@@ -164,14 +162,13 @@ describe("application resolver", async () => {
           accountUsagePlan:
             "We want to break free from our own homepage which led to nowhere",
           applicationStep: ApplicationStep.STEP_1,
-          applicationState: ApplicationState.DRAFT,
-          validationMaterials: ["abcd", "efgh"],
+          applicationState: ApplicationState.DRAFT
         },
       },
       { connection: connection }
     );
     expect(result.data).to.not.be.undefined.and.to.not.be.null;
-    expect(result.data?.submitApplication).to.be.true;
+    expect(result.data?.submitApplicationStepOne.success).to.be.true;
   });
 
   // it("should upload a file", async () => {

@@ -1,4 +1,5 @@
-import { ApplicationStepTwoDraft } from './types/application/application-step-two';
+import { ERROR_CODES } from "./../utils/errorCodes";
+import { ApplicationStepTwoDraft, ApplicationStepTwoDraftVariables } from "./types/application/application-step-two-draft";
 import { FileReference } from "./../entities/fileReference";
 import { ResolverResult } from "./types/ResolverResult";
 import { User } from "./../entities/user";
@@ -15,14 +16,18 @@ import {
   Field,
 } from "type-graphql";
 import { GraphQLUpload, FileUpload } from "graphql-upload";
-import { Repository } from "typeorm";
+import { DeepPartial, Repository } from "typeorm";
 import { InjectRepository } from "typeorm-typedi-extensions";
-import { Application, ApplicationState } from "../entities/application";
+import {
+  Application,
+  ApplicationState,
+  ApplicationStep,
+} from "../entities/application";
 import { Category } from "../entities/category";
 import { MyContext } from "../types/MyContext";
-import { ApplicationDraft } from "./types/application/application-draft";
+import { ApplicationStepOneDraft } from "./types/application/application-step-one-draft";
 import { defaultTo } from "ramda";
-import { ApplicationSubmit } from "./types/application/application-submit";
+import { ApplicationStepOneSubmit } from "./types/application/application-step-one-submit";
 import { saveFile } from "../utils/saveFile";
 import { deleteFile } from "../utils/deleteFile";
 
@@ -36,7 +41,25 @@ export class ApplicationDocumentUploadResult extends ResolverResult {
 export class DeleteUploadedDocumentResult extends ResolverResult {}
 
 @ObjectType()
-export class GetStepTwoResult extends ResolverResult {
+export class ApplicationStepOneDraftResult extends ResolverResult {
+  @Field(() => Application, { nullable: true })
+  application: Application;
+}
+
+@ObjectType()
+export class ApplicationStepOneSubmitResult extends ResolverResult {
+  @Field(() => Application, { nullable: true })
+  application: Application;
+}
+
+@ObjectType()
+export class ApplicationStepTwoDraftResult extends ResolverResult {
+  @Field(() => ApplicationStepTwoDraft)
+  application: ApplicationStepTwoDraft;
+}
+
+@ObjectType()
+export class ApplicationStepTwoSubmitResult extends ResolverResult {
   @Field(() => ApplicationStepTwoDraft)
   application: ApplicationStepTwoDraft;
 }
@@ -83,8 +106,47 @@ export class ApplicationResolver {
     }
   }
 
+  @Authorized()
+  @Query(() => ApplicationStepTwoDraftResult)
+  async getApplicationStepTwo(@Ctx() ctx: MyContext) {
+    const result = new ApplicationStepTwoDraftResult();
+    const user = await this.userRepository.findOne(ctx.req.user.userId);
+    if (!user) {
+      throw new Error(ERROR_CODES.AUTHENTICATION_REQUIRED);
+    }
+
+    const application = await this.applicationRepository.findOne(
+      { user: user },
+      { relations: ["fileReferences"] }
+    );
+    if (application) {
+      result.application = {
+        id: application.id,
+        charter: application.fileReferences.find(
+          (f) => f.mapsToField === "charter"
+        ),
+        document501c3: application.fileReferences.find(
+          (f) => f.mapsToField === "document501c3"
+        ),
+        validationMaterial: {
+          links: application.validationMaterial,
+          savedFiles: application.fileReferences.filter(
+            (f) => f.mapsToField === "validationMaterial"
+          ),
+        },
+        organisationalStructure: {
+          text: application.organisationalStructure,
+          savedFiles: application.fileReferences.filter(
+            (f) => f.mapsToField === "organisationalStructure"
+          ),
+        },
+      };
+    }
+    return result;
+  }
+
   private async createApplicationDraft(
-    applicationDraft: ApplicationDraft,
+    applicationDraft: ApplicationStepOneDraft,
     user: User,
     categories: Category[]
   ) {
@@ -96,7 +158,9 @@ export class ApplicationResolver {
     return await application.save();
   }
 
-  private async updateApplicationDraft(applicationDraft: ApplicationDraft) {
+  private async updateApplicationDraft(
+    applicationDraft: ApplicationStepOneDraft
+  ) {
     const applicationToUpdate = await this.applicationRepository.findOne(
       applicationDraft.id
     );
@@ -109,37 +173,83 @@ export class ApplicationResolver {
   }
 
   @Authorized()
-  @Mutation(() => Application)
+  @Mutation(() => ApplicationStepOneDraftResult)
   async createOrUpdateApplicationDraft(
-    @Args() applicationDraft: ApplicationDraft,
+    @Args() applicationDraft: ApplicationStepOneDraft,
     @Ctx() ctx: MyContext
   ) {
+    const result = new ApplicationStepOneDraftResult();
     const categories = await this.categoryRepository.findByIds(
       defaultTo([], applicationDraft.categoryIds)
     );
 
     const user = await this.userRepository.findOne(ctx.req.user.userId);
+    if (!user) {
+      throw new Error(ERROR_CODES.AUTHENTICATION_REQUIRED);
+    }
     const update = applicationDraft.id && user;
 
     if (!update) {
-      return await this.createApplicationDraft(
+      const created = await this.createApplicationDraft(
         applicationDraft,
         user!,
         categories
       );
+      result.application = created;
     } else {
-      return await this.updateApplicationDraft(applicationDraft);
+      const updated = await this.updateApplicationDraft(applicationDraft);
+      result.application = updated;
+    }
+    return result;
+  }
+
+  @Authorized()
+  @Mutation(() => ApplicationStepTwoDraftResult)
+  async updateApplicationStepTwoDraft(
+    @Args() applicationStepTwoDraft: ApplicationStepTwoDraftVariables,
+    @Ctx() ctx: MyContext
+  ) {
+    const result = new ApplicationStepTwoDraftResult();
+    const user = await this.userRepository.findOne(ctx.req.user.userId);
+    if (!user) {
+      throw new Error(ERROR_CODES.AUTHENTICATION_REQUIRED);
+    }
+
+    const draft = await this.applicationRepository.findOne({
+      id: applicationStepTwoDraft.id,
+      user: user,
+    });
+    if (!draft) {
+      result.setUnsuccessful({
+        code: "UNKNOWN_ID",
+        message: "No application found for given id!",
+      });
+    } else if (
+      draft.applicationState !== ApplicationState.DRAFT ||
+      draft.applicationStep === ApplicationStep.STEP_1
+    ) {
+      throw new Error(ERROR_CODES.INVALID_OPERATION);
+    } else {
+      const partial: DeepPartial<Application> = {
+        validationMaterial: applicationStepTwoDraft.validationMaterial,
+        organisationalStructure:
+          applicationStepTwoDraft.organisationalStructure,
+      };
+      await Application.merge(draft, partial);
+      await draft.save();
+      result.application = { id: draft.id, validationMaterial: { links: draft.validationMaterial, savedFiles: draft.fileReferences.filter(f => f.mapsToField === "validationMaterial") } };
     }
   }
 
   @Authorized()
-  @Mutation(() => Boolean, {
-    description: "For updating the draft of an application",
+  @Mutation(() => ApplicationStepOneSubmitResult, {
+    description: "For updating the draft of the first step of the application",
   })
-  async submitApplication(
-    @Args() applicationSubmit: ApplicationSubmit,
+  async submitApplicationStepOne(
+    @Args() applicationSubmit: ApplicationStepOneSubmit,
     @Ctx() ctx: MyContext
   ) {
+    const result = new ApplicationStepOneSubmitResult();
     const applicationToUpdate = await this.applicationRepository.findOne(
       applicationSubmit.id
     );
@@ -147,8 +257,10 @@ export class ApplicationResolver {
       const categories = await this.categoryRepository.findByIds(
         defaultTo([], applicationSubmit.categoryIds)
       );
-      const userId = parseInt(ctx.req.user.userId);
-      const user = await this.userRepository.findOne(userId);
+      const user = await this.userRepository.findOne(ctx.req.user.userId);
+      if (!user) {
+        throw new Error(ERROR_CODES.UNAUTHORIZED);
+      }
       const application = await this.createApplicationDraft(
         applicationSubmit,
         user!,
@@ -157,13 +269,45 @@ export class ApplicationResolver {
       Application.update(application, {
         applicationState: ApplicationState.PENDING,
       });
-      return true;
+      result.application = application;
     } else {
       applicationSubmit.applicationState = ApplicationState.PENDING;
       await Application.merge(applicationToUpdate, applicationSubmit);
       await applicationToUpdate.save();
-      return true;
+      result.application = applicationToUpdate;
     }
+    return result;
+  }
+
+  @Authorized()
+  @Mutation(() => ApplicationStepTwoSubmitResult, {
+    description: "For updating the draft of the second step of the application",
+  })
+  async submitApplicationStepTwo(
+    @Args() applicationStepTwoSubmit: ApplicationStepTwoDraftVariables,
+    @Ctx() ctx: MyContext
+  ) {
+    const result = new ApplicationStepOneSubmitResult();
+    const applicationToUpdate = await this.applicationRepository.findOne(
+      applicationStepTwoSubmit.id
+    );
+    if (!applicationToUpdate) {
+      result.setUnsuccessful({
+        code: "UNKNOWN_ID",
+        message: "The application with the given was not found!",
+      });
+    } else {
+      const partial: DeepPartial<Application> = {
+        validationMaterial: applicationStepTwoSubmit.validationMaterial,
+        organisationalStructure:
+          applicationStepTwoSubmit.organisationalStructure,
+        applicationState: ApplicationState.PENDING,
+      };
+      await Application.merge(applicationToUpdate, partial);
+      await applicationToUpdate.save();
+      result.application = applicationToUpdate;
+    }
+    return result;
   }
 
   @Authorized()
@@ -178,10 +322,7 @@ export class ApplicationResolver {
     const user = await this.userRepository.findOne(ctx.req.user.userId);
 
     if (!user) {
-      result.setUnsuccessful({
-        code: "UNKNOWN_ID",
-        message: "User not found with given id!",
-      });
+      throw new Error(ERROR_CODES.AUTHENTICATION_REQUIRED);
     } else {
       const application = await this.applicationRepository.findOne({
         id: id,
@@ -215,34 +356,6 @@ export class ApplicationResolver {
   }
 
   @Authorized()
-  @Query(() => GetStepTwoResult)
-  async getApplicationStepTwo(
-    @Ctx() ctx: MyContext
-  ) {
-    const result = new GetStepTwoResult();
-    const user = await this.userRepository.findOne(ctx.req.user.userId);
-    if (!user) result.setUnsuccessful({code: "UNKNOWN_ID", message: "User with given Id not found!"});
-
-    const application = await this.applicationRepository.findOne({ user: user }, { relations: ["fileReferences"] });
-    if (application) {
-      result.application = {
-        id: application.id,
-        charter: application.fileReferences.find(f => f.mapsToField === "charter"),
-        document501c3: application.fileReferences.find(f => f.mapsToField === "document501c3"),
-        validationMaterial: {
-          links: application.validationMaterial,
-          savedFiles: application.fileReferences.filter(f => f.mapsToField === "validationMaterial")
-        },
-        organisationalStructure: {
-          text: application.organisationalStructure,
-          savedFiles: application.fileReferences.filter(f => f.mapsToField === "organisationalStructure")
-        }
-      };
-    }
-    return result;
-  }
-
-  @Authorized()
   @Mutation(() => DeleteUploadedDocumentResult)
   async deleteUploadedFile(
     @Arg("id", () => ID!) id: string,
@@ -251,11 +364,7 @@ export class ApplicationResolver {
     const result = new DeleteUploadedDocumentResult();
     const user = await this.userRepository.findOne(ctx.req.user.userId);
     if (!user) {
-      result.setUnsuccessful({
-        code: "UNKNOWN_ID",
-        message: "No user with given id",
-      });
-      return result;
+      throw new Error(ERROR_CODES.AUTHENTICATION_REQUIRED);
     } else {
       const fileRef = await this.fileReferenceRepository.findOne(id);
       if (fileRef) {

@@ -1,4 +1,4 @@
-import { FundingGoal } from "./../../../entities/application";
+import { FundingGoal } from "../../../entities/application";
 import { ArgsType, Field, ID, Int } from "type-graphql";
 import {
   ApplicationState,
@@ -9,7 +9,7 @@ import {
 } from "../../../entities/application";
 
 @ArgsType()
-export class ApplicationSubmit {
+export class ApplicationStepOneSubmit {
   @Field(() => String)
   public id!: string;
 
@@ -86,7 +86,4 @@ export class ApplicationSubmit {
 
   @Field(() => ApplicationStep)
   public applicationStep: ApplicationStep;
-
-  @Field(() => [String!], { nullable: true })
-  public validationMaterials: string[];
 }

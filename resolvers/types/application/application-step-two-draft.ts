@@ -1,8 +1,8 @@
 import { FileReference } from './../../../entities/fileReference';
-import { Field, ID, ObjectType } from "type-graphql";
+import { ArgsType, Field, ID, InputType, ObjectType } from "type-graphql";
 
 @ObjectType()
-class OrganisationalStructure {
+export class OrganisationalStructure {
     @Field({ nullable: true })
     public text?: string;
 
@@ -11,7 +11,7 @@ class OrganisationalStructure {
 }
 
 @ObjectType()
-class ValidationMaterial {
+export class ValidationMaterial {
     @Field(() => [String!], { nullable: true })
     public links?: string[];
 
@@ -35,4 +35,16 @@ export class ApplicationStepTwoDraft {
     
     @Field(() => FileReference, { nullable: true})
     public document501c3?: FileReference;
+}
+
+@ArgsType()
+export class ApplicationStepTwoDraftVariables {
+    @Field(() => ID!, { nullable: false })
+    public id: string;
+
+    @Field(() => [String!], { nullable: true })
+    public validationMaterial?: string[];
+
+    @Field(() => String, { nullable: true })
+    public organisationalStructure?: string;
 }
