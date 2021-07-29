@@ -1,5 +1,5 @@
 import { FileReference } from './../../../entities/fileReference';
-import { Field, ObjectType } from "type-graphql";
+import { Field, ID, ObjectType } from "type-graphql";
 
 @ObjectType()
 class OrganisationalStructure {
@@ -21,6 +21,9 @@ class ValidationMaterial {
 
 @ObjectType()
 export class ApplicationStepTwoDraft {
+    @Field(() => ID!, { nullable: false })
+    public id: string;
+
     @Field(() => ValidationMaterial, { nullable: true })
     public validationMaterial?: ValidationMaterial;
 

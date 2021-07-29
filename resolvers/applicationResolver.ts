@@ -226,6 +226,7 @@ export class ApplicationResolver {
     const application = await this.applicationRepository.findOne({ user: user }, { relations: ["fileReferences"] });
     if (application) {
       result.application = {
+        id: application.id,
         charter: application.fileReferences.find(f => f.mapsToField === "charter"),
         document501c3: application.fileReferences.find(f => f.mapsToField === "document501c3"),
         validationMaterial: {
