@@ -3,9 +3,7 @@ import {
   registerEnumType,
   ObjectType,
   Field,
-  Float,
   ID,
-  Int,
 } from "type-graphql";
 import {
   BaseEntity,
@@ -191,7 +189,7 @@ export class Application extends BaseEntity {
 
   @Field(() => [String!], { nullable: true })
   @Column("varchar", { array: true, nullable: true, default: [] })
-  public validationMaterials: string[];
+  public validationMaterial: string[];
 
   @Field(() => String, { nullable: true })
   @Column({ nullable: true })

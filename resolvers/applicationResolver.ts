@@ -1,3 +1,4 @@
+import { ApplicationStepTwoDraft } from './types/application/application-step-two';
 import { FileReference } from "./../entities/fileReference";
 import { ResolverResult } from "./types/ResolverResult";
 import { User } from "./../entities/user";
@@ -33,6 +34,12 @@ export class ApplicationDocumentUploadResult extends ResolverResult {
 
 @ObjectType()
 export class DeleteUploadedDocumentResult extends ResolverResult {}
+
+@ObjectType()
+export class GetStepTwoResult extends ResolverResult {
+  @Field(() => ApplicationStepTwoDraft)
+  application: ApplicationStepTwoDraft;
+}
 
 @Resolver(() => Application)
 export class ApplicationResolver {
@@ -204,6 +211,33 @@ export class ApplicationResolver {
       }
     }
 
+    return result;
+  }
+
+  @Authorized()
+  @Mutation(() => GetStepTwoResult)
+  async getStepTwo(
+    @Ctx() ctx: MyContext
+  ) {
+    const result = new GetStepTwoResult();
+    const user = await this.userRepository.findOne(ctx.req.user.userId);
+    if (!user) result.setUnsuccessful({code: "UNKNOWN_ID", message: "User with given Id not found!"});
+
+    const application = await this.applicationRepository.findOne({ user: user }, { relations: ["fileReferences"] });
+    if (application) {
+      result.application = {
+        charter: application.fileReferences.find(f => f.mapsToField === "charter"),
+        document501c3: application.fileReferences.find(f => f.mapsToField === "document501c3"),
+        validationMaterial: {
+          links: application.validationMaterial,
+          savedFiles: application.fileReferences.filter(f => f.mapsToField === "validationMaterial")
+        },
+        organisationalStructure: {
+          text: application.organisationalStructure,
+          savedFiles: application.fileReferences.filter(f => f.mapsToField === "organisationalStructure")
+        }
+      };
+    }
     return result;
   }
 

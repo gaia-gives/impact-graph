@@ -174,48 +174,48 @@ describe("application resolver", async () => {
     expect(result.data?.submitApplication).to.be.true;
   });
 
-  it("should upload a file", async () => {
-      const application = createApplicationDraft();
-      console.log(testFilePath);
-      const file = await fs.readFile(testFilePath);
-      const stream = createReadStream(file);
-      const result = await server.executeOperation({
-        query: UPLOAD_FILE,
-        variables: {
-          id: application,
-          documents: [stream],
-          mapsToField: "Test"
-        },
-      });
+  // it("should upload a file", async () => {
+  //     const application = createApplicationDraft();
+  //     console.log(testFilePath);
+  //     const file = await fs.readFile(testFilePath);
+  //     const stream = createReadStream(file);
+  //     const result = await server.executeOperation({
+  //       query: UPLOAD_FILE,
+  //       variables: {
+  //         id: application,
+  //         documents: [stream],
+  //         mapsToField: "Test"
+  //       },
+  //     });
   
-      console.log(result);
-      expect(result.data).to.not.be.undefined.and.to.not.be.null;
-      expect(result.data?.success).to.be.true;
+  //     console.log(result);
+  //     expect(result.data).to.not.be.undefined.and.to.not.be.null;
+  //     expect(result.data?.success).to.be.true;
 
-  });
+  // });
 
-  it("should delete an existing file", async () => {
-    const application = createApplicationDraft();
-    const file = await fs.readFile(testFilePath);
-    const stream = createReadStream(file);
-    const fileUpload = await server.executeOperation({
-      query: UPLOAD_FILE,
-      variables: {
-        id: application,
-        documents: [stream],
-        mapsToField: "Test"
-      },
-    });
+  // it("should delete an existing file", async () => {
+  //   const application = createApplicationDraft();
+  //   const file = await fs.readFile(testFilePath);
+  //   const stream = createReadStream(file);
+  //   const fileUpload = await server.executeOperation({
+  //     query: UPLOAD_FILE,
+  //     variables: {
+  //       id: application,
+  //       documents: [stream],
+  //       mapsToField: "Test"
+  //     },
+  //   });
 
-    const result = await server.executeOperation({
-      query: DELETE_FILE,
-      variables: {
-        id: fileUpload.data!.fileReferences[0]
-      }
-    });
+  //   const result = await server.executeOperation({
+  //     query: DELETE_FILE,
+  //     variables: {
+  //       id: fileUpload.data!.fileReferences[0]
+  //     }
+  //   });
 
-    console.log(result);
-    expect(result.data).to.not.be.undefined.and.to.not.be.null;
-    expect(result.data?.success).to.be.true;
-  });
+  //   console.log(result);
+  //   expect(result.data).to.not.be.undefined.and.to.not.be.null;
+  //   expect(result.data?.success).to.be.true;
+  // });
 });
