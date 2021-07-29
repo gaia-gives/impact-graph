@@ -71,7 +71,7 @@ export class ApplicationResolver {
 
   @Authorized()
   @Query(() => Application)
-  async applicationByUserId(@Ctx() ctx: MyContext) {
+  async getApplicationStepOne(@Ctx() ctx: MyContext) {
     const userId = ctx.req.user?.userId;
     if (userId) {
       return this.applicationRepository.findOne({
@@ -215,8 +215,8 @@ export class ApplicationResolver {
   }
 
   @Authorized()
-  @Mutation(() => GetStepTwoResult)
-  async getStepTwo(
+  @Query(() => GetStepTwoResult)
+  async getApplicationStepTwo(
     @Ctx() ctx: MyContext
   ) {
     const result = new GetStepTwoResult();
