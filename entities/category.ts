@@ -32,6 +32,14 @@ export class Category extends BaseEntity {
   @Column({ nullable: true })
   image: string;
 
+  @Field({ nullable: true})
+  @Column({ nullable: true })
+  headline: string;
+
+  @Field({ nullable: true})
+  @Column({ nullable: true })
+  description: string;
+
   @ManyToMany((type) => Project, (project) => project.categories)
   projects: Project[];
 
