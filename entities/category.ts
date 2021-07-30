@@ -28,7 +28,7 @@ export class Category extends BaseEntity {
   @Column({ nullable: true })
   source: string;
 
-  @Field()
+  @Field({ nullable: true })
   @Column({ nullable: true })
   image: string;
 
