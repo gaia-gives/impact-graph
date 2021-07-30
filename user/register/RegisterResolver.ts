@@ -27,7 +27,7 @@ export class RegisterResolver {
   @Mutation(() => User)
   async register (
     @Arg('data')
-    { email, password, passwordClone }: RegisterInput
+    { email, password, passwordClone, lastVisited }: RegisterInput
   ): Promise<User> {
     console.log(`In Register Resolver : ${JSON.stringify(bcrypt, null, 2)}`)
 
@@ -47,7 +47,7 @@ export class RegisterResolver {
     }).save()
     console.log("after creation")
 
-    await sendEmail(email, await createConfirmationUrl(user.id))
+    await sendEmail(email, await createConfirmationUrl(user.id, lastVisited))
 
     delete user.password
     return user

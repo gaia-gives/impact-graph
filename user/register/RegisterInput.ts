@@ -13,4 +13,7 @@ export class RegisterInput extends PasswordMixin(class {}) {
   @IsEmail()
   @IsEmailAlreadyExist({ message: 'email already in use' })
   email: string
+
+  @Field()
+  lastVisited: string;
 }
