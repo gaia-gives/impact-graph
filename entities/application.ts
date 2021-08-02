@@ -1,13 +1,9 @@
 import { FileReference } from "./fileReference";
-import {
-  registerEnumType,
-  ObjectType,
-  Field,
-  ID,
-} from "type-graphql";
+import { registerEnumType, ObjectType, Field, ID } from "type-graphql";
 import {
   BaseEntity,
   Column,
+  CreateDateColumn,
   Entity,
   JoinTable,
   ManyToMany,
@@ -15,6 +11,8 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   RelationId,
+  Timestamp,
+  UpdateDateColumn,
 } from "typeorm";
 import { Category } from "./category";
 import { User } from "./user";
@@ -202,4 +200,9 @@ export class Application extends BaseEntity {
     { cascade: true }
   )
   public fileReferences: FileReference[];
+
+  @Field(() => Date, { nullable: true })
+  @CreateDateColumn({  nullable: true, type: "timestamptz" })
+  @UpdateDateColumn({ nullable: true, type: "timestamptz" })
+  public lastEdited?: Date;
 }
