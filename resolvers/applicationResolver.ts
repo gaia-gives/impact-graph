@@ -64,6 +64,12 @@ export class ApplicationStepTwoSubmitResult extends ResolverResult {
   application: ApplicationStepTwoDraft;
 }
 
+@ObjectType()
+export class ApplicationStateQueryResult extends ResolverResult {
+  @Field(() => Application)
+  application: Application;
+}
+
 @Resolver(() => Application)
 export class ApplicationResolver {
   constructor(
@@ -90,6 +96,27 @@ export class ApplicationResolver {
       where: { id },
       relations: ["categories", "user"],
     });
+  }
+
+  @Authorized()
+  @Query(() => ApplicationStateQueryResult)
+  async getApplicationState(@Ctx() ctx: MyContext) {
+    const result = new ApplicationStateQueryResult();
+    const userId = ctx.req.user?.userId;
+    if (userId) {
+      const application = await this.applicationRepository.findOne({
+        where: { userId },
+        relations: ["categories", "user"],
+      });
+      if (!application) {
+        result.setUnsuccessful({ code: "UNKNOWN_ID", message: "No application found for given user" })  
+      } else {
+        result.application = application;
+      }
+    } else {
+      throw new Error(ERROR_CODES.AUTHENTICATION_REQUIRED);
+    }
+    return result;
   }
 
   @Authorized()
