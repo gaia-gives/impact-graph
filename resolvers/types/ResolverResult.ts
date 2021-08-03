@@ -7,24 +7,18 @@ export interface ResolverResultProps {
   problems: Problem[];
 
   addProblem(problem: Problem);
-  setUnsuccessful(...problems: Problem[]);
 }
 
 @ObjectType()
 export abstract class ResolverResult implements ResolverResultProps {
     @Field(() => Boolean)
-    public success = true;
+    public get success() {
+        return this.problems.length === 0;
+    }
     @Field(() => [ProblemType]!)
     public problems = new Array<Problem>();
 
     addProblem(problem: Problem) {
         this.problems.push(problem);
-    }
-
-    setUnsuccessful(...problems: Problem[]) {
-        this.success = false;
-        for (const prob of problems) {
-            this.addProblem(prob);
-        }
     }
 }

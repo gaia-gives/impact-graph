@@ -109,7 +109,7 @@ export class ApplicationResolver {
         relations: ["categories", "user"],
       });
       if (!application) {
-        result.setUnsuccessful({ code: "UNKNOWN_ID", message: "No application found for given user" })  
+        result.addProblem({ code: "UNKNOWN_ID", message: "No application found for given user" })  
       } else {
         result.application = application;
       }
@@ -247,7 +247,7 @@ export class ApplicationResolver {
       user: user,
     });
     if (!draft) {
-      result.setUnsuccessful({
+      result.addProblem({
         code: "UNKNOWN_ID",
         message: "No application found for given id!",
       });
@@ -319,7 +319,7 @@ export class ApplicationResolver {
       applicationStepTwoSubmit.id
     );
     if (!applicationToUpdate) {
-      result.setUnsuccessful({
+      result.addProblem({
         code: "UNKNOWN_ID",
         message: "The application with the given was not found!",
       });
@@ -372,7 +372,7 @@ export class ApplicationResolver {
         }
         result.savedFiles = savedFiles;
       } else {
-        result.setUnsuccessful({
+        result.addProblem({
           code: "UNKNOWN_ID",
           message: "Application not found with given id!",
         });
@@ -398,7 +398,7 @@ export class ApplicationResolver {
         deleteFile(fileRef.path);
         fileRef.remove();
       } else {
-        result.setUnsuccessful({
+        result.addProblem({
           code: "UNKNOWN_ID",
           message: "There was an error deleting the file",
         });
