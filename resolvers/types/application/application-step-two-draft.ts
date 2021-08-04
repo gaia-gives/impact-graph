@@ -1,5 +1,5 @@
 import { FileReference } from "./../../../entities/fileReference";
-import { ArgsType, Field, ID, InputType, ObjectType } from "type-graphql";
+import { ArgsType, Field, ID, ObjectType } from "type-graphql";
 import {
   Application,
   OrganisationNeededResources,

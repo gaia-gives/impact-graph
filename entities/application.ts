@@ -11,7 +11,6 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   RelationId,
-  Timestamp,
   UpdateDateColumn,
 } from "typeorm";
 import { Category } from "./category";

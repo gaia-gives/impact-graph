@@ -15,7 +15,6 @@ import {
   createStripeAccountLink,
   createStripeCheckoutSession,
   getStripeAccountId,
-  getStripeCheckoutSession,
   getStripeCustomer
 } from '../utils/stripe'
 
