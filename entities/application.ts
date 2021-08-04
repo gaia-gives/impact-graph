@@ -77,6 +77,17 @@ registerEnumType(FundingGoal, {
   description: "How much do you plan to collect for your project?",
 });
 
+export enum OrganisationNeededResources {
+  projectAdviceAndCoaching = "projectAdviceAndCoaching",
+  financialConsultingAndBusinessModelGeneration = "financialConsultingAndBusinessModelGeneration",
+  mediaSupport = "mediaSupport",
+  leadershipDevelopment = "leadershipDevelopment"
+}
+registerEnumType(OrganisationNeededResources, {
+  name: "OrganisationNeededResources",
+  description: "The topic the organisation needs support for",
+});
+
 @ObjectType()
 @Entity()
 export class Application extends BaseEntity {
@@ -205,4 +216,44 @@ export class Application extends BaseEntity {
   @CreateDateColumn({  nullable: true, type: "timestamptz" })
   @UpdateDateColumn({ nullable: true, type: "timestamptz" })
   public lastEdited?: Date;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  public charter?: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  public document501c3?: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  public currentChannelsOfFundraising?: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  public channelsAndStrategies?: string;
+
+  @Field(() => Boolean, { nullable: true })
+  @Column({ nullable: true })
+  public integrateDonations?: boolean;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  public partnerOrganisations?: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  public fullTimeWorkers?: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  public stakeholderCount?: string;
+
+  @Field(() => OrganisationNeededResources, { nullable: true })
+  @Column({ nullable: true })
+  public organisationNeededResources?: OrganisationNeededResources;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  public possibleAssistenceFromGaia?: string;
 }

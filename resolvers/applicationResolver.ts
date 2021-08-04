@@ -1,5 +1,8 @@
 import { ERROR_CODES } from "./../utils/errorCodes";
-import { ApplicationStepTwoDraft, ApplicationStepTwoDraftVariables } from "./types/application/application-step-two-draft";
+import {
+  ApplicationStepTwoDraft,
+  ApplicationStepTwoDraftVariables,
+} from "./types/application/application-step-two-draft";
 import { FileReference } from "./../entities/fileReference";
 import { ResolverResult } from "./types/ResolverResult";
 import { User } from "./../entities/user";
@@ -30,6 +33,7 @@ import { defaultTo } from "ramda";
 import { ApplicationStepOneSubmit } from "./types/application/application-step-one-submit";
 import { saveFile } from "../utils/saveFile";
 import { deleteFile } from "../utils/deleteFile";
+import { application } from "express";
 
 @ObjectType()
 export class ApplicationDocumentUploadResult extends ResolverResult {
@@ -109,7 +113,10 @@ export class ApplicationResolver {
         relations: ["categories", "user"],
       });
       if (!application) {
-        result.addProblem({ code: "UNKNOWN_ID", message: "No application found for given user" })  
+        result.addProblem({
+          code: "UNKNOWN_ID",
+          message: "No application found for given user",
+        });
       } else {
         result.application = application;
       }
@@ -167,6 +174,14 @@ export class ApplicationResolver {
             (f) => f.mapsToField === "organisationalStructure"
           ),
         },
+        channelsAndStrategies: application.channelsAndStrategies,
+        currentChannelsOfFundraising: application.currentChannelsOfFundraising,
+        fullTimeWorkers: application.fullTimeWorkers,
+        integrateDonations: application.integrateDonations,
+        organisationNeededResources: application.organisationNeededResources,
+        partnerOrganisations: application.partnerOrganisations,
+        stakeholderCount: application.stakeholderCount,
+        possibleAssistenceFromGaia: application.possibleAssistenceFromGaia,
       };
     }
     return result;
@@ -264,7 +279,7 @@ export class ApplicationResolver {
       };
       await Application.merge(draft, partial);
       await draft.save();
-      result.application = { id: draft.id, validationMaterial: { links: draft.validationMaterial, savedFiles: draft.fileReferences.filter(f => f.mapsToField === "validationMaterial") } };
+      result.application = ApplicationStepTwoDraft.mapApplicationToDraft(draft);
     }
   }
 
@@ -328,6 +343,7 @@ export class ApplicationResolver {
         validationMaterial: applicationStepTwoSubmit.validationMaterial,
         organisationalStructure:
           applicationStepTwoSubmit.organisationalStructure,
+        charter: applicationStepTwoSubmit.charter,
         applicationState: ApplicationState.PENDING,
       };
       await Application.merge(applicationToUpdate, partial);
