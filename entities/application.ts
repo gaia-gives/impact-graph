@@ -17,6 +17,7 @@ import { Category } from "./category";
 import { User } from "./user";
 
 export enum ApplicationState {
+  INITIAL = "INITIAL",
   DRAFT = "DRAFT",
   PENDING = "PENDING",
   ACCEPTED = "ACCEPTED",
@@ -188,7 +189,7 @@ export class Application extends BaseEntity {
   public userId?: number;
 
   @Field(() => ApplicationState, { nullable: true })
-  @Column({ nullable: false, default: ApplicationState.DRAFT })
+  @Column({ nullable: false, default: ApplicationState.INITIAL })
   public applicationState: ApplicationState;
 
   @Field(() => ApplicationStep, { nullable: true })

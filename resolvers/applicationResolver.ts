@@ -196,6 +196,7 @@ export class ApplicationResolver {
       ...applicationDraft,
       user,
       categories,
+      applicationState: ApplicationState.DRAFT
     });
     return await application.save();
   }
