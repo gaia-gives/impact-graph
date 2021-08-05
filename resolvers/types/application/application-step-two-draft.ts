@@ -171,7 +171,7 @@ export class ApplicationStepTwoDraftVariables {
   public firstProjectBeneficiaries?: string;  
 
   @Field({ nullable: true })
-  public firstProjectStakeholderRepresenatation?: string;
+  public firstProjectStakeholderRepresentation?: string;
 
   @Field({ nullable: true })
   public firstProjectRisks?: string;
