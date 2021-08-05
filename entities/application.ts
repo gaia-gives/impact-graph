@@ -217,14 +217,6 @@ export class Application extends BaseEntity {
   @UpdateDateColumn({ nullable: true, type: "timestamptz" })
   public lastEdited?: Date;
 
-  // @Field({ nullable: true })
-  // @Column({ nullable: true })
-  // public charter?: string;
-
-  // @Field({ nullable: true })
-  // @Column({ nullable: true })
-  // public document501c3?: string;
-
   @Field({ nullable: true })
   @Column({ nullable: true })
   public currentChannelsOfFundraising?: string;
