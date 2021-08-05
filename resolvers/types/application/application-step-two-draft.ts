@@ -4,6 +4,7 @@ import {
   Application,
   OrganisationNeededResources,
 } from "../../../entities/application";
+import { DeepPartial } from "typeorm";
 
 @ObjectType()
 export class OrganisationalStructure {
@@ -54,6 +55,19 @@ export class ApplicationStepTwoDraft {
       partnerOrganisations: application.partnerOrganisations,
       possibleAssistenceFromGaia: application.possibleAssistenceFromGaia,
       stakeholderCount: application.stakeholderCount,
+      firstProjectBeneficiaries:application.firstProjectBeneficiaries,
+      firstProjectImpactsAppropriateness: application.firstProjectImpactsAppropriateness,
+      firstProjectMilestoneValidation: application.firstProjectMilestoneValidation,
+      firstProjectRisks: application.firstProjectRisks,
+      firstProjectStakeholderRepresentation: application.firstProjectStakeholderRepresenatation
+    };
+  }
+
+  public static mapDraftToApplication(draft: ApplicationStepTwoDraft): DeepPartial<Application> {
+    return {
+      ...draft,
+      validationMaterial: draft.validationMaterial?.links,
+      organisationalStructure: draft.organisationalStructure?.text
     };
   }
 
@@ -95,6 +109,21 @@ export class ApplicationStepTwoDraft {
 
   @Field({ nullable: true })
   public possibleAssistenceFromGaia?: string;
+
+  @Field({ nullable: true })
+  public firstProjectImpactsAppropriateness?: string;
+
+  @Field({ nullable: true })
+  public firstProjectBeneficiaries?: string;  
+
+  @Field({ nullable: true })
+  public firstProjectStakeholderRepresentation?: string;
+
+  @Field({ nullable: true })
+  public firstProjectRisks?: string;
+
+  @Field({ nullable: true })
+  public firstProjectMilestoneValidation?: string;
 }
 
 @ArgsType()
@@ -134,4 +163,19 @@ export class ApplicationStepTwoDraftVariables {
 
   @Field({ nullable: true })
   public charter?: string;
+
+  @Field({ nullable: true })
+  public firstProjectImpactsAppropriateness?: string;
+
+  @Field({ nullable: true })
+  public firstProjectBeneficiaries?: string;  
+
+  @Field({ nullable: true })
+  public firstProjectStakeholderRepresenatation?: string;
+
+  @Field({ nullable: true })
+  public firstProjectRisks?: string;
+
+  @Field({ nullable: true })
+  public firstProjectMilestoneValidation?: string;
 }

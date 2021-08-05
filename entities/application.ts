@@ -216,13 +216,13 @@ export class Application extends BaseEntity {
   @UpdateDateColumn({ nullable: true, type: "timestamptz" })
   public lastEdited?: Date;
 
-  @Field({ nullable: true })
-  @Column({ nullable: true })
-  public charter?: string;
+  // @Field({ nullable: true })
+  // @Column({ nullable: true })
+  // public charter?: string;
 
-  @Field({ nullable: true })
-  @Column({ nullable: true })
-  public document501c3?: string;
+  // @Field({ nullable: true })
+  // @Column({ nullable: true })
+  // public document501c3?: string;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
@@ -255,4 +255,24 @@ export class Application extends BaseEntity {
   @Field({ nullable: true })
   @Column({ nullable: true })
   public possibleAssistenceFromGaia?: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  public firstProjectImpactsAppropriateness?: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  public firstProjectBeneficiaries?: string;  
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  public firstProjectStakeholderRepresenatation?: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  public firstProjectRisks?: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  public firstProjectMilestoneValidation?: string;
 }

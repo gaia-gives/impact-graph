@@ -343,8 +343,8 @@ export class ApplicationResolver {
         validationMaterial: applicationStepTwoSubmit.validationMaterial,
         organisationalStructure:
           applicationStepTwoSubmit.organisationalStructure,
-        charter: applicationStepTwoSubmit.charter,
         applicationState: ApplicationState.PENDING,
+        ...applicationStepTwoSubmit
       };
       await Application.merge(applicationToUpdate, partial);
       await applicationToUpdate.save();
