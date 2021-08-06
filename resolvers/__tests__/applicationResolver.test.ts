@@ -52,9 +52,7 @@ const createApplicationDraft: () => Promise<string> = async () => {
       acceptFundingFromCorporateSocialResponsibilityPartner: true,
       plannedFunding: FundingGoal.m,
       accountUsagePlan:
-        "We want to break free from our own homepage which led to nowhere",
-      applicationStep: ApplicationStep.STEP_1,
-      applicationState: ApplicationState.DRAFT
+        "We want to break free from our own homepage which led to nowhere"
     },
   });
   return result.data?.createOrUpdateApplicationDraft.application.id;
@@ -116,9 +114,7 @@ describe("application resolver", async () => {
           acceptFundingFromCorporateSocialResponsibilityPartner: true,
           plannedFunding: FundingGoal.m,
           accountUsagePlan:
-            "We want to break free from our own homepage which led to nowhere",
-          applicationStep: ApplicationStep.STEP_1,
-          applicationState: ApplicationState.DRAFT
+            "We want to break free from our own homepage which led to nowhere"
         },
       },
       { connection: connection }
@@ -160,9 +156,7 @@ describe("application resolver", async () => {
           acceptFundingFromCorporateSocialResponsibilityPartner: true,
           plannedFunding: FundingGoal.l,
           accountUsagePlan:
-            "We want to break free from our own homepage which led to nowhere",
-          applicationStep: ApplicationStep.STEP_1,
-          applicationState: ApplicationState.DRAFT
+            "We want to break free from our own homepage which led to nowhere"
         },
       },
       { connection: connection }

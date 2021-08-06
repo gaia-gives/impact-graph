@@ -80,10 +80,4 @@ export class ApplicationStepOneSubmit {
 
   @Field(() => FundingGoal, { nullable: false })
   public plannedFunding!: FundingGoal;
-
-  @Field(() => ApplicationState)
-  public applicationState: ApplicationState;
-
-  @Field(() => ApplicationStep)
-  public applicationStep: ApplicationStep;
 }

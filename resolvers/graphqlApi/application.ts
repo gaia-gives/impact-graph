@@ -40,8 +40,6 @@ export const CREATE_APPLICATION = gql`
     $instagram: String
     $other: String
     $categoryIds: [Int!]
-    $applicationStep: ApplicationStep!
-    $applicationState: ApplicationState!
   ) {
     createOrUpdateApplicationDraft(
       id: $id
@@ -63,8 +61,6 @@ export const CREATE_APPLICATION = gql`
       plannedFunding: $plannedFunding
       accountUsagePlan: $accountUsagePlan
       categoryIds: $categoryIds
-      applicationStep: $applicationStep
-      applicationState: $applicationState
       facebook: $facebook
       instagram: $instagram
       other: $other
@@ -107,8 +103,6 @@ export const SUBMIT_APPLICATION = gql`
     $instagram: String
     $other: String
     $categoryIds: [Int!]!
-    $applicationStep: ApplicationStep!
-    $applicationState: ApplicationState!
   ) {
     submitApplicationStepOne(
       id: $id
@@ -130,8 +124,6 @@ export const SUBMIT_APPLICATION = gql`
       plannedFunding: $plannedFunding
       accountUsagePlan: $accountUsagePlan
       categoryIds: $categoryIds
-      applicationStep: $applicationStep
-      applicationState: $applicationState
       facebook: $facebook
       instagram: $instagram
       other: $other

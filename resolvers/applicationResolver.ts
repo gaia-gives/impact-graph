@@ -323,8 +323,7 @@ export class ApplicationResolver {
       });
       result.application = application;
     } else {
-      applicationSubmit.applicationState = ApplicationState.PENDING;
-      await Application.merge(applicationToUpdate, applicationSubmit);
+      await Application.merge(applicationToUpdate, applicationSubmit, { applicationState: ApplicationState.PENDING });
       await applicationToUpdate.save();
       result.application = applicationToUpdate;
     }
