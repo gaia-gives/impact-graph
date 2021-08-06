@@ -109,8 +109,8 @@ export class ApplicationResolver {
     const userId = ctx.req.user?.userId;
     let application: Application | undefined;
     if (id && userId) {
-      await this.applicationRepository.findOne({
-        where: { id, userId },
+      application = await this.applicationRepository.findOne({
+        where: { id: id, userId: userId },
         relations: ["categories", "user"],
       });
     }
