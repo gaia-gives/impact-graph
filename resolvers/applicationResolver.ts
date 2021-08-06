@@ -33,6 +33,7 @@ import { defaultTo } from "ramda";
 import { ApplicationStepOneSubmit } from "./types/application/application-step-one-submit";
 import { saveFile } from "../utils/saveFile";
 import { deleteFile } from "../utils/deleteFile";
+import { application } from "express";
 
 @ObjectType()
 export class ApplicationDocumentUploadResult extends ResolverResult {
@@ -195,7 +196,8 @@ export class ApplicationResolver {
       ...applicationDraft,
       user,
       categories,
-      applicationState: ApplicationState.INITIAL
+      applicationState: ApplicationState.DRAFT,
+      lastEdited: new Date()
     });
     return await application.save();
   }
@@ -207,7 +209,8 @@ export class ApplicationResolver {
       applicationDraft.id
     );
     if (applicationToUpdate) {
-      await Application.merge(applicationToUpdate, applicationDraft, { applicationState: ApplicationState.DRAFT });
+      await Application.merge(applicationToUpdate, applicationDraft);
+      applicationToUpdate.lastEdited = new Date();
       return await applicationToUpdate.save();
     } else {
       throw new Error("Application with given id not found!");
