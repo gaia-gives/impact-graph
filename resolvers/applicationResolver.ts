@@ -104,24 +104,31 @@ export class ApplicationResolver {
 
   @Authorized()
   @Query(() => ApplicationStateQueryResult)
-  async getApplicationState(@Ctx() ctx: MyContext) {
+  async getApplicationState(@Ctx() ctx: MyContext, @Arg("id", {nullable: true}) id?: string, ) {
     const result = new ApplicationStateQueryResult();
     const userId = ctx.req.user?.userId;
-    if (userId) {
-      const application = await this.applicationRepository.findOne({
+    let application: Application | undefined;
+    if (id && userId) {
+      await this.applicationRepository.findOne({
+        where: { id, userId },
+        relations: ["categories", "user"],
+      });
+    }
+    else if (userId) {
+      application = await this.applicationRepository.findOne({
         where: { userId },
         relations: ["categories", "user"],
       });
-      if (!application) {
-        result.addProblem({
-          code: "UNKNOWN_ID",
-          message: "No application found for given user",
-        });
-      } else {
-        result.application = application;
-      }
     } else {
       throw new Error(ERROR_CODES.AUTHENTICATION_REQUIRED);
+    }
+    if (!application) {
+      result.addProblem({
+        code: "UNKNOWN_ID",
+        message: "No application found for given user",
+      });
+    } else {
+      result.application = application;
     }
     return result;
   }
