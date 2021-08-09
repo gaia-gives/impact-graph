@@ -296,8 +296,8 @@ export class ApplicationResolver {
           applicationStepTwoDraft.organisationalStructure,
       };
       await Application.merge(draft, partial);
-      await draft.save();
-      result.application = ApplicationStepTwoDraft.mapApplicationToDraft(draft);
+      const updated = await draft.save();
+      result.application = ApplicationStepTwoDraft.mapApplicationToDraft(updated);
     }
     return result;
   }
@@ -335,8 +335,8 @@ export class ApplicationResolver {
       await Application.merge(applicationToUpdate, applicationSubmit, {
         applicationState: ApplicationState.PENDING,
       });
-      await applicationToUpdate.save();
-      result.application = applicationToUpdate;
+      const updated = await applicationToUpdate.save();
+      result.application = updated;
     }
     return result;
   }
@@ -367,8 +367,8 @@ export class ApplicationResolver {
         ...applicationStepTwoSubmit,
       };
       await Application.merge(applicationToUpdate, partial);
-      await applicationToUpdate.save();
-      result.application = applicationToUpdate;
+      const updated = await applicationToUpdate.save();
+      result.application = updated;
     }
     return result;
   }
