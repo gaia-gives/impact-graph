@@ -105,7 +105,10 @@ export class ApplicationResolver {
 
   @Authorized()
   @Query(() => ApplicationStateQueryResult)
-  async getApplicationState(@Ctx() ctx: MyContext, @Arg("id", {nullable: true}) id?: string, ) {
+  async getApplicationState(
+    @Ctx() ctx: MyContext,
+    @Arg("id", { nullable: true }) id?: string
+  ) {
     const result = new ApplicationStateQueryResult();
     const userId = ctx.req.user?.userId;
     let application: Application | undefined;
@@ -114,8 +117,7 @@ export class ApplicationResolver {
         where: { id: id, userId: userId },
         relations: ["categories", "user"],
       });
-    }
-    else if (userId) {
+    } else if (userId) {
       application = await this.applicationRepository.findOne({
         where: { userId },
         relations: ["categories", "user"],
@@ -191,7 +193,7 @@ export class ApplicationResolver {
         stakeholderCount: application.stakeholderCount,
         possibleAssistenceFromGaia: application.possibleAssistenceFromGaia,
         applicationState: application.applicationState,
-        applicationStep: application.applicationStep
+        applicationStep: application.applicationStep,
       };
     }
     return result;
@@ -207,7 +209,7 @@ export class ApplicationResolver {
       user,
       categories,
       applicationState: ApplicationState.DRAFT,
-      lastEdited: new Date()
+      lastEdited: new Date(),
     });
     return await application.save();
   }
@@ -270,10 +272,13 @@ export class ApplicationResolver {
       throw new Error(ERROR_CODES.AUTHENTICATION_REQUIRED);
     }
 
-    const draft = await this.applicationRepository.findOne({
-      id: applicationStepTwoDraft.id,
-      user: user,
-    });
+    const draft = await this.applicationRepository.findOne(
+      {
+        id: applicationStepTwoDraft.id,
+        user: user,
+      },
+      { relations: ["fileReferences", "user"] }
+    );
     if (!draft) {
       result.addProblem({
         code: "UNKNOWN_ID",
@@ -326,7 +331,9 @@ export class ApplicationResolver {
       });
       result.application = application;
     } else {
-      await Application.merge(applicationToUpdate, applicationSubmit, { applicationState: ApplicationState.PENDING });
+      await Application.merge(applicationToUpdate, applicationSubmit, {
+        applicationState: ApplicationState.PENDING,
+      });
       await applicationToUpdate.save();
       result.application = applicationToUpdate;
     }
@@ -356,7 +363,7 @@ export class ApplicationResolver {
         organisationalStructure:
           applicationStepTwoSubmit.organisationalStructure,
         applicationState: ApplicationState.PENDING,
-        ...applicationStepTwoSubmit
+        ...applicationStepTwoSubmit,
       };
       await Application.merge(applicationToUpdate, partial);
       await applicationToUpdate.save();
