@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: impact-graph
-          image: gaiagivescr.azurecr.io/impact-graph
+          image: gaiagivescr.azurecr.io/impact-graph:3ee24eb30ca04c0f9ab069dffda06c6e76a0ebac
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
@@ -22,3 +22,11 @@ spec:
           envFrom:
             - configMapRef:
                 name: impact-graph-config
+          volumeMounts:
+            - mountPath: /app/utils/public
+              name: impact-graph-data
+              subPath: applications
+      volumes:
+        - name: impact-graph-data
+          persistentVolumeClaim:
+            claimName: impact-graph-data-disk
