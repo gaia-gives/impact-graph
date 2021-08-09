@@ -21,6 +21,7 @@ export class FileReference extends BaseEntity {
   @Column({ nullable: false })
   mimetype: string;
 
+  @Field({nullable: false})
   @Column({ nullable: false })
   mapsToField: string;
 
