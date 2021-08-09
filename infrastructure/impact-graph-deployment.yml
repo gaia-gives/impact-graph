@@ -12,6 +12,8 @@ spec:
       labels:
         app: impact-graph
     spec:
+      securityContext:
+        fsGroup: 2000 
       containers:
         - name: impact-graph
           image: gaiagivescr.azurecr.io/impact-graph
