@@ -59,7 +59,7 @@ export class ApplicationStepOneSubmitResult extends ResolverResult {
 
 @ObjectType()
 export class ApplicationStepTwoDraftResult extends ResolverResult {
-  @Field(() => ApplicationStepTwoDraft)
+  @Field(() => ApplicationStepTwoDraft, { nullable: true })
   application: ApplicationStepTwoDraft;
 }
 
@@ -299,6 +299,7 @@ export class ApplicationResolver {
       await draft.save();
       result.application = ApplicationStepTwoDraft.mapApplicationToDraft(draft);
     }
+    return result;
   }
 
   @Authorized()
