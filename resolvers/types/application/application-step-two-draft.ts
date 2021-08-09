@@ -35,8 +35,8 @@ export class ApplicationStepTwoDraft {
       id: application.id,
       validationMaterial: {
         links: application.validationMaterial,
-        savedFiles: application.fileReferences.filter(
-          (f) => f.mapsToField === "validationMaterial"
+        savedFiles: application.fileReferences?.filter(
+          (f) => f.mapsToField === "validationMaterial" ?? []
         ),
       },
       channelsAndStrategies: application.channelsAndStrategies,
@@ -49,8 +49,8 @@ export class ApplicationStepTwoDraft {
       integrateDonations: application.integrateDonations,
       organisationNeededResources: application.organisationNeededResources,
       organisationalStructure: {
-        savedFiles: application.fileReferences.filter(
-          (f) => f.mapsToField === "organisationalStructure"
+        savedFiles: application.fileReferences?.filter(
+          (f) => f.mapsToField === "organisationalStructure" ?? []
         ),
         text: application.organisationalStructure,
       },
