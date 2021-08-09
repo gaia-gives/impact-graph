@@ -349,7 +349,7 @@ export class ApplicationResolver {
     @Args() applicationStepTwoSubmit: ApplicationStepTwoDraftVariables,
     @Ctx() ctx: MyContext
   ) {
-    const result = new ApplicationStepOneSubmitResult();
+    const result = new ApplicationStepTwoSubmitResult();
     const applicationToUpdate = await this.applicationRepository.findOne(
       applicationStepTwoSubmit.id
     );
@@ -368,7 +368,7 @@ export class ApplicationResolver {
       };
       await Application.merge(applicationToUpdate, partial);
       const updated = await applicationToUpdate.save();
-      result.application = updated;
+      result.application = ApplicationStepTwoDraft.mapApplicationToDraft(updated);
     }
     return result;
   }
