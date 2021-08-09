@@ -36,8 +36,9 @@ import { deleteFile } from "../utils/deleteFile";
 
 @ObjectType()
 export class ApplicationDocumentUploadResult extends ResolverResult {
-  @Field(() => [FileReference!], { nullable: true })
+  @Field(() => Application)
   application: Application;
+  @Field(() => [FileReference!], { nullable: true })
   savedFiles?: FileReference[];
 }
 

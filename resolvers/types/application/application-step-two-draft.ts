@@ -63,7 +63,8 @@ export class ApplicationStepTwoDraft {
       firstProjectRisks: application.firstProjectRisks,
       firstProjectStakeholderRepresentation: application.firstProjectStakeholderRepresenatation,
       applicationState: application.applicationState,
-      applicationStep: application.applicationStep
+      applicationStep: application.applicationStep,
+      lastEdited: application.lastEdited
     };
   }
 
@@ -134,6 +135,9 @@ export class ApplicationStepTwoDraft {
   
   @Field({ nullable: true })
   public applicationStep: ApplicationStep;
+
+  @Field(() => Date, { nullable: true})
+  public lastEdited?: Date;
 }
 
 @ArgsType()
