@@ -2,6 +2,8 @@ import { FileReference } from "./../../../entities/fileReference";
 import { ArgsType, Field, ID, ObjectType } from "type-graphql";
 import {
   Application,
+  ApplicationState,
+  ApplicationStep,
   OrganisationNeededResources,
 } from "../../../entities/application";
 import { DeepPartial } from "typeorm";
@@ -59,7 +61,9 @@ export class ApplicationStepTwoDraft {
       firstProjectImpactsAppropriateness: application.firstProjectImpactsAppropriateness,
       firstProjectMilestoneValidation: application.firstProjectMilestoneValidation,
       firstProjectRisks: application.firstProjectRisks,
-      firstProjectStakeholderRepresentation: application.firstProjectStakeholderRepresenatation
+      firstProjectStakeholderRepresentation: application.firstProjectStakeholderRepresenatation,
+      applicationState: application.applicationState,
+      applicationStep: application.applicationStep
     };
   }
 
@@ -124,6 +128,12 @@ export class ApplicationStepTwoDraft {
 
   @Field({ nullable: true })
   public firstProjectMilestoneValidation?: string;
+
+  @Field({ nullable: true })
+  public applicationState: ApplicationState;
+  
+  @Field({ nullable: true })
+  public applicationStep: ApplicationStep;
 }
 
 @ArgsType()

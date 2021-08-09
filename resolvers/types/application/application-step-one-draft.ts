@@ -1,8 +1,6 @@
 import { FundingGoal } from "../../../entities/application";
 import { Field, ID, Int, ArgsType, Float } from "type-graphql";
 import {
-  ApplicationState,
-  ApplicationStep,
   FundingType,
   MainInterestReason,
   OrganisationType,

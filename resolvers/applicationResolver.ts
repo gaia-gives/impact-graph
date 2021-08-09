@@ -33,11 +33,11 @@ import { defaultTo } from "ramda";
 import { ApplicationStepOneSubmit } from "./types/application/application-step-one-submit";
 import { saveFile } from "../utils/saveFile";
 import { deleteFile } from "../utils/deleteFile";
-import { application } from "express";
 
 @ObjectType()
 export class ApplicationDocumentUploadResult extends ResolverResult {
   @Field(() => [FileReference!], { nullable: true })
+  application: Application;
   savedFiles?: FileReference[];
 }
 
@@ -189,6 +189,8 @@ export class ApplicationResolver {
         partnerOrganisations: application.partnerOrganisations,
         stakeholderCount: application.stakeholderCount,
         possibleAssistenceFromGaia: application.possibleAssistenceFromGaia,
+        applicationState: application.applicationState,
+        applicationStep: application.applicationStep
       };
     }
     return result;
@@ -383,6 +385,7 @@ export class ApplicationResolver {
 
       if (application) {
         const savedFiles: FileReference[] = [];
+        result.application = application;
         for (const document of documents) {
           const { createReadStream, filename, mimetype } = await document;
           const path = await saveFile(id, createReadStream, filename);
