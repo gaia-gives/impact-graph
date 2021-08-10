@@ -194,6 +194,12 @@ export class ApplicationResolver {
         possibleAssistenceFromGaia: application.possibleAssistenceFromGaia,
         applicationState: application.applicationState,
         applicationStep: application.applicationStep,
+        lastEdited: application.lastEdited,
+        firstProjectBeneficiaries: application.firstProjectBeneficiaries,
+        firstProjectImpactsAppropriateness: application.firstProjectImpactsAppropriateness,
+        firstProjectMilestoneValidation: application.firstProjectMilestoneValidation,
+        firstProjectRisks: application.firstProjectRisks,
+        firstProjectStakeholderRepresentation: application.firstProjectStakeholderRepresenatation
       };
     }
     return result;
