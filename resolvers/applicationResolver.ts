@@ -147,7 +147,7 @@ export class ApplicationResolver {
     const userId = ctx.req.user?.userId;
     if (userId) {
       return this.applicationRepository.findOne({
-        where: { userId },
+        where: { userId: userId },
         relations: ["categories", "user"],
       });
     } else {
@@ -222,22 +222,22 @@ export class ApplicationResolver {
       ...applicationDraft,
       user,
       categories,
-      applicationState: ApplicationState.DRAFT,
-      lastEdited: new Date(),
+      applicationState: ApplicationState.DRAFT
     });
     return await application.save();
   }
 
   private async updateApplicationDraft(
-    applicationDraft: ApplicationStepOneDraft
+    applicationDraft: ApplicationStepOneDraft,
+    categories: Category[]
   ) {
     const applicationToUpdate = await this.applicationRepository.findOne(
-      applicationDraft.id
+      applicationDraft.id,
+      { relations: ["categories"] }
     );
     if (applicationToUpdate) {
-      await Application.merge(applicationToUpdate, applicationDraft);
-      applicationToUpdate.lastEdited = new Date();
-      return await applicationToUpdate.save();
+      const merged = Application.merge(applicationToUpdate, {...applicationDraft, categories });
+      return await merged.save();
     } else {
       throw new Error("Application with given id not found!");
     }
@@ -268,7 +268,7 @@ export class ApplicationResolver {
       );
       result.application = created;
     } else {
-      const updated = await this.updateApplicationDraft(applicationDraft);
+      const updated = await this.updateApplicationDraft(applicationDraft, categories);
       result.application = updated;
     }
     return result;
