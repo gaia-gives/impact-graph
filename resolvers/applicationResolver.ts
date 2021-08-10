@@ -90,13 +90,18 @@ export class ApplicationResolver {
 
   @Authorized()
   @Query(() => [Application])
-  applications() {
-    return this.applicationRepository.find();
+  applications(@Ctx() ctx: MyContext) {
+    const userId = ctx.req.user?.userId;
+    return this.applicationRepository.find({ where: { userId } });
   }
 
   @Authorized()
   @Query(() => Application)
-  application(@Arg("id", { nullable: false }) id: string) {
+  application(
+    @Ctx() ctx: MyContext,
+    @Arg("id", { nullable: false }) id: string
+  ) {
+    const userId = ctx.req.user?.userId;
     return this.applicationRepository.findOne({
       where: { id },
       relations: ["categories", "user"],
