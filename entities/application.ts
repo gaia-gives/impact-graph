@@ -91,6 +91,14 @@ registerEnumType(OrganisationNeededResources, {
 @ObjectType()
 @Entity()
 export class Application extends BaseEntity {
+
+  public assertCanSubmit(step: ApplicationStep): void {
+    const canSubmit = this.applicationState !== ApplicationState.PENDING &&
+    this.applicationState !== ApplicationState.REJECTED &&
+    this.applicationState !== ApplicationState.ACCEPTED && this.applicationStep === step;
+    if (!canSubmit) throw new Error("Cannot submit, invalid application state for submission");
+  }
+
   @Field(() => ID, { nullable: true })
   @PrimaryGeneratedColumn("uuid")
   public id!: string;

@@ -196,10 +196,13 @@ export class ApplicationResolver {
         applicationStep: application.applicationStep,
         lastEdited: application.lastEdited,
         firstProjectBeneficiaries: application.firstProjectBeneficiaries,
-        firstProjectImpactsAppropriateness: application.firstProjectImpactsAppropriateness,
-        firstProjectMilestoneValidation: application.firstProjectMilestoneValidation,
+        firstProjectImpactsAppropriateness:
+          application.firstProjectImpactsAppropriateness,
+        firstProjectMilestoneValidation:
+          application.firstProjectMilestoneValidation,
         firstProjectRisks: application.firstProjectRisks,
-        firstProjectStakeholderRepresentation: application.firstProjectStakeholderRepresentation
+        firstProjectStakeholderRepresentation:
+          application.firstProjectStakeholderRepresentation,
       };
     }
     return result;
@@ -300,11 +303,12 @@ export class ApplicationResolver {
         validationMaterial: applicationStepTwoDraft.validationMaterial,
         organisationalStructure:
           applicationStepTwoDraft.organisationalStructure,
-        ...applicationStepTwoDraft
+        ...applicationStepTwoDraft,
       };
       Application.merge(application, partial);
       const updated = await application.save();
-      result.application = ApplicationStepTwoDraft.mapApplicationToDraft(updated);
+      result.application =
+        ApplicationStepTwoDraft.mapApplicationToDraft(updated);
     }
     return result;
   }
@@ -339,6 +343,7 @@ export class ApplicationResolver {
       });
       result.application = application;
     } else {
+      applicationToUpdate.assertCanSubmit(ApplicationStep.STEP_1);
       await Application.merge(applicationToUpdate, applicationSubmit, {
         applicationState: ApplicationState.PENDING,
       });
@@ -358,7 +363,8 @@ export class ApplicationResolver {
   ) {
     const result = new ApplicationStepTwoSubmitResult();
     const applicationToUpdate = await this.applicationRepository.findOne(
-      applicationStepTwoSubmit.id
+      applicationStepTwoSubmit.id,
+      { relations: ["fileReferences", "user"] }
     );
     if (!applicationToUpdate) {
       result.addProblem({
@@ -366,6 +372,7 @@ export class ApplicationResolver {
         message: "The application with the given was not found!",
       });
     } else {
+      applicationToUpdate?.assertCanSubmit(ApplicationStep.STEP_2);
       const partial: DeepPartial<Application> = {
         validationMaterial: applicationStepTwoSubmit.validationMaterial,
         organisationalStructure:
@@ -375,7 +382,8 @@ export class ApplicationResolver {
       };
       await Application.merge(applicationToUpdate, partial);
       const updated = await applicationToUpdate.save();
-      result.application = ApplicationStepTwoDraft.mapApplicationToDraft(updated);
+      result.application =
+        ApplicationStepTwoDraft.mapApplicationToDraft(updated);
     }
     return result;
   }
