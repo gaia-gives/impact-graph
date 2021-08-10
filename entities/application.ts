@@ -259,7 +259,7 @@ export class Application extends BaseEntity {
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  public firstProjectStakeholderRepresenatation?: string;
+  public firstProjectStakeholderRepresentation?: string;
 
   @Field({ nullable: true })
   @Column({ nullable: true })

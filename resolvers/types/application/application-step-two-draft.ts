@@ -61,7 +61,7 @@ export class ApplicationStepTwoDraft {
       firstProjectImpactsAppropriateness: application.firstProjectImpactsAppropriateness,
       firstProjectMilestoneValidation: application.firstProjectMilestoneValidation,
       firstProjectRisks: application.firstProjectRisks,
-      firstProjectStakeholderRepresentation: application.firstProjectStakeholderRepresenatation,
+      firstProjectStakeholderRepresentation: application.firstProjectStakeholderRepresentation,
       applicationState: application.applicationState,
       applicationStep: application.applicationStep,
       lastEdited: application.lastEdited

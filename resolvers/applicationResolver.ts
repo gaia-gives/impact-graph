@@ -161,7 +161,7 @@ export class ApplicationResolver {
 
     const application = await this.applicationRepository.findOne(
       { user: user },
-      { relations: ["fileReferences"] }
+      { relations: ["fileReferences", "user"] }
     );
     if (application) {
       result.application = {
@@ -199,7 +199,7 @@ export class ApplicationResolver {
         firstProjectImpactsAppropriateness: application.firstProjectImpactsAppropriateness,
         firstProjectMilestoneValidation: application.firstProjectMilestoneValidation,
         firstProjectRisks: application.firstProjectRisks,
-        firstProjectStakeholderRepresentation: application.firstProjectStakeholderRepresenatation
+        firstProjectStakeholderRepresentation: application.firstProjectStakeholderRepresentation
       };
     }
     return result;
@@ -278,21 +278,21 @@ export class ApplicationResolver {
       throw new Error(ERROR_CODES.AUTHENTICATION_REQUIRED);
     }
 
-    const draft = await this.applicationRepository.findOne(
+    const application = await this.applicationRepository.findOne(
       {
         id: applicationStepTwoDraft.id,
         user: user,
       },
       { relations: ["fileReferences", "user"] }
     );
-    if (!draft) {
+    if (!application) {
       result.addProblem({
         code: "UNKNOWN_ID",
         message: "No application found for given id!",
       });
     } else if (
-      draft.applicationState !== ApplicationState.DRAFT ||
-      draft.applicationStep === ApplicationStep.STEP_1
+      application.applicationState !== ApplicationState.DRAFT ||
+      application.applicationStep === ApplicationStep.STEP_1
     ) {
       throw new Error(ERROR_CODES.INVALID_OPERATION);
     } else {
@@ -300,9 +300,10 @@ export class ApplicationResolver {
         validationMaterial: applicationStepTwoDraft.validationMaterial,
         organisationalStructure:
           applicationStepTwoDraft.organisationalStructure,
+        ...applicationStepTwoDraft
       };
-      await Application.merge(draft, partial);
-      const updated = await draft.save();
+      Application.merge(application, partial);
+      const updated = await application.save();
       result.application = ApplicationStepTwoDraft.mapApplicationToDraft(updated);
     }
     return result;
