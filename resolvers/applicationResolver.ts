@@ -171,10 +171,10 @@ export class ApplicationResolver {
     if (application) {
       result.application = {
         id: application.id,
-        charter: application.fileReferences.find(
+        charter: application.fileReferences.filter(
           (f) => f.mapsToField === "charter"
         ),
-        document501c3: application.fileReferences.find(
+        document501c3: application.fileReferences.filter(
           (f) => f.mapsToField === "document501c3"
         ),
         validationMaterial: {

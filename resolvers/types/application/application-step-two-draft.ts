@@ -40,9 +40,9 @@ export class ApplicationStepTwoDraft {
         ),
       },
       channelsAndStrategies: application.channelsAndStrategies,
-      charter: application.fileReferences.find((f) => f.mapsToField === "charter"),
+      charter: application.fileReferences.filter((f) => f.mapsToField === "charter"),
       currentChannelsOfFundraising: application.currentChannelsOfFundraising,
-      document501c3: application.fileReferences.find(
+      document501c3: application.fileReferences.filter(
         (f) => f.mapsToField === "document501c3"
       ),
       fullTimeWorkers: application.fullTimeWorkers,
@@ -85,11 +85,11 @@ export class ApplicationStepTwoDraft {
   @Field(() => OrganisationalStructure, { nullable: true })
   public organisationalStructure?: OrganisationalStructure;
 
-  @Field(() => FileReference, { nullable: true })
-  public charter?: FileReference;
+  @Field(() => [FileReference!], { nullable: true })
+  public charter?: FileReference[];
 
-  @Field(() => FileReference, { nullable: true })
-  public document501c3?: FileReference;
+  @Field(() => [FileReference!], { nullable: true })
+  public document501c3?: FileReference[];
 
   @Field({ nullable: true })
   public currentChannelsOfFundraising?: string;
