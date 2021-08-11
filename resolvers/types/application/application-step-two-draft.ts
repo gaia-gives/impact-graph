@@ -40,7 +40,7 @@ export class ApplicationStepTwoDraft {
         ),
       },
       channelsAndStrategies: application.channelsAndStrategies,
-      charter: application.fileReferences.filter((f) => f.mapsToField === "charter"),
+      charter: application.fileReferences.filter((f) => f.mapsToField === "charter") ?? [],
       currentChannelsOfFundraising: application.currentChannelsOfFundraising,
       document501c3: application.fileReferences.filter(
         (f) => f.mapsToField === "document501c3"
