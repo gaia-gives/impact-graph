@@ -1,6 +1,5 @@
-import { confirmNewMailPrefix } from './../constants/redisPrefixes';
+import { confirmNewMailPrefix } from '../constants/redisPrefixes';
 import { Resolver, Mutation, Arg } from 'type-graphql'
-
 import { redis } from '../redis'
 import { User } from '../entities/user'
 import { confirmUserPrefix } from '../constants/redisPrefixes'

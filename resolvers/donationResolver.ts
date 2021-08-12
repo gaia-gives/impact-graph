@@ -1,21 +1,14 @@
 import { Resolver, Query, Arg, Mutation, Ctx } from 'type-graphql'
 import { InjectRepository } from 'typeorm-typedi-extensions'
-//import { getTokenPrices, getOurTokenList } from '../uniswap'
 import { getTokenPrices, getOurTokenList } from 'monoswap'
 import { Donation } from '../entities/donation'
-import { getProviderFromChainId } from '../provider'
 import { MyContext } from '../types/MyContext'
 import { Project } from '../entities/project'
-import axios, { AxiosResponse } from 'axios'
 import { getAnalytics } from '../analytics'
-import { Wallet } from '../entities/wallet'
 import { Token } from '../entities/token'
 import { Repository, In } from 'typeorm'
 import { User } from '../entities/user'
-import { web3 } from '../utils/web3'
-import config from '../config'
 import Logger from '../logger'
-import chalk = require('chalk')
 
 const analytics = getAnalytics()
 

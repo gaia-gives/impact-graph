@@ -1,18 +1,16 @@
 // tslint:disable-next-line:no-var-requires
 const bcrypt = require('bcryptjs')
-import { Resolver, Query, Mutation, Arg, UseMiddleware } from 'type-graphql'
+import { Resolver, Mutation, Arg } from 'type-graphql'
 import { InjectRepository } from 'typeorm-typedi-extensions'
-import { Organisation } from '../../entities/organisation'
-import { OrganisationUser } from '../../entities/organisationUser'
+import { Organisation } from '../entities/organisation'
+import { OrganisationUser } from '../entities/organisationUser'
 
-import { User } from '../../entities/user'
-import { RegisterWalletInput } from './RegisterWalletInput'
-import { RegisterInput } from './RegisterInput'
-// import { isAuth } from '../../middleware/isAuth'
-// import { logger } from '../../middleware/logger'
-import { sendEmail } from '../../utils/sendEmail'
-import { createConfirmationUrl } from '../../utils/createConfirmationUrl'
-import { Repository, getRepository } from 'typeorm'
+import { User } from '../entities/user'
+import { RegisterWalletInput } from '../user/register/RegisterWalletInput'
+import { RegisterInput } from '../user/register/RegisterInput'
+import { sendEmail } from '../utils/sendEmail'
+import { createConfirmationUrl } from '../utils/createConfirmationUrl'
+import { Repository } from 'typeorm'
 
 @Resolver()
 export class RegisterResolver {

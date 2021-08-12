@@ -7,7 +7,7 @@ import {
   Int
 } from 'type-graphql'
 import { InjectRepository } from 'typeorm-typedi-extensions'
-import { Repository, In } from 'typeorm'
+import { Repository } from 'typeorm'
 
 import { OrganisationUser } from '../entities/organisationUser'
 import { User } from '../entities/user'

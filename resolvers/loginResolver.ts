@@ -6,7 +6,7 @@ import { keccak256 } from "ethers/lib/utils";
 import { User } from "../entities/user";
 import { MyContext } from "../types/MyContext";
 import * as jwt from "jsonwebtoken";
-import { registerEnumType, Field, ID, ObjectType } from "type-graphql";
+import { registerEnumType, Field, ObjectType } from "type-graphql";
 import config from "../config";
 import Logger from "../logger";
 import { getAnalytics } from "../analytics";

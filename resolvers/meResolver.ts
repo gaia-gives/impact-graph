@@ -1,4 +1,4 @@
-import { createConfirmNewMailUrl } from './../utils/createConfirmNewMailUrl';
+import { createConfirmNewMailUrl } from '../utils/createConfirmNewMailUrl';
 import { Resolver, Query, Ctx, Authorized, Mutation, Arg } from "type-graphql";
 import { InjectRepository } from "typeorm-typedi-extensions";
 
@@ -13,7 +13,6 @@ import { ERROR_CODES } from "../utils/errorCodes";
 import * as bcrypt from "bcryptjs";
 import { getAnalytics } from "../analytics";
 import { sendEmail } from "../utils/sendEmail";
-import { createConfirmationUrl } from "../utils/createConfirmationUrl";
 
 const analytics = getAnalytics();
 

@@ -1,10 +1,8 @@
 import {
   Resolver,
-  Query,
-  Arg,
-  Int
+  Query
 } from 'type-graphql'
-import { Repository, In } from 'typeorm'
+import { Repository } from 'typeorm'
 import { InjectRepository } from 'typeorm-typedi-extensions'
 
 import { User } from '../entities/user'
