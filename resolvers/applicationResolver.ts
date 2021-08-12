@@ -29,7 +29,7 @@ import {
 import { Category } from "../entities/category";
 import { MyContext } from "../types/MyContext";
 import { ApplicationStepOneDraft } from "./types/application/application-step-one-draft";
-import { defaultTo } from "ramda";
+import { defaultTo, update } from "ramda";
 import { ApplicationStepOneSubmit } from "./types/application/application-step-one-submit";
 import { saveFile } from "../utils/saveFile";
 import { deleteFile } from "../utils/deleteFile";
@@ -145,14 +145,13 @@ export class ApplicationResolver {
   @Query(() => Application)
   async getApplicationStepOne(@Ctx() ctx: MyContext) {
     const userId = ctx.req.user?.userId;
-    if (userId) {
-      return this.applicationRepository.findOne({
-        where: { userId: userId },
-        relations: ["categories", "user"],
-      });
-    } else {
-      return {};
+    if (!userId) {
+      throw new Error(ERROR_CODES.AUTHENTICATION_REQUIRED);
     }
+    return this.applicationRepository.findOne({
+      where: { userId: userId },
+      relations: ["categories", "user"],
+    });
   }
 
   @Authorized()
@@ -169,46 +168,8 @@ export class ApplicationResolver {
       { relations: ["fileReferences", "user"] }
     );
     if (application) {
-      result.application = {
-        id: application.id,
-        charter: application.fileReferences.filter(
-          (f) => f.mapsToField === "charter"
-        ),
-        document501c3: application.fileReferences.filter(
-          (f) => f.mapsToField === "document501c3"
-        ),
-        validationMaterial: {
-          links: application.validationMaterial,
-          savedFiles: application.fileReferences.filter(
-            (f) => f.mapsToField === "validationMaterial"
-          ),
-        },
-        organisationalStructure: {
-          text: application.organisationalStructure,
-          savedFiles: application.fileReferences.filter(
-            (f) => f.mapsToField === "organisationalStructure"
-          ),
-        },
-        channelsAndStrategies: application.channelsAndStrategies,
-        currentChannelsOfFundraising: application.currentChannelsOfFundraising,
-        fullTimeWorkers: application.fullTimeWorkers,
-        integrateDonations: application.integrateDonations,
-        organisationNeededResources: application.organisationNeededResources,
-        partnerOrganisations: application.partnerOrganisations,
-        stakeholderCount: application.stakeholderCount,
-        possibleAssistenceFromGaia: application.possibleAssistenceFromGaia,
-        applicationState: application.applicationState,
-        applicationStep: application.applicationStep,
-        lastEdited: application.lastEdited,
-        firstProjectBeneficiaries: application.firstProjectBeneficiaries,
-        firstProjectImpactsAppropriateness:
-          application.firstProjectImpactsAppropriateness,
-        firstProjectMilestoneValidation:
-          application.firstProjectMilestoneValidation,
-        firstProjectRisks: application.firstProjectRisks,
-        firstProjectStakeholderRepresentation:
-          application.firstProjectStakeholderRepresentation,
-      };
+      result.application =
+        ApplicationStepTwoDraft.mapApplicationToDraft(application);
     }
     return result;
   }
@@ -227,25 +188,6 @@ export class ApplicationResolver {
     return await application.save();
   }
 
-  private async updateApplicationDraft(
-    applicationDraft: ApplicationStepOneDraft,
-    categories: Category[]
-  ) {
-    const applicationToUpdate = await this.applicationRepository.findOne(
-      applicationDraft.id,
-      { relations: ["categories"] }
-    );
-    if (applicationToUpdate) {
-      const merged = Application.merge(applicationToUpdate, {
-        ...applicationDraft,
-      });
-      merged.categories = categories.slice();
-      return await merged.save();
-    } else {
-      throw new Error("Application with given id not found!");
-    }
-  }
-
   @Authorized()
   @Mutation(() => ApplicationStepOneDraftResult)
   async createOrUpdateApplicationDraft(
@@ -257,7 +199,6 @@ export class ApplicationResolver {
     const categories = await this.categoryRepository.findByIds(
       defaultTo([], applicationDraft.categoryIds)
     );
-
     const user = await this.userRepository.findOne(ctx.req.user.userId);
     if (!user) {
       throw new Error(ERROR_CODES.AUTHENTICATION_REQUIRED);
@@ -272,11 +213,15 @@ export class ApplicationResolver {
       );
       result.application = created;
     } else {
-      const updated = await this.updateApplicationDraft(
+      const application = await this.applicationRepository.findOne(
+        applicationDraft.id,
+        { relations: ["categories"] }
+      );
+      const updated = application!.updateApplicationStepOne(
         applicationDraft,
         categories
       );
-      result.application = updated;
+      result.application = await updated?.save();
     }
     return result;
   }
@@ -305,23 +250,12 @@ export class ApplicationResolver {
         code: "UNKNOWN_ID",
         message: "No application found for given id!",
       });
-    } else if (
-      application.applicationStep === ApplicationStep.STEP_1 ||
-      (application.applicationState !== ApplicationState.DRAFT &&
-        application.applicationState !== ApplicationState.INITIAL)
-    ) {
-      throw new Error(ERROR_CODES.INVALID_OPERATION);
     } else {
-      const partial: DeepPartial<Application> = {
-        validationMaterial: applicationStepTwoDraft.validationMaterial,
-        organisationalStructure:
-          applicationStepTwoDraft.organisationalStructure,
-        ...applicationStepTwoDraft,
-      };
-      Application.merge(application, partial);
-      const updated = await application.save();
-      result.application =
-        ApplicationStepTwoDraft.mapApplicationToDraft(updated);
+      const updated = await application.updateApplicationStepTwo(
+        applicationStepTwoDraft
+      );
+      const saved = await updated.save();
+      result.application = ApplicationStepTwoDraft.mapApplicationToDraft(saved);
     }
     return result;
   }
@@ -356,8 +290,8 @@ export class ApplicationResolver {
       });
       result.application = application;
     } else {
-      applicationToUpdate.assertCanSubmit(ApplicationStep.STEP_1);
-      Application.merge(applicationToUpdate, applicationSubmit, {
+      applicationToUpdate.setSubmitted(ApplicationStep.STEP_1);
+      await Application.merge(applicationToUpdate, applicationSubmit, {
         applicationState: ApplicationState.PENDING,
       });
       applicationToUpdate.categories = categories.slice();
@@ -386,16 +320,11 @@ export class ApplicationResolver {
         message: "The application with the given was not found!",
       });
     } else {
-      applicationToUpdate?.assertCanSubmit(ApplicationStep.STEP_2);
-      const partial: DeepPartial<Application> = {
-        validationMaterial: applicationStepTwoSubmit.validationMaterial,
-        organisationalStructure:
-          applicationStepTwoSubmit.organisationalStructure,
-        applicationState: ApplicationState.PENDING,
-        ...applicationStepTwoSubmit,
-      };
-      await Application.merge(applicationToUpdate, partial);
-      const updated = await applicationToUpdate.save();
+      const updated = applicationToUpdate.updateApplicationStepTwo(
+        applicationStepTwoSubmit
+      );
+      updated.setSubmitted(ApplicationStep.STEP_2);
+      const saved = await updated.save();
       result.application =
         ApplicationStepTwoDraft.mapApplicationToDraft(updated);
     }

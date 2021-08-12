@@ -1,5 +1,15 @@
+import {
+  ValidationMaterial,
+  OrganisationalStructure,
+} from "./../resolvers/types/application/application-step-two-draft";
 import { FileReference } from "./fileReference";
-import { registerEnumType, ObjectType, Field, ID } from "type-graphql";
+import {
+  registerEnumType,
+  ObjectType,
+  Field,
+  ID,
+  Authorized,
+} from "type-graphql";
 import {
   BaseEntity,
   Column,
@@ -81,22 +91,144 @@ export enum OrganisationNeededResources {
   projectAdviceAndCoaching = "projectAdviceAndCoaching",
   financialConsultingAndBusinessModelGeneration = "financialConsultingAndBusinessModelGeneration",
   mediaSupport = "mediaSupport",
-  leadershipDevelopment = "leadershipDevelopment"
+  leadershipDevelopment = "leadershipDevelopment",
 }
 registerEnumType(OrganisationNeededResources, {
   name: "OrganisationNeededResources",
   description: "The topic the organisation needs support for",
 });
 
+export interface IApplicationStepOne {
+  legalName?: string;
+  address?: string;
+  email?: string;
+  city?: string;
+  postcode?: string;
+  country?: string;
+  contactPerson?: string;
+  missionStatement?: string;
+  plannedProjects?: string;
+  primaryImpactLocation?: string;
+  accountUsagePlan?: string;
+  website?: string;
+  facebook?: string;
+  instagram?: string;
+  other?: string;
+  categoryIds?: number[];
+  organisationType?: OrganisationType;
+  mainInterestReason?: MainInterestReason;
+  fundingType?: FundingType;
+  acceptFundingFromCorporateSocialResponsibilityPartner?: boolean;
+  plannedFunding?: FundingGoal;
+}
+
+export interface IApplicationStepTwo {
+  validationMaterial?: ValidationMaterial;
+  organisationalStructure?: OrganisationalStructure;
+  currentChannelsOfFundraising?: string;
+  channelsAndStrategies?: string;
+  integrateDonations?: boolean;
+  partnerOrganisations?: string;
+  fullTimeWorkers?: string;
+  stakeholderCount?: string;
+  organisationNeededResources?: OrganisationNeededResources;
+  possibleAssistenceFromGaia?: string;
+  firstProjectImpactsAppropriateness?: string;
+  firstProjectBeneficiaries?: string;
+  firstProjectStakeholderRepresentation?: string;
+  firstProjectRisks?: string;
+  firstProjectMilestoneValidation?: string;
+}
+
 @ObjectType()
 @Entity()
 export class Application extends BaseEntity {
+  private assertCanSubmit(step: ApplicationStep): void {
+    const canSubmit =
+      this.applicationState !== ApplicationState.PENDING &&
+      this.applicationState !== ApplicationState.REJECTED &&
+      this.applicationState !== ApplicationState.ACCEPTED &&
+      this.applicationStep === step;
+    if (!canSubmit)
+      throw new Error(
+        "Cannot submit, invalid application state for submission!"
+      );
+  }
 
-  public assertCanSubmit(step: ApplicationStep): void {
-    const canSubmit = this.applicationState !== ApplicationState.PENDING &&
-    this.applicationState !== ApplicationState.REJECTED &&
-    this.applicationState !== ApplicationState.ACCEPTED && this.applicationStep === step;
-    if (!canSubmit) throw new Error("Cannot submit, invalid application state for submission");
+  private assertCanUpdate(step): void {
+    const canUpdate =
+      this.applicationState !== ApplicationState.PENDING &&
+      this.applicationState !== ApplicationState.REJECTED &&
+      this.applicationState !== ApplicationState.ACCEPTED &&
+      this.applicationStep === step;
+    if (!canUpdate) {
+      throw new Error(
+        "Cannot update, invalid application state for update!"
+      );
+    }
+  }
+
+  public setRead() {
+    this.readByAdmin = true;
+  }
+
+  public updateApplicationStepOne(
+    stepOne: IApplicationStepOne,
+    categories: Category[]
+  ) {
+    this.assertCanUpdate(ApplicationStep.STEP_1);
+    this.legalName = stepOne.legalName;
+    this.address = stepOne.address;
+    this.email = stepOne.email;
+    this.city = stepOne.city;
+    this.postcode = stepOne.postcode;
+    this.country = stepOne.country;
+    this.contactPerson = stepOne.contactPerson;
+    this.missionStatement = stepOne.missionStatement;
+    this.plannedProjects = stepOne.plannedProjects;
+    this.primaryImpactLocation = stepOne.primaryImpactLocation;
+    this.accountUsagePlan = stepOne.accountUsagePlan;
+    this.website = stepOne.website;
+    this.facebook = stepOne.facebook;
+    this.instagram = stepOne.instagram;
+    this.other = stepOne.other;
+    this.categories = categories;
+    this.organisationType = stepOne.organisationType;
+    this.mainInterestReason = stepOne.mainInterestReason;
+    this.fundingType = stepOne.fundingType;
+    this.acceptFundingFromCorporateSocialResponsibilityPartner =
+      stepOne.acceptFundingFromCorporateSocialResponsibilityPartner;
+    this.plannedFunding = stepOne.plannedFunding;
+    return this;
+  }
+
+  public updateApplicationStepTwo(stepTwo: IApplicationStepTwo) {
+    this.assertCanUpdate(ApplicationStep.STEP_2);
+    this.validationMaterial = stepTwo.validationMaterial?.links;
+    this.organisationalStructure = stepTwo.organisationalStructure?.text;
+    this.currentChannelsOfFundraising = stepTwo.currentChannelsOfFundraising;
+    this.channelsAndStrategies = stepTwo.channelsAndStrategies;
+    this.currentChannelsOfFundraising = stepTwo.currentChannelsOfFundraising;
+    this.integrateDonations = stepTwo.integrateDonations;
+    this.partnerOrganisations = stepTwo.partnerOrganisations;
+    this.fullTimeWorkers = stepTwo.fullTimeWorkers;
+    this.stakeholderCount = stepTwo.stakeholderCount;
+    this.organisationNeededResources = stepTwo.organisationNeededResources;
+    this.possibleAssistenceFromGaia = stepTwo.possibleAssistenceFromGaia;
+    this.firstProjectImpactsAppropriateness =
+      stepTwo.firstProjectImpactsAppropriateness;
+    this.firstProjectBeneficiaries = stepTwo.firstProjectBeneficiaries;
+    this.firstProjectStakeholderRepresentation =
+      stepTwo.firstProjectStakeholderRepresentation;
+    this.firstProjectRisks = stepTwo.firstProjectRisks;
+    this.firstProjectMilestoneValidation =
+      stepTwo.firstProjectMilestoneValidation;
+    return this;
+  }
+
+  public setSubmitted(step: ApplicationStep) {
+    this.assertCanSubmit(step);
+    this.applicationState = ApplicationState.PENDING;
   }
 
   @Field(() => ID, { nullable: true })
@@ -149,19 +281,19 @@ export class Application extends BaseEntity {
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  public website: string;
+  public website?: string;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  public facebook: string;
+  public facebook?: string;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  public instagram: string;
+  public instagram?: string;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  public other: string;
+  public other?: string;
 
   @Field(() => [Category])
   @JoinTable()
@@ -206,11 +338,11 @@ export class Application extends BaseEntity {
 
   @Field(() => [String!], { nullable: true })
   @Column("varchar", { array: true, nullable: true, default: [] })
-  public validationMaterial: string[];
+  public validationMaterial?: string[];
 
   @Field(() => String, { nullable: true })
   @Column({ nullable: true })
-  public organisationalStructure: string;
+  public organisationalStructure?: string;
 
   @Field(() => [FileReference!], { nullable: true })
   @OneToMany(
@@ -221,7 +353,7 @@ export class Application extends BaseEntity {
   public fileReferences: FileReference[];
 
   @Field(() => Date, { nullable: true })
-  @CreateDateColumn({  nullable: true, type: "timestamptz" })
+  @CreateDateColumn({ nullable: true, type: "timestamptz" })
   @UpdateDateColumn({ nullable: true, type: "timestamptz" })
   public lastEdited?: Date;
 
@@ -263,7 +395,7 @@ export class Application extends BaseEntity {
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  public firstProjectBeneficiaries?: string;  
+  public firstProjectBeneficiaries?: string;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
@@ -276,4 +408,9 @@ export class Application extends BaseEntity {
   @Field({ nullable: true })
   @Column({ nullable: true })
   public firstProjectMilestoneValidation?: string;
+
+  @Field(() => Boolean, { nullable: true })
+  @Authorized()
+  @Column({ nullable: true })
+  public readByAdmin: boolean;
 }

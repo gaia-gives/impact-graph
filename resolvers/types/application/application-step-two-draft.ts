@@ -1,3 +1,4 @@
+import { IApplicationStepTwo } from './../../../entities/application';
 import { FileReference } from "./../../../entities/fileReference";
 import { ArgsType, Field, ID, ObjectType } from "type-graphql";
 import {
@@ -27,7 +28,7 @@ export class ValidationMaterial {
 }
 
 @ObjectType()
-export class ApplicationStepTwoDraft {
+export class ApplicationStepTwoDraft implements IApplicationStepTwo {
   public static mapApplicationToDraft(
     application: Application
   ): ApplicationStepTwoDraft {
@@ -141,15 +142,15 @@ export class ApplicationStepTwoDraft {
 }
 
 @ArgsType()
-export class ApplicationStepTwoDraftVariables {
+export class ApplicationStepTwoDraftVariables implements IApplicationStepTwo {
   @Field(() => ID!, { nullable: false })
   public id: string;
 
   @Field(() => [String!], { nullable: true })
-  public validationMaterial?: string[];
+  public validationMaterial?: ValidationMaterial;
 
   @Field(() => String, { nullable: true })
-  public organisationalStructure?: string;
+  public organisationalStructure?: OrganisationalStructure;
 
   @Field({ nullable: true })
   public currentChannelsOfFundraising?: string;

@@ -1,4 +1,4 @@
-import { FundingGoal } from "../../../entities/application";
+import { FundingGoal, IApplicationStepOne } from "../../../entities/application";
 import { Field, ID, Int, ArgsType, Float } from "type-graphql";
 import {
   FundingType,
@@ -7,7 +7,7 @@ import {
 } from "../../../entities/application";
 
 @ArgsType()
-export class ApplicationStepOneDraft {
+export class ApplicationStepOneDraft implements IApplicationStepOne {
   @Field(() => String, { nullable: true })
   public id?: string;
 
