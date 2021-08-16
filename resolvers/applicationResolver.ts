@@ -236,7 +236,8 @@ export class ApplicationResolver {
       { relations: ["categories"] }
     );
     if (applicationToUpdate) {
-      const merged = Application.merge(applicationToUpdate, {...applicationDraft, categories });
+      const merged = Application.merge(applicationToUpdate, {...applicationDraft });
+      merged.categories = categories.slice();
       return await merged.save();
     } else {
       throw new Error("Application with given id not found!");
@@ -250,6 +251,7 @@ export class ApplicationResolver {
     @Ctx() ctx: MyContext
   ) {
     const result = new ApplicationStepOneDraftResult();
+    console.log("categories --> ", applicationDraft.categoryIds);
     const categories = await this.categoryRepository.findByIds(
       defaultTo([], applicationDraft.categoryIds)
     );
@@ -330,10 +332,10 @@ export class ApplicationResolver {
     const applicationToUpdate = await this.applicationRepository.findOne(
       applicationSubmit.id
     );
+    const categories = await this.categoryRepository.findByIds(
+      defaultTo([], applicationSubmit.categoryIds)
+    );
     if (!applicationToUpdate) {
-      const categories = await this.categoryRepository.findByIds(
-        defaultTo([], applicationSubmit.categoryIds)
-      );
       const user = await this.userRepository.findOne(ctx.req.user.userId);
       if (!user) {
         throw new Error(ERROR_CODES.UNAUTHORIZED);
@@ -349,9 +351,10 @@ export class ApplicationResolver {
       result.application = application;
     } else {
       applicationToUpdate.assertCanSubmit(ApplicationStep.STEP_1);
-      await Application.merge(applicationToUpdate, applicationSubmit, {
+      Application.merge(applicationToUpdate, applicationSubmit, {
         applicationState: ApplicationState.PENDING,
       });
+      applicationToUpdate.categories = categories.slice();
       const updated = await applicationToUpdate.save();
       result.application = updated;
     }
