@@ -222,7 +222,7 @@ export class ApplicationResolver {
       ...applicationDraft,
       user,
       categories,
-      applicationState: ApplicationState.DRAFT
+      applicationState: ApplicationState.DRAFT,
     });
     return await application.save();
   }
@@ -236,7 +236,9 @@ export class ApplicationResolver {
       { relations: ["categories"] }
     );
     if (applicationToUpdate) {
-      const merged = Application.merge(applicationToUpdate, {...applicationDraft });
+      const merged = Application.merge(applicationToUpdate, {
+        ...applicationDraft,
+      });
       merged.categories = categories.slice();
       return await merged.save();
     } else {
@@ -270,7 +272,10 @@ export class ApplicationResolver {
       );
       result.application = created;
     } else {
-      const updated = await this.updateApplicationDraft(applicationDraft, categories);
+      const updated = await this.updateApplicationDraft(
+        applicationDraft,
+        categories
+      );
       result.application = updated;
     }
     return result;
@@ -301,8 +306,9 @@ export class ApplicationResolver {
         message: "No application found for given id!",
       });
     } else if (
-      application.applicationState !== ApplicationState.DRAFT ||
-      application.applicationStep === ApplicationStep.STEP_1
+      application.applicationStep === ApplicationStep.STEP_1 ||
+      (application.applicationState !== ApplicationState.DRAFT &&
+        application.applicationState !== ApplicationState.INITIAL)
     ) {
       throw new Error(ERROR_CODES.INVALID_OPERATION);
     } else {
