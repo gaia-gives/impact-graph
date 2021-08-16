@@ -1,10 +1,12 @@
+import { Application } from "./../entities/application";
 import { GlobalRole, User } from "./../entities/user";
 import { MyContext } from "./../types/MyContext";
-import { FindManyOptions, Repository } from "typeorm";
+import { FindConditions, FindManyOptions, Repository } from "typeorm";
 import { Arg, Authorized, Ctx, Query, Resolver } from "type-graphql";
 import { InjectRepository } from "typeorm-typedi-extensions";
-import { Application, ApplicationState } from "../entities/application";
+import { ApplicationState } from "../entities/application";
 import { ERROR_CODES } from "../utils/errorCodes";
+import { forEach } from "ramda";
 
 @Resolver(() => Application)
 export class ApplicationAdministrationResolver {
@@ -28,11 +30,24 @@ export class ApplicationAdministrationResolver {
       throw new Error(ERROR_CODES.UNAUTHORIZED);
     }
 
-    const options: FindManyOptions<Application> = {};
+    const query = this.applicationRepository.createQueryBuilder("application");
 
-    if (applicationState) {
-      options.where = { applicationState: applicationState };
+    if (!applicationState) {
+      return await query
+        .where("application.applicationState IN (:...applicationStates)", {
+          applicationStates: [
+            ApplicationState.ACCEPTED,
+            ApplicationState.PENDING,
+            ApplicationState.REJECTED,
+          ],
+        })
+        .getMany();
+    } else {
+      return await query
+        .where("application.applicationState = :applicationState", {
+          applicationState: applicationState,
+        })
+        .getMany();
     }
-    return await this.applicationRepository.find(options);
   }
 }

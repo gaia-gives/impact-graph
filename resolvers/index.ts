@@ -3,17 +3,18 @@ import { UserResolver } from "./userResolver";
 import { ProjectResolver } from "./projectResolver";
 import { OrganisationResolver } from "./organisationResolver";
 import { NotificationResolver } from "./notificationResolver";
-import { LoginResolver } from "./LoginResolver";
+import { LoginResolver } from "./loginResolver";
 import { RegisterResolver } from "./registerResolver";
-import { MeResolver } from "./MeResolver";
+import { MeResolver } from "./meResolver";
 import { BankAccountResolver } from "./bankAccountResolver";
 import { UploadResolver } from "./uploadResolver";
 import { CategoryResolver } from "./categoryResolver";
 import { DonationResolver } from "./donationResolver";
-import { NewPasswordResolver } from "./NewPasswordResolver";
-import { ConfirmUserResolver } from "./ConfirmUserResolver";
+import { NewPasswordResolver } from "./newPasswordResolver";
+import { ConfirmUserResolver } from "./confirmUserResolver";
 import { ApplicationResolver } from "./applicationResolver";
 import { NonEmptyArray } from "type-graphql";
+import { ApplicationAdministrationResolver } from "./applicationAdministrationResolver";
 
 const resolvers: NonEmptyArray<Function> = [
   ImpactLocationResolver,
@@ -31,6 +32,7 @@ const resolvers: NonEmptyArray<Function> = [
   NewPasswordResolver,
   ConfirmUserResolver,
   ApplicationResolver,
+  ApplicationAdministrationResolver
 ];
 
 export default resolvers;

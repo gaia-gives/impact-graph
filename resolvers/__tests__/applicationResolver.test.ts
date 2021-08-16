@@ -18,9 +18,7 @@ import {
   SUBMIT_APPLICATION,
 } from "../graphqlApi/application";
 import * as TypeORM from "typeorm";
-import fs from "fs/promises";
 import path from "path";
-import { createReadStream } from "fs";
 
 let server: ApolloServer;
 let connection: TypeORM.Connection;

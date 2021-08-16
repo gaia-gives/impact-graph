@@ -410,7 +410,7 @@ export class Application extends BaseEntity {
   public firstProjectMilestoneValidation?: string;
 
   @Field(() => Boolean, { nullable: true })
-  @Authorized()
-  @Column({ nullable: true })
+  @Authorized("admin")
+  @Column({ nullable: true, default: false })
   public readByAdmin: boolean;
 }

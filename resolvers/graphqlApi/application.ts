@@ -169,3 +169,14 @@ export const DELETE_FILE = gql`
     }
   }
 `;
+
+export const APPLICATIONS_AS_ADMIN = gql`
+  query applicationsAsAdmin($applicationState: String) {
+    applicationsAsAdmin(applicationState: $applicationState) {
+      applicationState
+      applicationStep
+      id
+      legalName
+    }
+  }
+`;
