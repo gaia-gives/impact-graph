@@ -19,7 +19,7 @@ import {
   Field,
 } from "type-graphql";
 import { GraphQLUpload, FileUpload } from "graphql-upload";
-import { DeepPartial, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { InjectRepository } from "typeorm-typedi-extensions";
 import {
   Application,
