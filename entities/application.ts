@@ -25,6 +25,7 @@ import {
 } from "typeorm";
 import { Category } from "./category";
 import { User } from "./user";
+import { assertAdminAccess } from "../utils/assertAdminAccess";
 
 export enum ApplicationState {
   INITIAL = "INITIAL",
@@ -231,6 +232,16 @@ export class Application extends BaseEntity {
     this.applicationState = ApplicationState.PENDING;
   }
 
+  public updateAdminComment(user: User, comment: string) {
+    assertAdminAccess(user);
+    this.adminComment = comment;
+  }
+
+  public removeAdminComment(user: User) {
+    assertAdminAccess(user);
+    this.adminComment = undefined;
+  }
+
   @Field(() => ID, { nullable: true })
   @PrimaryGeneratedColumn("uuid")
   public id!: string;
@@ -412,5 +423,9 @@ export class Application extends BaseEntity {
   @Field(() => Boolean, { nullable: true })
   @Authorized("admin")
   @Column({ nullable: true, default: false })
-  public readByAdmin: boolean;
+  public readByAdmin?: boolean;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  public adminComment?: string;
 }
