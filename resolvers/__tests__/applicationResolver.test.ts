@@ -29,34 +29,15 @@ const createApplicationDraft: () => Promise<string> = async () => {
   const result = await server.executeOperation({
     query: CREATE_APPLICATION,
     variables: {
-      legalName: "Test",
-      address: "Street 1;21345;City;Germany",
-      city: "Test",
-      postcode: "12345",
-      contactPerson: "qwertz",
-      country: "Germamy",
-      email: "testemail@email.com",
-      missionStatement: "Our mission is to fulfill our mission",
-      plannedProjects: "Planned is nothing yet",
-      primaryImpactLocation: "Middle of nowhere",
-      website: "ourwebsite.com",
-      facebook: "facebook.com/blank/404",
-      instagram: "instagram.com/test",
-      other: "other",
-      categoryIds: [1, 4],
-      organisationType: OrganisationType.informalInitiative,
-      mainInterestReason: MainInterestReason.fundraising,
-      fundingType: FundingType.ongoing,
-      acceptFundingFromCorporateSocialResponsibilityPartner: true,
-      plannedFunding: FundingGoal.m,
-      accountUsagePlan:
-        "We want to break free from our own homepage which led to nowhere"
+      legalName: "Test"
     },
   });
   return result.data?.createOrUpdateApplicationDraft.application.id;
 };
 
 describe("application resolver", async () => {
+  const applicationId = await createApplicationDraft();
+
   before(async () => {
     [connection, server] = await createTestServer();
     await server.start();
@@ -68,7 +49,7 @@ describe("application resolver", async () => {
   });
 
   it("should query application draft", async () => {
-    const applicationId = await createApplicationDraft();
+   
     const result = await server.executeOperation({
       query: GET_APPLICATION,
       variables: {
@@ -91,31 +72,9 @@ describe("application resolver", async () => {
       {
         query: CREATE_APPLICATION,
         variables: {
-          legalName: "Test",
-          address: "Street 1;21345;City;Germany",
-          city: "Test",
-          postcode: "12345",
-          contactPerson: "qwertz",
-          country: "Germamy",
-          email: "testemail@email.com",
-          missionStatement: "Our mission is to fulfill our mission",
-          plannedProjects: "Planned is nothing yet",
-          primaryImpactLocation: "Middle of nowhere",
-          website: "ourwebsite.com",
-          facebook: "facebook.com/blank/404",
-          instagram: "instagram.com/test",
-          other: "other",
-          categoryIds: [1, 4],
-          organisationType: OrganisationType.informalInitiative,
-          mainInterestReason: MainInterestReason.fundraising,
-          fundingType: FundingType.ongoing,
-          acceptFundingFromCorporateSocialResponsibilityPartner: true,
-          plannedFunding: FundingGoal.m,
-          accountUsagePlan:
-            "We want to break free from our own homepage which led to nowhere"
+          legalName: "Test"
         },
-      },
-      { connection: connection }
+      }
     );
     expect(result.data).to.not.be.undefined.and.to.not.be.null;
     expect(

@@ -195,7 +195,6 @@ export class ApplicationResolver {
     @Ctx() ctx: MyContext
   ) {
     const result = new ApplicationStepOneDraftResult();
-    console.log("categories --> ", applicationDraft.categoryIds);
     const categories = await this.categoryRepository.findByIds(
       defaultTo([], applicationDraft.categoryIds)
     );

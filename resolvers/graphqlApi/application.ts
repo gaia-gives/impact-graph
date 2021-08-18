@@ -180,3 +180,19 @@ export const APPLICATIONS_AS_ADMIN = gql`
     }
   }
 `;
+
+export const APPLICATION_AS_ADMIN = gql`
+  query applicationAsAdmin($id: String!) {
+    applicationAsAdmin(id: $id) {
+      id
+    }
+  }
+`;
+
+export const UPDATE_ADMIN_COMMENT = gql`
+  mutation updateAdminComment($id: String! $adminComment: String!) {
+    updateAdminComment(id: $id, adminComment: $adminComment) {
+      id
+    }
+  }
+`;
