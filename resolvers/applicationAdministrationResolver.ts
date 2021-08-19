@@ -1,21 +1,17 @@
 import { Application } from "./../entities/application";
-import { GlobalRole, User } from "./../entities/user";
 import { MyContext } from "./../types/MyContext";
-import { FindConditions, FindManyOptions, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { Arg, Authorized, Ctx, Mutation, Query, Resolver } from "type-graphql";
 import { InjectRepository } from "typeorm-typedi-extensions";
 import { ApplicationState } from "../entities/application";
-import { ERROR_CODES } from "../utils/errorCodes";
-import { forEach } from "ramda";
 import { assertAdminAccess } from "../utils/assertAdminAccess";
+import { getUser } from "../utils/getUser"
 
 @Resolver(() => Application)
 export class ApplicationAdministrationResolver {
   constructor(
     @InjectRepository(Application)
     private readonly applicationRepository: Repository<Application>,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>
   ) {}
 
   @Authorized()
@@ -25,8 +21,7 @@ export class ApplicationAdministrationResolver {
     @Arg("applicationState", { nullable: true })
     applicationState?: ApplicationState
   ) {
-    const userId = ctx.req.user?.userId;
-    const user = await this.userRepository.findOne({ id: userId });
+    const user = await getUser(ctx)
     assertAdminAccess(user);
 
     const query = this.applicationRepository.createQueryBuilder("application");
@@ -56,8 +51,7 @@ export class ApplicationAdministrationResolver {
     @Ctx() ctx: MyContext,
     @Arg("id", { nullable: false }) id: string
   ) {
-    const userId = ctx.req.user?.userId;
-    const user = await this.userRepository.findOne({ id: userId });
+    const user = await getUser(ctx)
     assertAdminAccess(user);
 
     return await this.applicationRepository.findOne(id);
@@ -70,8 +64,7 @@ export class ApplicationAdministrationResolver {
     @Arg("id", { nullable: false }) id: string,
     @Arg("adminComment", { nullable: false }) adminComment: string
   ) {
-    const userId = ctx.req.user?.userId;
-    const user = await this.userRepository.findOne({ id: userId });
+    const user = await getUser(ctx)
     const application = await this.applicationRepository.findOne({id});
 
     if (user && application) {
