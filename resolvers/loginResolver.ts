@@ -19,9 +19,6 @@ const sigUtil = require("eth-sig-util");
 class LoginResponse {
   @Field({ nullable: false })
   user: User;
-
-  @Field({ nullable: false })
-  token: string;
 }
 
 enum LoginErrorType {
@@ -92,6 +89,13 @@ export class LoginResolver {
     }
   }
 
+  @Mutation(() => Boolean)
+  async logout(@Ctx() ctx: MyContext): Promise<boolean> {
+    ctx.res.clearCookie("token");
+    ctx.res.clearCookie("isAuthorized");
+    return true;
+  }
+
   @Mutation(() => LoginResponse, { nullable: true })
   async login(
     @Arg("email") email: string,
@@ -137,17 +141,35 @@ export class LoginResolver {
     }
 
     // Not using sessions anymore - ctx.req.session!.userId = user.id
+    const accessTokenLifetimeInSeconds = config.get("ACCESS_TOKEN_LIFETIME_IN_DAYS") * 24 * 3600;
+    const accessTokenLifetimeInMilliSeconds =
+      accessTokenLifetimeInSeconds * 1000;
     const accessToken = jwt.sign(
       { userId: user.id, firstName: user.firstName },
-      config.get("JWT_SECRET"),
-      { expiresIn: "30d" }
+    config.get("JWT_SECRET"),
+      { expiresIn: accessTokenLifetimeInSeconds }
     );
 
     const response = new LoginResponse();
 
+    ctx.res.cookie("token", accessToken, {
+      httpOnly: true,
+      sameSite: process.env.NODE_ENV === "production",
+      secure: true,
+      maxAge: accessTokenLifetimeInMilliSeconds,
+      signed: true,
+    });
+
+    ctx.res.cookie("isAuthorized", true, {
+      httpOnly: false,
+      sameSite: process.env.NODE_ENV === "production",
+      secure: true,
+      maxAge: accessTokenLifetimeInMilliSeconds,
+      signed: false,
+    });
+
     delete user.password;
     response.user = user;
-    response.token = accessToken;
     return response;
   }
 
@@ -250,13 +272,6 @@ export class LoginResolver {
         if (modified) await user.save();
       }
       const response = new LoginResponse();
-
-      response.token = this.createToken({
-        userId: user.id,
-        firstName: user.name,
-        email: user.email,
-        walletAddress: publicAddressLowerCase,
-      });
 
       response.user = user;
 

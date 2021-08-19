@@ -46,7 +46,8 @@ const envVars = [
   "MAIL_PORT",
   "MAIL_USER",
   "MAIL_PASS",
-  "PASSWORD_RESET_TOKEN_LIFETIME_SECONDS"
+  "PASSWORD_RESET_TOKEN_LIFETIME_SECONDS",
+  "COOKIE_SECRET"
 ];
 interface requiredEnv {
   JWT_SECRET: string;
@@ -96,6 +97,8 @@ interface requiredEnv {
   MAIL_USER: string;
   MAIL_PASS: string;
   PASSWORD_RESET_TOKEN_LIFETIME_SECONDS: number;
+  COOKIE_SECRET: string;
+  ACCESS_TOKEN_LIFETIME_IN_DAYS: number;
 }
 
 class Config {

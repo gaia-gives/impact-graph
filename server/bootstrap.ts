@@ -5,13 +5,13 @@ import { json } from 'express'
 import { handleStripeWebhook } from '../utils/stripe'
 import { netlifyDeployed } from '../netlify/deployed'
 import createSchema from './createSchema'
-import Logger from '../logger'
 import { graphqlUploadExpress } from 'graphql-upload'
+import cookieParser from "cookie-parser"
+import cors from "cors"
 
 // tslint:disable:no-var-requires
 const express = require('express')
 const bodyParser = require('body-parser')
-const cors = require('cors')
 
 // register 3rd party IOC container
 
@@ -23,15 +23,14 @@ export async function bootstrap () {
     const apolloServer = new ApolloServer({
       schema,
       context: ({ req, res }: any) => {
-        let token
+        let token;
         try {
           if (!req) {
             return null
           }
 
-          const { headers } = req
-          if (headers.authorization) {
-            token = headers.authorization.split(' ')[1].toString()
+          token = (req.signedCookies || {}).token
+          if (token) {
             const secret = config.get('JWT_SECRET')
 
             const decodedJwt: any = jwt.verify(token, secret)
@@ -55,7 +54,7 @@ export async function bootstrap () {
             req.user = user
           }
 
-          const userWalletAddress = headers['wallet-address']
+          const userWalletAddress = req.headers['wallet-address']
           if (userWalletAddress) {
             req.userwalletAddress = userWalletAddress
           }
@@ -82,7 +81,10 @@ export async function bootstrap () {
         reportSchema: true
       },
       playground: {
-        endpoint: '/graphql'
+        endpoint: '/graphql',
+        settings: {
+          "request.credentials": 'include'
+        }
       },
       uploads: false,
       introspection: true
@@ -91,7 +93,12 @@ export async function bootstrap () {
     // Express Server
     const app = express()
 
-    app.use(cors())
+    app.use(cookieParser(config.get("COOKIE_SECRET")));
+    
+    app.use(cors({
+      credentials: true,
+      origin: "http://localhost:3000"
+    }))
     app.use(
       json({ limit: config.get('UPLOAD_FILE_MAX_SIZE') || 4000000 })
     )
@@ -101,7 +108,7 @@ export async function bootstrap () {
         maxFiles: 10
       })
     )
-    apolloServer.applyMiddleware({ app })
+    apolloServer.applyMiddleware({ app, cors: false })
     app.post(
       '/stripe-webhook',
       bodyParser.raw({ type: 'application/json' }),
