@@ -13,6 +13,7 @@ import { ERROR_CODES } from "../utils/errorCodes";
 import * as bcrypt from "bcryptjs";
 import { getAnalytics } from "../analytics";
 import { sendEmail } from "../utils/sendEmail";
+import config from '../config';
 
 const analytics = getAnalytics();
 
@@ -94,7 +95,13 @@ export class MeResolver {
     );
     if (dbUser) {
       await User.update(dbUser, { newEmail: newEmail });
-      await sendEmail(newEmail, await createConfirmNewMailUrl(dbUser.id));
+      const confirmationUrl = await createConfirmNewMailUrl(dbUser.id);
+      await sendEmail({
+        to: newEmail,
+        from: config.get("GAIA_EMAIL_FROM"),
+        subject: "Gaia Gives - New email address confirmation link",
+        html: `Confirm your new email address: <a href="${confirmationUrl}">${confirmationUrl}</a>`
+      });
       analytics.identifyUser(dbUser);
       analytics.track("Updated email", dbUser.segmentUserId(), newEmail, null);
       return true;

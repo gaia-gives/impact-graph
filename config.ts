@@ -96,6 +96,7 @@ interface requiredEnv {
   MAIL_USER: string;
   MAIL_PASS: string;
   PASSWORD_RESET_TOKEN_LIFETIME_SECONDS: number;
+  GAIA_EMAIL_FROM: string;
 }
 
 class Config {

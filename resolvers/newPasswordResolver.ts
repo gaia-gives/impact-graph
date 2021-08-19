@@ -57,7 +57,12 @@ export class NewPasswordResolver {
     await redis.set(key, token, "EX", config.get("PASSWORD_RESET_TOKEN_LIFETIME_SECONDS"));
     const user = await this.userRepository.findOne({ email });
     if (user) {
-      await sendEmail(email, body);
+      await sendEmail({
+        to: email,
+        from: config.get("GAIA_EMAIL_FROM"),
+        subject: "Gaia Gives - Password reset",
+        html: body
+      });
     }
     return new SendPasswordResetLinkResponse(email);
   }
