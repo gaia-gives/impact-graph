@@ -8,7 +8,7 @@ async function notifyProject(project) {
   
   if(project.users && project.users.length) {
     const { email, id: userId } = project.users[0]
-    await sendEmail(email, await createConfirmationUrl(userId))
+    // await sendEmail(email, await createConfirmationUrl(userId))
   } else {
     const errorMessage = `Netlify deployed - Project no email for projectID  ---> : ${project.id}`
     console.error(errorMessage)

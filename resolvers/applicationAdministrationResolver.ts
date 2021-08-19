@@ -6,6 +6,25 @@ import { InjectRepository } from "typeorm-typedi-extensions";
 import { ApplicationState } from "../entities/application";
 import { assertAdminAccess } from "../utils/assertAdminAccess";
 import { getUser } from "../utils/getUser"
+import { ERROR_CODES } from "../utils/errorCodes";
+import { sendEmail } from "../utils/sendEmail";
+import { User } from "../entities/user";
+import config from '../config'
+
+const sendMailToApplicant = async (user: User, applicationId: string) => {
+  if (!user) {
+    throw new Error(ERROR_CODES.INVALID_OPERATION);
+  }
+
+  const applicationLink = `${config.get("WEBSITE_URL")}/application/${applicationId}`;
+
+  await sendEmail({
+    from: config.get("GAIA_EMAIL_FROM"),
+    to: user.email!,
+    subject: "Your application status",
+    html: `We have some updates concerning your application. You can check it here: <a href="${applicationLink}">${applicationLink}</a>`
+  });
+}
 
 @Resolver(() => Application)
 export class ApplicationAdministrationResolver {
@@ -65,11 +84,12 @@ export class ApplicationAdministrationResolver {
     @Arg("adminComment", { nullable: false }) adminComment: string
   ) {
     const user = await getUser(ctx)
-    const application = await this.applicationRepository.findOne({id});
+    const application = await this.applicationRepository.findOne({id}, { relations: ["user"] });
 
     if (user && application) {
       application?.updateAdminComment(user, adminComment);
-      application.save();
+      await application.save();
+      await sendMailToApplicant(application.user, application.id);
     }
     return application;
   }

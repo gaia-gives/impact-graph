@@ -1,7 +1,15 @@
 import * as nodemailer from "nodemailer";
 import config from "../config";
 
-export async function sendEmail(email: string, url: string) {
+interface MailOptions {
+  from: string; // sender address
+  to: string; // list of receivers
+  subject: string; // Subject line
+  text?: string; // plain text body
+  html?: string;
+}
+
+export async function sendEmail(options: MailOptions) {
   const transporter = nodemailer.createTransport({
     host: config.get("MAIL_HOST"),
     port: config.get("MAIL_PORT"),
@@ -11,15 +19,7 @@ export async function sendEmail(email: string, url: string) {
     },
   });
 
-  const mailOptions = {
-    from: '"Fred Foo 👻" <foo@example.com>', // sender address
-    to: email, // list of receivers
-    subject: "Hello ✔", // Subject line
-    text: "Hello world?", // plain text body
-    html: `<a href="${url}">${url}</a>`, // html body
-  };
-
-  const info = await transporter.sendMail(mailOptions);
+  const info = await transporter.sendMail(options);
 
   console.log("Message sent: %s", info.messageId);
   // Preview only available when sending through an Ethereal account

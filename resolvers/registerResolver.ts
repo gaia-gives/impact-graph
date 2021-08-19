@@ -11,6 +11,7 @@ import { RegisterInput } from '../user/register/RegisterInput'
 import { sendEmail } from '../utils/sendEmail'
 import { createConfirmationUrl } from '../utils/createConfirmationUrl'
 import { Repository } from 'typeorm'
+import config from '../config'
 
 @Resolver()
 export class RegisterResolver {
@@ -44,8 +45,13 @@ export class RegisterResolver {
       confirmed: false
     }).save()
     console.log("after creation")
-
-    await sendEmail(email, await createConfirmationUrl(user.id, lastVisited))
+    const confirmationUrl = await createConfirmationUrl(user.id, lastVisited);
+    await sendEmail({
+      to: email,
+      from: config.get("GAIA_EMAIL_FROM"),
+      subject: "Gaia Gives Account Confirmation",
+      html: `Your account confirmation url: <a href="${confirmationUrl}">${confirmationUrl}</a>`
+    }); 
 
     delete user.password
     return user
@@ -93,7 +99,7 @@ export class RegisterResolver {
     }
 
     if (email) {
-      await sendEmail(email, await createConfirmationUrl(user.id))
+      // await sendEmail(email, await createConfirmationUrl(user.id))
     }
 
     return user
