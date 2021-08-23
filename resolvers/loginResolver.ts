@@ -155,7 +155,7 @@ export class LoginResolver {
     ctx.res.cookie("token", accessToken, {
       httpOnly: true,
       sameSite: process.env.NODE_ENV === "production",
-      secure: true,
+      secure: config.get("COOKIE_SECURE") === "true",
       maxAge: accessTokenLifetimeInMilliSeconds,
       signed: true,
     });
@@ -163,7 +163,7 @@ export class LoginResolver {
     ctx.res.cookie("isAuthorized", true, {
       httpOnly: false,
       sameSite: process.env.NODE_ENV === "production",
-      secure: true,
+      secure: config.get("COOKIE_SECURE") === "true",
       maxAge: accessTokenLifetimeInMilliSeconds,
       signed: false,
     });
