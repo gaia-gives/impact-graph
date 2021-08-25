@@ -118,22 +118,4 @@ export class ApplicationAdministrationResolver {
 
     return application;
   }
-
-  @Authorized()
-  @Mutation(() => Application)
-  async updateAdminComment(
-    @Ctx() ctx: MyContext,
-    @Arg("id", { nullable: false }) id: string,
-    @Arg("adminComment", { nullable: false }) adminComment: string
-  ) {
-    const user = await getUser(ctx)
-    const application = await this.applicationRepository.findOne({id}, { relations: ["user"] });
-
-    if (user && application) {
-      application?.updateAdminComment(user, adminComment);
-      await application.save();
-      await sendMailToApplicant(application.user, application.id);
-    }
-    return application;
-  }
 }
