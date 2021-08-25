@@ -196,3 +196,19 @@ export const UPDATE_ADMIN_COMMENT = gql`
     }
   }
 `;
+
+export const APPROVE_APPLICATION = gql`
+  mutation approveApplication($id: String! $adminComment: String!) {
+    approveApplication(id: $id, adminComment: $adminComment) {
+      id
+    }
+  }
+`;
+
+export const DECLINE_APPLICATION = gql`
+  mutation declineApplication($id: String! $adminComment: String!) {
+    declineApplication(id: $id, adminComment: $adminComment) {
+      id
+    }
+  }
+`;

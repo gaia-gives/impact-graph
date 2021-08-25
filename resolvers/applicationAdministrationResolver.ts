@@ -1,4 +1,4 @@
-import { Application } from "./../entities/application";
+import { Application, ApplicationStep } from "./../entities/application";
 import { MyContext } from "./../types/MyContext";
 import { Repository } from "typeorm";
 import { Arg, Authorized, Ctx, Mutation, Query, Resolver } from "type-graphql";
@@ -74,6 +74,49 @@ export class ApplicationAdministrationResolver {
     assertAdminAccess(user);
 
     return await this.applicationRepository.findOne(id);
+  }
+
+  @Authorized()
+  @Mutation(() => Application)
+  async approveApplication(
+    @Ctx() ctx: MyContext,
+    @Arg("id", { nullable: false }) id: string,
+    @Arg("adminComment", { nullable: false }) adminComment: string
+  ) {
+    const user = await getUser(ctx)
+    assertAdminAccess(user)
+    const application = await this.applicationRepository.findOne({id}, { relations: ["user"] });
+
+    if (user && application) {
+      application.updateAdminComment(user, adminComment)
+      Application.update(application, { applicationState: ApplicationState.ACCEPTED})
+      
+      if(application.applicationStep === ApplicationStep.STEP_1) {
+        Application.update(application, {applicationStep: ApplicationStep.STEP_2})
+      }
+      await application.save();
+    }
+    return application;
+  }
+
+  @Authorized()
+  @Mutation(() => Application)
+  async declineApplication(
+    @Ctx() ctx: MyContext,
+    @Arg("id", { nullable: false }) id: string,
+    @Arg("adminComment", { nullable: false }) adminComment: string
+  ) {
+    const user = await getUser(ctx)
+    assertAdminAccess(user)
+    const application = await this.applicationRepository.findOne({id}, { relations: ["user"] });
+
+    if (user && application) {
+      application.updateAdminComment(user, adminComment)
+      Application.update(application, { applicationState: ApplicationState.REJECTED})
+      await application.save();
+    }
+
+    return application;
   }
 
   @Authorized()
