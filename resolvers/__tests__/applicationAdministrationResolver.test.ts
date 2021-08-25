@@ -1,4 +1,4 @@
-import { APPLICATIONS_AS_ADMIN, APPLICATION_AS_ADMIN, CREATE_APPLICATION, UPDATE_ADMIN_COMMENT } from "./../graphqlApi/application";
+import { APPLICATIONS_AS_ADMIN, APPLICATION_AS_ADMIN, CREATE_APPLICATION, UPDATE_ADMIN_COMMENT, APPROVE_APPLICATION, DECLINE_APPLICATION } from "./../graphqlApi/application";
 import { ApolloServer } from "apollo-server-express";
 import * as TypeORM from "typeorm";
 import { createTestServer } from "../../server/testServerFactory";
@@ -62,14 +62,25 @@ describe("application administration resolver", async () => {
     expect(result.data!.applicationAsAdmin.id).to.equal(draft.data!.createOrUpdateApplicationDraft.application.id);
   });
   
-  it("should update comment as admin", async () => {
+  it("should update comment as admin on accept", async () => {
     const draft = await server.executeOperation({
       query: CREATE_APPLICATION,
       variables: {
         legalName: "Test",
       }
     }, { connection });
-    const result = await server.executeOperation({ query: UPDATE_ADMIN_COMMENT, variables: { id: draft.data!.createOrUpdateApplicationDraft.application.id, adminComment: "Test" } }, { connection });
+    const result = await server.executeOperation({ query: APPROVE_APPLICATION, variables: { id: draft.data!.createOrUpdateApplicationDraft.application.id, adminComment: "Test" } }, { connection });
+    expect(result.data).to.not.be.null.and.to.not.be.undefined;
+  });
+
+  it("should update comment as admin on decline", async () => {
+    const draft = await server.executeOperation({
+      query: CREATE_APPLICATION,
+      variables: {
+        legalName: "Test",
+      }
+    }, { connection });
+    const result = await server.executeOperation({ query: DECLINE_APPLICATION, variables: { id: draft.data!.createOrUpdateApplicationDraft.application.id, adminComment: "Test" } }, { connection });
     expect(result.data).to.not.be.null.and.to.not.be.undefined;
   });
 });
