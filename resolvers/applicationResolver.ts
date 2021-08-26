@@ -1,11 +1,11 @@
-import { ERROR_CODES } from "./../utils/errorCodes";
+import { ERROR_CODES } from "../utils/errorCodes";
 import {
   ApplicationStepTwoDraft,
   ApplicationStepTwoDraftVariables,
 } from "./types/application/application-step-two-draft";
-import { FileReference } from "./../entities/fileReference";
+import { FileReference } from "../entities/fileReference";
 import { ResolverResult } from "./types/ResolverResult";
-import { User } from "./../entities/user";
+import { User } from "../entities/user";
 import {
   Resolver,
   Query,
@@ -16,7 +16,7 @@ import {
   Authorized,
   ID,
   ObjectType,
-  Field,
+  Field, ArgsType, Int,
 } from "type-graphql";
 import { GraphQLUpload, FileUpload } from "graphql-upload";
 import { Repository } from "typeorm";
@@ -33,6 +33,9 @@ import { defaultTo, update } from "ramda";
 import { ApplicationStepOneSubmit } from "./types/application/application-step-one-submit";
 import { saveFile } from "../utils/saveFile";
 import { deleteFile } from "../utils/deleteFile";
+import { isAdmin, getLoggedInUser} from "../utils/userAccess";
+import {Service} from "typedi";
+import {Max, Min} from "class-validator";
 
 @ObjectType()
 export class ApplicationDocumentUploadResult extends ResolverResult {
@@ -75,6 +78,14 @@ export class ApplicationStateQueryResult extends ResolverResult {
   application: Application;
 }
 
+@Service()
+@ArgsType()
+class GetApplicationStepOneArgs {
+  @Field({ nullable: false })
+  id: string;
+}
+
+
 @Resolver(() => Application)
 export class ApplicationResolver {
   constructor(
@@ -103,7 +114,7 @@ export class ApplicationResolver {
   ) {
     const userId = ctx.req.user?.userId;
     return this.applicationRepository.findOne({
-      where: { id },
+      where: { id, userId },
       relations: ["categories", "user"],
     });
   }
@@ -143,15 +154,22 @@ export class ApplicationResolver {
 
   @Authorized()
   @Query(() => Application)
-  async getApplicationStepOne(@Ctx() ctx: MyContext) {
-    const userId = ctx.req.user?.userId;
-    if (!userId) {
-      throw new Error(ERROR_CODES.AUTHENTICATION_REQUIRED);
+  async getApplicationStepOne(
+      @Ctx() ctx: MyContext,
+      @Args() { id }: GetApplicationStepOneArgs
+  ) {
+    const user = await getLoggedInUser(ctx)
+    if (isAdmin(user)) {
+      return this.applicationRepository.findOne({
+        where: { id: id },
+        relations: ["categories", "user"],
+      });
+    } else {
+      return this.applicationRepository.findOne({
+        where: { id: id, userId: user.id },
+        relations: ["categories", "user"],
+      });
     }
-    return this.applicationRepository.findOne({
-      where: { userId: userId },
-      relations: ["categories", "user"],
-    });
   }
 
   @Authorized()
