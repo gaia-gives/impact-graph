@@ -127,58 +127,10 @@ describe("application tests", () => {
     application.applicationStep = ApplicationStep.STEP_1;
     application.applicationState = ApplicationState.ACCEPTED;
 
-    application.updateAdminComment(user, "Test");
+    application.updateAdminComment("Test");
 
     expect(application.adminComment).to.not.be.null.and.to.not.be.undefined;
     expect(application.adminComment).to.equal("Test");
   });
 
-  it("should remove admin comment", () => {
-    application = new Application();
-    const user = new User();
-    user.globalRole = GlobalRole.ADMIN;
-    application.applicationStep = ApplicationStep.STEP_1;
-    application.applicationState = ApplicationState.ACCEPTED;
-
-    application.removeAdminComment(user);
-
-    expect(application.adminComment).to.be.undefined;
-  });
-
-  it("should not be allowed to update admin comment when not admin", () => {
-    application = new Application();
-    const user = new User();
-    user.globalRole = GlobalRole.USER;
-    application.applicationStep = ApplicationStep.STEP_1;
-    application.applicationState = ApplicationState.ACCEPTED;
-
-    assert.throws(
-      () => {
-        application.updateAdminComment(user, "Test2");
-      },
-      Error,
-      "UNAUTHORIZED"
-    );
-    expect(application.adminComment).to.be.undefined;
-  });
-
-  it("should not be allowed to remove admin comment when not admin", () => {
-    application = new Application();
-    const user = new User();
-    user.globalRole = GlobalRole.ADMIN;
-    application.applicationStep = ApplicationStep.STEP_1;
-    application.applicationState = ApplicationState.ACCEPTED;
-    application.updateAdminComment(user, "Test");
-    user.globalRole = GlobalRole.USER;
-
-    assert.throws(
-      () => {
-        application.removeAdminComment(user);
-      },
-      Error,
-      "UNAUTHORIZED"
-    );
-
-    expect(application.adminComment).to.equal("Test");
-  });
 });

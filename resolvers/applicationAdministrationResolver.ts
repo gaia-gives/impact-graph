@@ -1,10 +1,10 @@
-import { Application } from "./../entities/application";
-import { MyContext } from "./../types/MyContext";
+import { Application } from "../entities/application";
+import { MyContext } from "../types/MyContext";
 import { Repository } from "typeorm";
 import { Arg, Authorized, Ctx, Mutation, Query, Resolver } from "type-graphql";
 import { InjectRepository } from "typeorm-typedi-extensions";
 import { ApplicationState } from "../entities/application";
-import { assertAdminAccess } from "../utils/assertAdminAccess";
+import { assertAdminAccess } from "../utils/userAccess";
 import { getUser } from "../utils/getUser"
 import { ERROR_CODES } from "../utils/errorCodes";
 import { sendEmail } from "../utils/sendEmail";
@@ -87,7 +87,8 @@ export class ApplicationAdministrationResolver {
     const application = await this.applicationRepository.findOne({id}, { relations: ["user"] });
 
     if (user && application) {
-      application?.updateAdminComment(user, adminComment);
+      assertAdminAccess(user);
+      application?.updateAdminComment(adminComment);
       await application.save();
       await sendMailToApplicant(application.user, application.id);
     }
