@@ -19,3 +19,4 @@ config/production.env
 .vscode/settings.json
 start-redis.sh
 start.sh
+dump.rdb
