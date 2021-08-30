@@ -146,10 +146,10 @@ export class ApplicationStepTwoDraftVariables implements IApplicationStepTwo {
   @Field(() => ID!, { nullable: false })
   public id: string;
 
-  @Field(() => [String!], { nullable: true })
+  @Field(() => ValidationMaterial, { nullable: true })
   public validationMaterial?: ValidationMaterial;
 
-  @Field(() => String, { nullable: true })
+  @Field(() => OrganisationalStructure, { nullable: true })
   public organisationalStructure?: OrganisationalStructure;
 
   @Field({ nullable: true })
