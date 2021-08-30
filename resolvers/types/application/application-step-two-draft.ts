@@ -1,6 +1,6 @@
 import { IApplicationStepTwo } from './../../../entities/application';
 import { FileReference } from "./../../../entities/fileReference";
-import { ArgsType, Field, ID, ObjectType } from "type-graphql";
+import { ArgsType, Field, ID, InputType, ObjectType } from "type-graphql";
 import {
   Application,
   ApplicationState,
@@ -28,7 +28,7 @@ export class ValidationMaterial {
 }
 
 @ObjectType()
-export class ApplicationStepTwoDraft implements IApplicationStepTwo {
+export class ApplicationStepTwoDraft implements Omit<IApplicationStepTwo, "validationMaterial" | "organisationalStructure"> {
   public static mapApplicationToDraft(
     application: Application
   ): ApplicationStepTwoDraft {
@@ -41,9 +41,9 @@ export class ApplicationStepTwoDraft implements IApplicationStepTwo {
         ),
       },
       channelsAndStrategies: application.channelsAndStrategies,
-      charter: application.fileReferences?.filter((f) => f.mapsToField === "charter") ?? [],
+      charter: application.fileReferences.filter((f) => f.mapsToField === "charter") ?? [],
       currentChannelsOfFundraising: application.currentChannelsOfFundraising,
-      document501c3: application.fileReferences?.filter(
+      document501c3: application.fileReferences.filter(
         (f) => f.mapsToField === "document501c3"
       ),
       fullTimeWorkers: application.fullTimeWorkers,
@@ -142,15 +142,16 @@ export class ApplicationStepTwoDraft implements IApplicationStepTwo {
 }
 
 @ArgsType()
+@InputType()
 export class ApplicationStepTwoDraftVariables implements IApplicationStepTwo {
   @Field(() => ID!, { nullable: false })
   public id: string;
 
-  @Field(() => ValidationMaterial, { nullable: true })
-  public validationMaterial?: ValidationMaterial;
+  @Field(() => [String!], { nullable: true })
+  public validationMaterial?: string[];
 
-  @Field(() => OrganisationalStructure, { nullable: true })
-  public organisationalStructure?: OrganisationalStructure;
+  @Field(() => String, { nullable: true })
+  public organisationalStructure?: string;
 
   @Field({ nullable: true })
   public currentChannelsOfFundraising?: string;

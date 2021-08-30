@@ -1,11 +1,7 @@
 import Stripe from 'stripe'
-
-import { Repository } from 'typeorm'
-
 import config from '../config'
-import { BankAccount, StripeTransaction } from '../entities/bankAccount'
+import { StripeTransaction } from '../entities/bankAccount'
 import { Project } from '../entities/project'
-import { User } from '../entities/user'
 
 const stripe = new Stripe(config.get('STRIPE_SECRET').toString(), {
   apiVersion: '2020-08-27'

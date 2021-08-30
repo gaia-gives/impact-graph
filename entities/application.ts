@@ -123,8 +123,8 @@ export interface IApplicationStepOne {
 }
 
 export interface IApplicationStepTwo {
-  validationMaterial?: ValidationMaterial;
-  organisationalStructure?: OrganisationalStructure;
+  validationMaterial?: string[];
+  organisationalStructure?: string;
   currentChannelsOfFundraising?: string;
   channelsAndStrategies?: string;
   integrateDonations?: boolean;
@@ -204,8 +204,8 @@ export class Application extends BaseEntity {
 
   public updateApplicationStepTwo(stepTwo: IApplicationStepTwo) {
     this.assertCanUpdate(ApplicationStep.STEP_2);
-    this.validationMaterial = stepTwo.validationMaterial?.links;
-    this.organisationalStructure = stepTwo.organisationalStructure?.text;
+    this.validationMaterial = stepTwo.validationMaterial?.slice();
+    this.organisationalStructure = stepTwo.organisationalStructure;
     this.currentChannelsOfFundraising = stepTwo.currentChannelsOfFundraising;
     this.channelsAndStrategies = stepTwo.channelsAndStrategies;
     this.currentChannelsOfFundraising = stepTwo.currentChannelsOfFundraising;
