@@ -85,6 +85,13 @@ class GetApplicationStepOneArgs {
   id: string;
 }
 
+@Service()
+@ArgsType()
+class GetApplicationStepTwoArgs {
+  @Field({ nullable: false })
+  id: string;
+}
+
 
 @Resolver(() => Application)
 export class ApplicationResolver {
@@ -174,17 +181,23 @@ export class ApplicationResolver {
 
   @Authorized()
   @Query(() => ApplicationStepTwoDraftResult)
-  async getApplicationStepTwo(@Ctx() ctx: MyContext) {
+  async getApplicationStepTwo(
+      @Ctx() ctx: MyContext,
+      @Args() { id }: GetApplicationStepTwoArgs) {
+    const user = await getLoggedInUser(ctx)
     const result = new ApplicationStepTwoDraftResult();
-    const user = await this.userRepository.findOne(ctx.req.user.userId);
-    if (!user) {
-      throw new Error(ERROR_CODES.AUTHENTICATION_REQUIRED);
+    let application;
+    if (isAdmin(user)) {
+      application = await this.applicationRepository.findOne(
+          { id: id },
+          { relations: ["fileReferences", "user"] }
+      );
+    } else {
+      application = await this.applicationRepository.findOne(
+          { user: user, id: id },
+          { relations: ["fileReferences", "user"] }
+      );
     }
-
-    const application = await this.applicationRepository.findOne(
-      { user: user },
-      { relations: ["fileReferences", "user"] }
-    );
     if (application) {
       result.application =
         ApplicationStepTwoDraft.mapApplicationToDraft(application);
