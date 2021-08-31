@@ -5,7 +5,7 @@ import {
 } from "./types/application/application-step-two-draft";
 import { FileReference } from "../entities/fileReference";
 import { ResolverResult } from "./types/ResolverResult";
-import { User } from "../entities/user";
+import { GlobalRole, User } from "../entities/user";
 import {
   Resolver,
   Query,
@@ -134,8 +134,13 @@ export class ApplicationResolver {
   ) {
     const result = new ApplicationStateQueryResult();
     const userId = ctx.req.user?.userId;
-    let application: Application | undefined;
-    if (id && userId) {
+    const user =  await this.userRepository.findOne({id: userId});
+    let application: Application | undefined;if (user?.globalRole === GlobalRole.ADMIN) {
+      application = await this.applicationRepository.findOne({
+        where: { id },
+        relations: ["categories", "user"],
+      });
+    } else if (id && userId) {
       application = await this.applicationRepository.findOne({
         where: { id: id, userId: userId },
         relations: ["categories", "user"],
@@ -145,7 +150,7 @@ export class ApplicationResolver {
         where: { userId },
         relations: ["categories", "user"],
       });
-    } else {
+    } else  {
       throw new Error(ERROR_CODES.AUTHENTICATION_REQUIRED);
     }
     if (!application) {
