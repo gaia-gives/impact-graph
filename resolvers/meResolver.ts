@@ -23,24 +23,6 @@ function checkIfUserInRequest(ctx: MyContext) {
   }
 }
 
-async function getLoggedInUser(ctx: MyContext) {
-  checkIfUserInRequest(ctx);
-
-  const user = await User.findOne({ id: ctx.req.user.userId });
-
-  if (!user) {
-    const errorMessage = `No user with userId ${ctx.req.user.userId} found. This userId comes from the token. Please check the pm2 logs for the token. Search for 'Non-existant userToken' to see the token`;
-    const userMessage = "Access denied";
-    Logger.captureMessage(errorMessage);
-    console.error(
-      `Non-existant userToken for userId ${ctx.req.user.userId}. Token is ${ctx.req.user.token}`
-    );
-    throw new Error(userMessage);
-  }
-
-  return user;
-}
-
 @Resolver()
 export class MeResolver {
   constructor(
@@ -56,10 +38,36 @@ export class MeResolver {
     private readonly projectRepository: Repository<Project> // @InjectRepository(OrganisationProject) // private readonly organisationProjectRepository: Repository< //   OrganisationProject // >
   ) {}
 
+  async getLoggedInUser(ctx: MyContext) {
+    checkIfUserInRequest(ctx);
+  
+    const user = await this.userRepository
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.organisations", "organisations")
+      .where({ id: ctx.req.user.userId })
+      .getOne();
+  
+    console.error(
+      {user}
+    )
+
+    if (!user) {
+      const errorMessage = `No user with userId ${ctx.req.user.userId} found. This userId comes from the token. Please check the pm2 logs for the token. Search for 'Non-existant userToken' to see the token`;
+      const userMessage = "Access denied";
+      Logger.captureMessage(errorMessage);
+      console.error(
+        `Non-existant userToken for userId ${ctx.req.user.userId}. Token is ${ctx.req.user.token}`
+      );
+      throw new Error(userMessage);
+    }
+  
+    return user;
+  }
+
   @Authorized()
   @Query(() => User, { nullable: true, complexity: 5 })
   async me(@Ctx() ctx: MyContext): Promise<User | undefined> {
-    const user = await getLoggedInUser(ctx);
+    const user = await this.getLoggedInUser(ctx);
     return user;
   }
 
@@ -176,7 +184,7 @@ export class MeResolver {
   // @Authorized()
   @Query(() => [Project], { nullable: true, complexity: 5 })
   async myProjects(@Ctx() ctx: MyContext): Promise<Project[] | undefined> {
-    const user = await getLoggedInUser(ctx);
+    const user = await this.getLoggedInUser(ctx);
 
     const projects = this.projectRepository.find({
       where: { admin: user.id },
