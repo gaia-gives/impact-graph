@@ -16,7 +16,7 @@ const sendMailToApplicant = async (user: User, applicationId: string) => {
     throw new Error(ERROR_CODES.INVALID_OPERATION);
   }
 
-  const applicationLink = `${config.get("WEBSITE_URL")}/application/${applicationId}`;
+  const applicationLink = `${config.get("WEBSITE_URL")}/applications/${applicationId}`;
 
   await sendEmail({
     from: config.get("GAIA_EMAIL_FROM"),
