@@ -88,7 +88,7 @@ export class ApplicationAdministrationResolver {
     const application = await this.applicationRepository.findOne({id}, { relations: ["user"] });
 
     if (user && application) {
-      application.updateAdminComment(user, adminComment)
+      application.updateAdminComment(adminComment);
       Application.update(application, { applicationState: ApplicationState.ACCEPTED})
       
       if(application.applicationStep === ApplicationStep.STEP_1) {
@@ -111,7 +111,7 @@ export class ApplicationAdministrationResolver {
     const application = await this.applicationRepository.findOne({id}, { relations: ["user"] });
 
     if (user && application) {
-      application.updateAdminComment(user, adminComment)
+      application.updateAdminComment(adminComment);
       Application.update(application, { applicationState: ApplicationState.REJECTED})
       await application.save();
     }

@@ -1,4 +1,3 @@
-import { gql } from 'graphql-tag';
 import { Field, ObjectType } from 'type-graphql';
 
 @ObjectType()
