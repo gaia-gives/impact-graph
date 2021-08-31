@@ -89,12 +89,13 @@ export class ApplicationAdministrationResolver {
 
     if (user && application) {
       application.updateAdminComment(adminComment);
-      Application.update(application, { applicationState: ApplicationState.ACCEPTED})
+      application.applicationState = ApplicationState.ACCEPTED;
       
       if(application.applicationStep === ApplicationStep.STEP_1) {
-        Application.update(application, {applicationStep: ApplicationStep.STEP_2})
+        application.applicationStep = ApplicationStep.STEP_2;
       }
       await application.save();
+      await sendMailToApplicant(application.user, application.id);
     }
     return application;
   }
@@ -112,8 +113,9 @@ export class ApplicationAdministrationResolver {
 
     if (user && application) {
       application.updateAdminComment(adminComment);
-      Application.update(application, { applicationState: ApplicationState.REJECTED})
+      application.applicationState = ApplicationState.REJECTED;
       await application.save();
+      await sendMailToApplicant(application.user, application.id);
     }
 
     return application;
