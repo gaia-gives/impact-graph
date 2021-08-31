@@ -16,7 +16,9 @@ import {
   Authorized,
   ID,
   ObjectType,
-  Field, ArgsType, Int,
+  Field,
+  ArgsType,
+  Int,
 } from "type-graphql";
 import { GraphQLUpload, FileUpload } from "graphql-upload";
 import { Repository } from "typeorm";
@@ -33,9 +35,10 @@ import { defaultTo, update } from "ramda";
 import { ApplicationStepOneSubmit } from "./types/application/application-step-one-submit";
 import { saveFile } from "../utils/saveFile";
 import { deleteFile } from "../utils/deleteFile";
-import { isAdmin, getLoggedInUser} from "../utils/userAccess";
-import {Service} from "typedi";
-import {Max, Min} from "class-validator";
+import { isAdmin, getLoggedInUser } from "../utils/userAccess";
+import { Service } from "typedi";
+import { Max, Min } from "class-validator";
+import { getUser } from "../utils/getUser";
 
 @ObjectType()
 export class ApplicationDocumentUploadResult extends ResolverResult {
@@ -78,6 +81,12 @@ export class ApplicationStateQueryResult extends ResolverResult {
   application: Application;
 }
 
+@ObjectType()
+export class ActiveApplicationQueryResult extends ResolverResult {
+  @Field(() => Application, { nullable: true })
+  application?: Application;
+}
+
 @Service()
 @ArgsType()
 class GetApplicationStepOneArgs {
@@ -91,7 +100,6 @@ class GetApplicationStepTwoArgs {
   @Field({ nullable: false })
   id: string;
 }
-
 
 @Resolver(() => Application)
 export class ApplicationResolver {
@@ -127,6 +135,20 @@ export class ApplicationResolver {
   }
 
   @Authorized()
+  @Query(() => ActiveApplicationQueryResult)
+  async activeApplication(@Ctx() ctx: MyContext) {
+    const user = await getUser(ctx);
+    const result = new ActiveApplicationQueryResult();
+    if (user) {
+      const application = await this.applicationRepository.findOne({
+        where: { userId: user.id },
+      });
+      result.application = application;
+    }
+    return result;
+  }
+
+  @Authorized()
   @Query(() => ApplicationStateQueryResult)
   async getApplicationState(
     @Ctx() ctx: MyContext,
@@ -134,8 +156,9 @@ export class ApplicationResolver {
   ) {
     const result = new ApplicationStateQueryResult();
     const userId = ctx.req.user?.userId;
-    const user =  await this.userRepository.findOne({id: userId});
-    let application: Application | undefined;if (user?.globalRole === GlobalRole.ADMIN) {
+    const user = await this.userRepository.findOne({ id: userId });
+    let application: Application | undefined;
+    if (user?.globalRole === GlobalRole.ADMIN) {
       application = await this.applicationRepository.findOne({
         where: { id },
         relations: ["categories", "user"],
@@ -150,9 +173,10 @@ export class ApplicationResolver {
         where: { userId },
         relations: ["categories", "user"],
       });
-    } else  {
+    } else {
       throw new Error(ERROR_CODES.AUTHENTICATION_REQUIRED);
     }
+    console.log({ application });
     if (!application) {
       result.addProblem({
         code: "UNKNOWN_ID",
@@ -167,10 +191,10 @@ export class ApplicationResolver {
   @Authorized()
   @Query(() => Application)
   async getApplicationStepOne(
-      @Ctx() ctx: MyContext,
-      @Args() { id }: GetApplicationStepOneArgs
+    @Ctx() ctx: MyContext,
+    @Args() { id }: GetApplicationStepOneArgs
   ) {
-    const user = await getLoggedInUser(ctx)
+    const user = await getLoggedInUser(ctx);
     if (isAdmin(user)) {
       return this.applicationRepository.findOne({
         where: { id: id },
@@ -187,20 +211,21 @@ export class ApplicationResolver {
   @Authorized()
   @Query(() => ApplicationStepTwoDraftResult)
   async getApplicationStepTwo(
-      @Ctx() ctx: MyContext,
-      @Args() { id }: GetApplicationStepTwoArgs) {
-    const user = await getLoggedInUser(ctx)
+    @Ctx() ctx: MyContext,
+    @Args() { id }: GetApplicationStepTwoArgs
+  ) {
+    const user = await getLoggedInUser(ctx);
     const result = new ApplicationStepTwoDraftResult();
     let application;
     if (isAdmin(user)) {
       application = await this.applicationRepository.findOne(
-          { id: id },
-          { relations: ["fileReferences", "user"] }
+        { id: id },
+        { relations: ["fileReferences", "user"] }
       );
     } else {
       application = await this.applicationRepository.findOne(
-          { user: user, id: id },
-          { relations: ["fileReferences", "user"] }
+        { user: user, id: id },
+        { relations: ["fileReferences", "user"] }
       );
     }
     if (application) {
