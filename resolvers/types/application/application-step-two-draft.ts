@@ -65,7 +65,8 @@ export class ApplicationStepTwoDraft implements Omit<IApplicationStepTwo, "valid
       firstProjectStakeholderRepresentation: application.firstProjectStakeholderRepresentation,
       applicationState: application.applicationState,
       applicationStep: application.applicationStep,
-      lastEdited: application.lastEdited
+      lastEdited: application.lastEdited,
+      adminComment: application.adminComment
     };
   }
 
@@ -139,6 +140,9 @@ export class ApplicationStepTwoDraft implements Omit<IApplicationStepTwo, "valid
 
   @Field(() => Date, { nullable: true})
   public lastEdited?: Date;
+
+  @Field({nullable: true})
+  public adminComment?: string;
 }
 
 @ArgsType()

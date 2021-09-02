@@ -82,4 +82,7 @@ export class ApplicationStepOneDraft implements IApplicationStepOne {
 
   @Field(() => FundingGoal, { nullable: true })
   public plannedFunding: FundingGoal;
+
+  @Field({nullable: true})
+  public adminComment?: string;
 }
