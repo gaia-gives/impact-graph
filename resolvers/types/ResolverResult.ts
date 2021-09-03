@@ -6,7 +6,7 @@ export interface ResolverResultProps {
   success: boolean;
   problems: Problem[];
 
-  addProblem(problem: Problem);
+  addProblem(problem: Problem): void;
 }
 
 @ObjectType()

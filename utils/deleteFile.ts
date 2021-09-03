@@ -1,9 +1,11 @@
-import fs from "fs/promises";
+import fs from "fs";
+import { getFilePath } from "./getFilePath";
 
-export const deleteFile = async (path: string): Promise<void> => {
-    if (fs.stat(path)) {
-        return await fs.rm(path);
-    } else {
-        throw new Error('File not found!');
-    }
-}
+export const deleteFile = (id: string): void => {
+  const filePath = getFilePath(id);
+  if (fs.statSync(filePath)) {
+    fs.rmSync(filePath);
+  } else {
+    throw new Error("File not found!");
+  }
+};
