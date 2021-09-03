@@ -66,7 +66,7 @@ export class ApplicationStepTwoDraft implements Omit<IApplicationStepTwo, "valid
       applicationState: application.applicationState,
       applicationStep: application.applicationStep,
       lastEdited: application.lastEdited,
-      adminComment: application.adminComment
+      adminCommentStepTwo: application.adminCommentStepTwo
     };
   }
 
@@ -142,7 +142,7 @@ export class ApplicationStepTwoDraft implements Omit<IApplicationStepTwo, "valid
   public lastEdited?: Date;
 
   @Field({nullable: true})
-  public adminComment?: string;
+  public adminCommentStepTwo?: string;
 }
 
 @ArgsType()

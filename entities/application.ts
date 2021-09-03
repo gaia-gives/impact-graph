@@ -232,7 +232,11 @@ export class Application extends BaseEntity {
   }
 
   public async updateAdminComment(comment: string) {
-    this.adminComment = comment;
+    if (this.applicationStep === ApplicationStep.STEP_1) {
+      this.adminCommentStepOne = comment;
+    } else {
+      this.adminCommentStepTwo = comment;
+    }
   }
 
   @Field(() => ID, { nullable: true })
@@ -420,5 +424,9 @@ export class Application extends BaseEntity {
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  public adminComment?: string;
+  public adminCommentStepOne?: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  public adminCommentStepTwo?: string;
 }

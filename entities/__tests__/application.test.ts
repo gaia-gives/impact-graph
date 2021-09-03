@@ -120,7 +120,7 @@ describe("application tests", () => {
     );
   });
 
-  it("should update admin comment", () => {
+  it("should update admin comment of step 1", () => {
     application = new Application();
     const user = new User();
     user.globalRole = GlobalRole.ADMIN;
@@ -129,8 +129,23 @@ describe("application tests", () => {
 
     application.updateAdminComment("Test");
 
-    expect(application.adminComment).to.not.be.null.and.to.not.be.undefined;
-    expect(application.adminComment).to.equal("Test");
+    expect(application.adminCommentStepOne).to.not.be.null.and.to.not.be.undefined;
+    expect(application.adminCommentStepTwo).to.be.undefined;
+    expect(application.adminCommentStepOne).to.equal("Test");
+  });
+
+  it("should update admin comment of step 2", () => {
+    application = new Application();
+    const user = new User();
+    user.globalRole = GlobalRole.ADMIN;
+    application.applicationStep = ApplicationStep.STEP_2;
+    application.applicationState = ApplicationState.REJECTED;
+
+    application.updateAdminComment("Test");
+
+    expect(application.adminCommentStepTwo).to.not.be.null.and.to.not.be.undefined;
+    expect(application.adminCommentStepOne).to.be.undefined;
+    expect(application.adminCommentStepTwo).to.equal("Test");
   });
 
 });

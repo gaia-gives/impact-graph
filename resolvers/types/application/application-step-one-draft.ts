@@ -84,5 +84,5 @@ export class ApplicationStepOneDraft implements IApplicationStepOne {
   public plannedFunding: FundingGoal;
 
   @Field({nullable: true})
-  public adminComment?: string;
+  public adminCommentStepOne?: string;
 }

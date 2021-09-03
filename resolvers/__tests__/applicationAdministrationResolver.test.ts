@@ -1,4 +1,4 @@
-import { APPLICATIONS_AS_ADMIN, APPLICATION_AS_ADMIN, CREATE_APPLICATION, UPDATE_ADMIN_COMMENT, APPROVE_APPLICATION, DECLINE_APPLICATION } from "./../graphqlApi/application";
+import { APPLICATIONS_AS_ADMIN, APPLICATION_AS_ADMIN, CREATE_APPLICATION, APPROVE_APPLICATION, DECLINE_APPLICATION } from "./../graphqlApi/application";
 import { ApolloServer } from "apollo-server-express";
 import * as TypeORM from "typeorm";
 import { createTestServer } from "../../server/testServerFactory";
