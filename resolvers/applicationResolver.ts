@@ -176,7 +176,6 @@ export class ApplicationResolver {
     } else {
       throw new Error(ERROR_CODES.AUTHENTICATION_REQUIRED);
     }
-    console.log({ application });
     if (!application) {
       result.addProblem({
         code: "UNKNOWN_ID",

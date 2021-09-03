@@ -46,10 +46,7 @@ export class MeResolver {
       .leftJoinAndSelect("user.organisations", "organisations")
       .where({ id: ctx.req.user.userId })
       .getOne();
-  
-    console.error(
-      {user}
-    )
+
 
     if (!user) {
       const errorMessage = `No user with userId ${ctx.req.user.userId} found. This userId comes from the token. Please check the pm2 logs for the token. Search for 'Non-existant userToken' to see the token`;

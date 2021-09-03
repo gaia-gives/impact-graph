@@ -17,8 +17,7 @@ const sendMailToApplicant = async (user: User, applicationId: string) => {
   }
 
   const applicationLink = `${config.get("WEBSITE_URL")}/applications/${applicationId}`;
-
-  await sendEmail({
+  return await sendEmail({
     from: config.get("GAIA_EMAIL_FROM"),
     to: user.email!,
     subject: "Your application status",
@@ -73,7 +72,12 @@ export class ApplicationAdministrationResolver {
     const user = await getUser(ctx)
     assertAdminAccess(user);
 
-    return await this.applicationRepository.findOne(id);
+    const application = await this.applicationRepository.findOne(id);
+    if (application?.readByAdmin !== true) {
+      application?.setRead();
+      await application?.save();
+    }
+    return application;
   }
 
   @Authorized()

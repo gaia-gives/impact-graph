@@ -19,9 +19,9 @@ export async function sendEmail(options: MailOptions) {
     },
   });
 
-  const info = await transporter.sendMail(options);
-
-  console.log("Message sent: %s", info.messageId);
-  // Preview only available when sending through an Ethereal account
-  console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+  try {
+    transporter.sendMail(options);
+  } catch (error) {
+    console.log(error);
+  }
 }
