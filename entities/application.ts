@@ -4,6 +4,7 @@ import {
   Field,
   ID,
   Authorized,
+  Int,
 } from "type-graphql";
 import {
   BaseEntity,
@@ -195,6 +196,7 @@ export class Application extends BaseEntity {
   @ManyToMany(() => Category, { cascade: true })
   public categories: Category[];
 
+  @Field(() => [ID!])
   @RelationId((application: Application) => application.categories)
   categoryIds: number[];
 

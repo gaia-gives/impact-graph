@@ -46,7 +46,7 @@ export class ApplicationStepOneDraftVariables  {
   @Field(() => MainInterestReason, { nullable: true })
   mainInterestReason?: MainInterestReason;
 
-  @Field(() => [Number], {nullable: true})
+  @Field(() => [ID], {nullable: true})
   categoryIds?: number[];
 
   @Field(() => Links, { nullable: true })

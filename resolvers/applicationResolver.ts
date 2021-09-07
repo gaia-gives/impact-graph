@@ -218,10 +218,10 @@ export class ApplicationResolver {
         message: "No application found for given id!",
       });
     } else {
-      application.assertCanSubmit(ApplicationStep.STEP_2);
+      application.assertCanSubmit(ApplicationStep.STEP_1);
       Application.merge(application, {
         ...applicationSubmit,
-        applicationStep: ApplicationStep.STEP_1,
+        applicationState: ApplicationState.PENDING,
       });
       result.result = await application.save();
     }
@@ -250,7 +250,7 @@ export class ApplicationResolver {
       application.assertCanSubmit(ApplicationStep.STEP_2);
       Application.merge(application, {
         ...applicationStepTwoSubmit,
-        applicationStep: ApplicationStep.STEP_2,
+        applicationState: ApplicationState.PENDING,
       });
       result.result = await application.save();
     }

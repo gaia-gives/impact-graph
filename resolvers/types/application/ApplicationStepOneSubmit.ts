@@ -46,7 +46,7 @@ export class ApplicationStepOneSubmitVariables {
   @Field(() => MainInterestReason)
   mainInterestReason: MainInterestReason;
 
-  @Field(() => [Number])
+  @Field(() => [ID!])
   categoryIds: number[];
 
   @Field(() => SubmitLinks)
