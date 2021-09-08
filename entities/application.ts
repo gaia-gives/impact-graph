@@ -184,7 +184,7 @@ export class Application extends BaseEntity {
   public plannedFunding?: FundingGoal;
 
   @Field(() => Boolean, { nullable: true })
-  @Column({ default: false })
+  @Column({ nullable: true })
   public acceptFundingFromCorporateSocialResponsibilityPartner?: boolean;
 
   @Field(() => MainInterestReason, { nullable: true })
