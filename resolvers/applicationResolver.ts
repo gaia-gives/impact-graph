@@ -179,10 +179,6 @@ export class ApplicationResolver {
       },
       { relations: ["user"] }
     );
-    result.addProblem({
-      code: "UNKNOWN_ID",
-      message: "No application found for given id!",
-    });
     if (!application) {
       result.addProblem({
         code: "UNKNOWN_ID",
