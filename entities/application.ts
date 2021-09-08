@@ -228,12 +228,12 @@ export class Application extends BaseEntity {
   @Column("simple-json", { nullable: false, default: [] })
   public document501c3?: File[];
 
-  @Field(() => ValidationMaterial, { nullable: true })
-  @Column("simple-json", { nullable: true })
+  @Field(() => ValidationMaterial, { nullable: true} )
+  @Column("simple-json", { nullable: true, default: { links: [], files: [] }})
   public validationMaterial?: ValidationMaterial;
 
-  @Field(() => OrganisationalStructure, { nullable: true })
-  @Column("simple-json", { nullable: true })
+  @Field(() => OrganisationalStructure, { nullable: true})
+  @Column("simple-json", { nullable: true, default: { text: null, files: [] }})
   public organisationalStructure?: OrganisationalStructure;
 
   @Field(() => Date, { nullable: true })
