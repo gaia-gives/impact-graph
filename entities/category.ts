@@ -1,4 +1,4 @@
-import { Field, ID, ObjectType } from "type-graphql";
+import { Field, Int, ObjectType } from "type-graphql";
 import {
   PrimaryGeneratedColumn,
   Column,
@@ -12,7 +12,7 @@ import { Project } from "./project";
 @Entity()
 @ObjectType()
 export class Category extends BaseEntity {
-  @Field((type) => ID)
+  @Field((type) => Int)
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -32,11 +32,11 @@ export class Category extends BaseEntity {
   @Column({ nullable: true })
   image: string;
 
-  @Field({ nullable: true})
+  @Field({ nullable: true })
   @Column({ nullable: true })
   headline: string;
 
-  @Field({ nullable: true})
+  @Field({ nullable: true })
   @Column({ nullable: true })
   description: string;
 
