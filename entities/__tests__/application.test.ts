@@ -12,10 +12,10 @@ describe("application tests", () => {
 
     assert.throws(
       () => {
-        application.updateApplicationStepTwo({});
+        application.assertCanSubmit(ApplicationStep.STEP_2);
       },
       Error,
-      "Cannot update, invalid application state for update!"
+      "Cannot submit, invalid application state for submission!"
     );
   });
 
@@ -26,10 +26,10 @@ describe("application tests", () => {
 
     assert.throws(
       () => {
-        application.updateApplicationStepOne({}, []);
+        application.assertCanSubmit(ApplicationStep.STEP_1)
       },
       Error,
-      "Cannot update, invalid application state for update!"
+      "Cannot submit, invalid application state for submission!"
     );
   });
 
@@ -40,10 +40,10 @@ describe("application tests", () => {
 
     assert.throws(
       () => {
-        application.updateApplicationStepOne({}, []);
+        application.assertCanSubmit(ApplicationStep.STEP_1)
       },
       Error,
-      "Cannot update, invalid application state for update!"
+      "Cannot submit, invalid application state for submission!"
     );
   });
 
@@ -54,10 +54,10 @@ describe("application tests", () => {
 
     assert.throws(
       () => {
-        application.updateApplicationStepOne({}, []);
+        application.assertCanSubmit(ApplicationStep.STEP_1);
       },
       Error,
-      "Cannot update, invalid application state for update!"
+      "Cannot submit, invalid application state for submission!"
     );
   });
 
@@ -68,10 +68,10 @@ describe("application tests", () => {
 
     assert.doesNotThrow(
       () => {
-        application.updateApplicationStepOne({}, []);
+        application.assertCanSubmit(ApplicationStep.STEP_1)
       },
       Error,
-      "Cannot update, invalid application state for update!"
+      "Cannot submit, invalid application state for submission!"
     );
   });
 
