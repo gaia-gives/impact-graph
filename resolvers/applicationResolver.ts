@@ -34,6 +34,7 @@ import {
   ApplicationStepOneDraftVariables,
 } from "./types/application";
 import { ResolverResult } from "./types/ResolverResult";
+import { Category } from "../entities/category";
 
 @ObjectType()
 export class ApplicationQueryResult extends ResolverResult {
@@ -58,7 +59,9 @@ export class ApplicationResolver {
     @InjectRepository(Application)
     private readonly applicationRepository: Repository<Application>,
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>
+    private readonly userRepository: Repository<User>,
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>
   ) {}
 
   @Authorized()
@@ -153,7 +156,9 @@ export class ApplicationResolver {
         message: "No application found for given id!",
       });
     } else {
+      const categories = await this.categoryRepository.findByIds(applicationStepOneDraft.categoryIds || [])
       application.assertCanUpdate(ApplicationStep.STEP_1);
+      application.categories = categories;
       Application.merge(application, applicationStepOneDraft);
       result.result = await application.save();
     }
@@ -200,12 +205,12 @@ export class ApplicationResolver {
     description: "For updating the draft of the first step of the application",
   })
   async submitApplicationStepOne(
-    @Args() applicationSubmit: ApplicationStepOneSubmitVariables,
+    @Args() applicationStepOneSubmit: ApplicationStepOneSubmitVariables,
     @Ctx() ctx: MyContext
   ) {
     const result = new ApplicationQueryResult();
     const application = await this.applicationRepository.findOne({
-      id: applicationSubmit.id,
+      id: applicationStepOneSubmit.id,
       userId: ctx.req.user.userId,
     });
     if (!application) {
@@ -214,9 +219,11 @@ export class ApplicationResolver {
         message: "No application found for given id!",
       });
     } else {
+      const categories = await this.categoryRepository.findByIds(applicationStepOneSubmit.categoryIds || [])
       application.assertCanSubmit(ApplicationStep.STEP_1);
+      application.categories = categories;
       Application.merge(application, {
-        ...applicationSubmit,
+        ...applicationStepOneSubmit,
         applicationState: ApplicationState.PENDING,
       });
       result.result = await application.save();
