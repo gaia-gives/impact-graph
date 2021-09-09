@@ -1,11 +1,9 @@
 import fs from "fs";
 import { getFilePath } from "./getFilePath";
 
-export const deleteFile = (id: string): void => {
-  const filePath = getFilePath(id);
-  if (fs.statSync(filePath)) {
+export const deleteFile = (userId: number, id: string): void => {
+  const filePath = getFilePath(userId, id);
+  if (fs.existsSync(filePath)) {
     fs.rmSync(filePath);
-  } else {
-    throw new Error("File not found!");
   }
 };

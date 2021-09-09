@@ -267,22 +267,22 @@ export class ApplicationResolver {
     @Ctx() ctx: MyContext
   ) {
     const result = new ApplicationDocumentUploadResult();
-    const user = await this.userRepository.findOne(ctx.req.user.userId);
+    const userId = ctx.req.user.userId
+    const user = await this.userRepository.findOne(userId);
 
     if (!user) {
       throw new Error(ERROR_CODES.AUTHENTICATION_REQUIRED);
     } else {
       const files = await Promise.all(
         documents.map(async (document) => {
-          console.log(document);
           const id = uuid.v4();
           const {
-            createReadStream,
+            createReadStream, 
             filename: name,
             mimetype: type,
           } = await document;
-          await saveFile(id, createReadStream);
-          const size = getFileSize(id);
+          await saveFile(userId, id, createReadStream);
+          const size = await getFileSize(userId, id);
           return {
             id,
             name,
@@ -304,11 +304,12 @@ export class ApplicationResolver {
     @Ctx() ctx: MyContext
   ) {
     const result = new DeleteUploadedDocumentResult();
-    const user = await this.userRepository.findOne(ctx.req.user.userId);
+    const userId = ctx.req.user.userId
+    const user = await this.userRepository.findOne(userId);
     if (!user) {
       throw new Error(ERROR_CODES.AUTHENTICATION_REQUIRED);
     } else {
-      deleteFile(id);
+      deleteFile(userId, id);
       return result;
     }
   }
