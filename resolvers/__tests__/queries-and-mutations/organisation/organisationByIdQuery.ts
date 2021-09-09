@@ -1,19 +1,6 @@
 import gql from "graphql-tag";
 
-const ORGANISATIONS = gql`
-  query Organisations {
-    organisations {
-      id
-      title
-      description
-      mediaLink
-      totalDonors
-      raisedInTotal
-    }
-  }
-`;
-
-const ORGANISATION_BY_ID = gql`
+export const ORGANISATION_BY_ID_QUERY = gql`
   query organisationById($organisationId: Float!) {
     organisationById(organisationId: $organisationId) {
       id
@@ -28,5 +15,3 @@ const ORGANISATION_BY_ID = gql`
     }
   }
 `;
-
-export { ORGANISATIONS, ORGANISATION_BY_ID };

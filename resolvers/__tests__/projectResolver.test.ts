@@ -2,7 +2,7 @@ import { ApolloServer } from "apollo-server-express";
 import * as TypeORM from "typeorm";
 import "mocha";
 import { createTestServer } from "../../server/testServerFactory";
-import { FETCH_PROJECTS } from "./../graphqlApi/project";
+import { FETCH_PROJECTS_QUERY } from "./queries-and-mutations";
 import { expect } from "chai";
 
 let connection: TypeORM.Connection;
@@ -19,30 +19,11 @@ describe("Test Project Resolver", () => {
     await connection.close();
   });
 
-  // it("Create Project", async () => {
-  //   const sampleProject: ProjectInput = {
-  //     title: "title1",
-  //     categories: ["2"],
-
-  //   };
-  //   const result = await server.executeOperation({
-  //     query: ADD_PROJECT,
-  //     variables: {
-  //       projectInput: sampleProject,
-  //     },
-  //   });
-
-  //   console.log(result);
-
-  //   const createProject = result.data?.addProject;
-  //   expect(sampleProject.title).to.eq(createProject.title);
-  // });
-
   it("should query projects by impactLocations and categories", async () => {
     const params = { categoryIds: [5], impactLocationIds: [1] };
 
     const result = await server.executeOperation({
-      query: FETCH_PROJECTS,
+      query: FETCH_PROJECTS_QUERY,
       variables: {
         categories: params.categoryIds,
         locations: params.impactLocationIds,
@@ -57,7 +38,7 @@ describe("Test Project Resolver", () => {
     const params = { impactLocationIds: [7] };
 
     const result = await server.executeOperation({
-      query: FETCH_PROJECTS,
+      query: FETCH_PROJECTS_QUERY,
       variables: {
         locations: params.impactLocationIds,
       },
@@ -71,7 +52,7 @@ describe("Test Project Resolver", () => {
     const params = { categories: [5] };
 
     const result = await server.executeOperation({
-      query: FETCH_PROJECTS,
+      query: FETCH_PROJECTS_QUERY,
       variables: {
         categories: params.categories,
       },
@@ -85,7 +66,7 @@ describe("Test Project Resolver", () => {
     const params = { categories: [5] };
 
     const result = await server.executeOperation({
-      query: FETCH_PROJECTS,
+      query: FETCH_PROJECTS_QUERY,
     });
 
     expect(result.data).to.not.be.null;

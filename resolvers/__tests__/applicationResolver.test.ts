@@ -1,4 +1,9 @@
-import { DELETE_FILE, UPLOAD_FILE } from "./../graphqlApi/application";
+import { ApplicationStepTwoDraftVariables } from './../types/application/ApplicationStepTwoDraft';
+import { UPDATE_APPLICATION_STEP_ONE_DRAFT_MUTATION } from "./queries-and-mutations/application/updateApplicationStepOneDraftMutation";
+import {
+  SUBMIT_APPLICATION_STEP_TWO_MUTATION,
+  UPDATE_APPLICATION_STEP_TWO_DRAFT_MUTATION,
+} from "./queries-and-mutations";
 import {
   OrganisationType,
   MainInterestReason,
@@ -6,41 +11,47 @@ import {
   ApplicationState,
   ApplicationStep,
   FundingGoal,
+  Application,
+  OrganisationNeededResources,
 } from "../../entities/application";
 import { ApolloServer } from "apollo-server-express";
 import "mocha";
 import { expect } from "chai";
 import { createTestServer } from "../../server/testServerFactory";
 import {
-  GET_APPLICATION,
-  GET_APPLICATIONS,
-  CREATE_APPLICATION,
-  SUBMIT_APPLICATION,
-} from "../graphqlApi/application";
+  APPLICATION_QUERY,
+  APPLICATIONS_QUERY,
+  CREATE_APPLICATION_MUTATION,
+  SUBMIT_APPLICATION_STEP_ONE_MUTATION,
+} from "./queries-and-mutations";
 import * as TypeORM from "typeorm";
 import path from "path";
+import {
+  ApplicationStepOneDraftVariables,
+  ApplicationStepOneSubmitVariables,
+  ApplicationStepTwoSubmitVariables,
+} from "../types/application";
 
 let server: ApolloServer;
 let connection: TypeORM.Connection;
 
-const testFilePath = path.join(process.cwd(), "resolvers", "__tests__", "testFile.txt");
-
-const createApplicationDraft: () => Promise<string> = async () => {
-  const result = await server.executeOperation({
-    query: CREATE_APPLICATION,
+const createApplicationDraft: () => Promise<Application> = async () => {
+  const { data } = await server.executeOperation({
+    query: CREATE_APPLICATION_MUTATION,
     variables: {
-      legalName: "Test"
+      legalName: "Test",
     },
-  });
-  return result.data?.createOrUpdateApplicationDraft.application.id;
+  }, { connection });
+  return data?.createApplication.result;
 };
 
 describe("application resolver", async () => {
-  const applicationId = await createApplicationDraft();
+  let application;
 
   before(async () => {
     [connection, server] = await createTestServer();
     await server.start();
+    application = await createApplicationDraft();
   });
 
   after(async () => {
@@ -49,33 +60,30 @@ describe("application resolver", async () => {
   });
 
   it("should query application draft", async () => {
-   
     const result = await server.executeOperation({
-      query: GET_APPLICATION,
+      query: APPLICATION_QUERY,
       variables: {
-        id: applicationId,
+        id: application.id,
       },
     });
     expect(result.data).to.not.be.undefined;
-    expect(result.data?.application.id).to.equal(applicationId);
+    expect(result.data?.application.id).to.equal(application.id);
   });
 
   it("should query applications", async () => {
     const result = await server.executeOperation({
-      query: GET_APPLICATIONS,
+      query: APPLICATIONS_QUERY,
     });
     expect(result.data).to.not.be.undefined;
   });
 
   it("should create application draft", async () => {
-    const result = await server.executeOperation(
-      {
-        query: CREATE_APPLICATION,
-        variables: {
-          legalName: "Test"
-        },
-      }
-    );
+    const result = await server.executeOperation({
+      query: CREATE_APPLICATION_MUTATION,
+      variables: {
+        legalName: "Test",
+      },
+    });
     expect(result.data).to.not.be.undefined.and.to.not.be.null;
     expect(
       result.data?.createOrUpdateApplicationDraft.application.applicationState
@@ -85,20 +93,44 @@ describe("application resolver", async () => {
     ).to.equal(ApplicationStep.STEP_1);
   });
 
-  it("should submit application draft", async () => {
-    const id = await createApplicationDraft();
-    const result = await server.executeOperation(
+  it("should update application draft for step one", async () => {
+    const { data } = await server.executeOperation(
       {
-        query: SUBMIT_APPLICATION,
+        query: UPDATE_APPLICATION_STEP_ONE_DRAFT_MUTATION,
         variables: {
-          id: id,
+          id: application.id,
           legalName: "Test",
-          address: "Street 1;21345;City;Germany",
-          city: "Test",
-          postcode: "12345",
-          contactPerson: "qwertz",
-          country: "Germamy",
-          email: "testemail@email.com",
+          general: {
+            address: "Street 1;21345;City;Germany",
+            city: "Test",
+            postcode: "12345",
+            contactPerson: "qwertz",
+            country: "Germamy",
+            email: "testemail@email.com",
+          },
+        } as ApplicationStepOneDraftVariables,
+      },
+      { connection: connection }
+    );
+    expect(data).to.not.be.undefined.and.to.not.be.null;
+    expect(data?.updateApplicationStepOneDraft.success).to.be.true;
+  });
+
+  it("should submit application for step one", async () => {
+    const { data } = await server.executeOperation(
+      {
+        query: SUBMIT_APPLICATION_STEP_ONE_MUTATION,
+        variables: {
+          id: application.id,
+          legalName: "Test",
+          general: {
+            address: "Street 1;21345;City;Germany",
+            city: "Test",
+            postcode: "12345",
+            contactPerson: "qwertz",
+            country: "Germamy",
+            email: "testemail@email.com",
+          },
           missionStatement: "Our mission is to fulfill our mission",
           plannedProjects: "Planned is nothing yet",
           primaryImpactLocation: "Bangladesh",
@@ -113,57 +145,68 @@ describe("application resolver", async () => {
           acceptFundingFromCorporateSocialResponsibilityPartner: true,
           plannedFunding: FundingGoal.l,
           accountUsagePlan:
-            "We want to break free from our own homepage which led to nowhere"
-        },
+            "We want to break free from our own homepage which led to nowhere",
+          links: {
+            website: "Test",
+          },
+        } as ApplicationStepOneSubmitVariables,
+      },
+      { connection: connection }
+    );
+    expect(data).to.not.be.undefined.and.to.not.be.null;
+    expect(data?.submitApplicationStepOne.success).to.be.true;
+  });
+
+  it("should update application draft for step two", async () => {
+    application.applicationStep = ApplicationStep.STEP_2;
+    application.applicationState = ApplicationState.INITIAL;
+    const { data } = await server.executeOperation(
+      {
+        query: UPDATE_APPLICATION_STEP_TWO_DRAFT_MUTATION,
+        variables: {
+          id: application.id,
+          integrateDonations: true
+        } as ApplicationStepTwoDraftVariables,
+      },
+      { connection: connection }
+    );
+    expect(data).to.not.be.undefined.and.to.not.be.null;
+    expect(data?.updateApplicationStepTwoDraft.success).to.be.true;
+    expect(data?.updateApplicationStepTwoDraft.result.integrateDonations).to.be.true;
+  });
+
+  it("should submit application for step one", async () => {
+    const result = await server.executeOperation(
+      {
+        query: SUBMIT_APPLICATION_STEP_TWO_MUTATION,
+        variables: {
+          id: application.id,
+          validationMaterial: {
+            links: [{ url: "Test"}],
+            files: [{ name: "test", type: "test/type", size: 42 }]
+          },
+          organisationalStructure: {
+            text: "Testtext",
+            files: [{ name: "TestOrgStruc", type: "test/type", size: 24 }]
+          },
+          currentChannelsOfFundraising: "Many",
+          channelsAndStrategies: "Some",
+          integrateDonations: false,
+          partnerOrganisations: "Few",
+          fullTimeWorkers: "Many many many",
+          stakeholderCount: "We have some yeah",
+          organisationNeededResources: OrganisationNeededResources.financialConsultingAndBusinessModelGeneration,
+          possibleAssistenceFromGaia: "We don't need support",
+          firstProjectImpactsAppropriateness: "Ok, sounds cool",
+          firstProjectBeneficiaries: "Yeah, heard of it",
+          firstProjectStakeholderRepresentation: "We represent ourselves",
+          firstProjectRisks: "No risks involved, all cool",
+          firstProjectMilestoneValidation: "We don't need validation"
+        } as ApplicationStepTwoSubmitVariables,
       },
       { connection: connection }
     );
     expect(result.data).to.not.be.undefined.and.to.not.be.null;
     expect(result.data?.submitApplicationStepOne.success).to.be.true;
   });
-
-  // it("should upload a file", async () => {
-  //     const application = createApplicationDraft();
-  //     console.log(testFilePath);
-  //     const file = await fs.readFile(testFilePath);
-  //     const stream = createReadStream(file);
-  //     const result = await server.executeOperation({
-  //       query: UPLOAD_FILE,
-  //       variables: {
-  //         id: application,
-  //         documents: [stream],
-  //         mapsToField: "Test"
-  //       },
-  //     });
-  
-  //     console.log(result);
-  //     expect(result.data).to.not.be.undefined.and.to.not.be.null;
-  //     expect(result.data?.success).to.be.true;
-
-  // });
-
-  // it("should delete an existing file", async () => {
-  //   const application = createApplicationDraft();
-  //   const file = await fs.readFile(testFilePath);
-  //   const stream = createReadStream(file);
-  //   const fileUpload = await server.executeOperation({
-  //     query: UPLOAD_FILE,
-  //     variables: {
-  //       id: application,
-  //       documents: [stream],
-  //       mapsToField: "Test"
-  //     },
-  //   });
-
-  //   const result = await server.executeOperation({
-  //     query: DELETE_FILE,
-  //     variables: {
-  //       id: fileUpload.data!.fileReferences[0]
-  //     }
-  //   });
-
-  //   console.log(result);
-  //   expect(result.data).to.not.be.undefined.and.to.not.be.null;
-  //   expect(result.data?.success).to.be.true;
-  // });
 });
