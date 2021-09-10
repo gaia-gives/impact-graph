@@ -6,7 +6,6 @@ export * from "./applicationsQuery";
 export * from "./createApplicationMutation";
 export * from "./approveApplicationMutation";
 export * from "./declineApplicationMutation";
-export * from "./deleteFileMutation";
 export * from "./uploadFileMutation";
 export * from "./updateApplicationStepOneDraftMutation";
 export * from "./updateApplicationStepTwoDraftMutation";

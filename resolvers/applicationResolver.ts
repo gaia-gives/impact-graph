@@ -8,7 +8,6 @@ import {
   Args,
   Ctx,
   Authorized,
-  ID,
   ObjectType,
   Field,
 } from "type-graphql";
@@ -23,10 +22,8 @@ import {
 } from "../entities/application";
 import { MyContext } from "../types/MyContext";
 import { saveFile } from "../utils/saveFile";
-import { deleteFile } from "../utils/deleteFile";
 import { getUser } from "../utils/getUser";
 import { getFileSize } from "../utils/getFileSize";
-import { readdir, rm } from "fs/promises";
 import {
   File,
   ApplicationStepTwoSubmitVariables,
@@ -37,9 +34,6 @@ import {
 import { ResolverResult } from "./types/ResolverResult";
 import { Category } from "../entities/category";
 import { isAdmin } from "../utils/userAccess";
-import path from "path";
-import config from "../config";
-import { prop } from "ramda";
 import { cleanUpApplicationFiles } from "../utils/cleanUpApplicationFiles";
 
 @ObjectType()
@@ -55,9 +49,6 @@ export class ApplicationDocumentUploadResult extends ResolverResult {
   @Field(() => [File!], { nullable: true })
   files?: File[];
 }
-
-@ObjectType()
-export class DeleteUploadedDocumentResult extends ResolverResult {}
 
 @Resolver(() => Application)
 export class ApplicationResolver {
@@ -311,23 +302,5 @@ export class ApplicationResolver {
     }
 
     return result;
-  }
-
-  @Authorized()
-  @Mutation(() => DeleteUploadedDocumentResult)
-  async deleteUploadedFile(
-    @Arg("id", () => ID!) id: string,
-    @Arg("applicationId", () => String) applicationId: string,
-    @Ctx() ctx: MyContext
-  ) {
-    const result = new DeleteUploadedDocumentResult();
-    const userId = ctx.req.user.userId;
-    const user = await this.userRepository.findOne(userId);
-    if (!user) {
-      throw new Error(ERROR_CODES.AUTHENTICATION_REQUIRED);
-    } else {
-      deleteFile(applicationId, userId, id);
-      return result;
-    }
   }
 }
