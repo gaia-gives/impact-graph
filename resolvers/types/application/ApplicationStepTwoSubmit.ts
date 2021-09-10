@@ -18,7 +18,7 @@ export class ApplicationStepTwoSubmitVariables {
   @Field(() => SubmitOrganisationalStructure)
   public organisationalStructure: SubmitOrganisationalStructure;
 
-  @Field(() => [File])
+  @Field(() => [File!])
   public charter: File[];
 
   @Field(() => [File!])
