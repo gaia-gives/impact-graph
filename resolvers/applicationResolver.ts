@@ -35,6 +35,7 @@ import {
 } from "./types/application";
 import { ResolverResult } from "./types/ResolverResult";
 import { Category } from "../entities/category";
+import { isAdmin } from "../utils/userAccess";
 
 @ObjectType()
 export class ApplicationQueryResult extends ResolverResult {
@@ -72,8 +73,9 @@ export class ApplicationResolver {
   ) {
     const userId = ctx.req.user?.userId;
     const result = new ApplicationQueryResult();
+    const user = await this.userRepository.findOne({ where: { id: userId } });
     const application = await this.applicationRepository.findOne({
-      where: { id, userId },
+      where: isAdmin(user) ? { id } : { id, userId },
       relations: ["categories", "user"],
     });
 
@@ -156,7 +158,9 @@ export class ApplicationResolver {
         message: "No application found for given id!",
       });
     } else {
-      const categories = await this.categoryRepository.findByIds(applicationStepOneDraft.categoryIds || [])
+      const categories = await this.categoryRepository.findByIds(
+        applicationStepOneDraft.categoryIds || []
+      );
       application.assertCanUpdate(ApplicationStep.STEP_1);
       application.categories = categories;
       Application.merge(application, applicationStepOneDraft);
@@ -219,7 +223,9 @@ export class ApplicationResolver {
         message: "No application found for given id!",
       });
     } else {
-      const categories = await this.categoryRepository.findByIds(applicationStepOneSubmit.categoryIds || [])
+      const categories = await this.categoryRepository.findByIds(
+        applicationStepOneSubmit.categoryIds || []
+      );
       application.assertCanSubmit(ApplicationStep.STEP_1);
       application.categories = categories;
       Application.merge(application, {
@@ -267,7 +273,7 @@ export class ApplicationResolver {
     @Ctx() ctx: MyContext
   ) {
     const result = new ApplicationDocumentUploadResult();
-    const userId = ctx.req.user.userId
+    const userId = ctx.req.user.userId;
     const user = await this.userRepository.findOne(userId);
 
     if (!user) {
@@ -277,7 +283,7 @@ export class ApplicationResolver {
         documents.map(async (document) => {
           const id = uuid.v4();
           const {
-            createReadStream, 
+            createReadStream,
             filename: name,
             mimetype: type,
           } = await document;
@@ -304,7 +310,7 @@ export class ApplicationResolver {
     @Ctx() ctx: MyContext
   ) {
     const result = new DeleteUploadedDocumentResult();
-    const userId = ctx.req.user.userId
+    const userId = ctx.req.user.userId;
     const user = await this.userRepository.findOne(userId);
     if (!user) {
       throw new Error(ERROR_CODES.AUTHENTICATION_REQUIRED);
