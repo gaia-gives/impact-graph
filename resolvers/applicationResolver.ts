@@ -26,6 +26,7 @@ import { saveFile } from "../utils/saveFile";
 import { deleteFile } from "../utils/deleteFile";
 import { getUser } from "../utils/getUser";
 import { getFileSize } from "../utils/getFileSize";
+import { readdir, rm } from "fs/promises";
 import {
   File,
   ApplicationStepTwoSubmitVariables,
@@ -36,6 +37,10 @@ import {
 import { ResolverResult } from "./types/ResolverResult";
 import { Category } from "../entities/category";
 import { isAdmin } from "../utils/userAccess";
+import path from "path";
+import config from "../config";
+import { prop } from "ramda";
+import { cleanUpApplicationFiles } from "../utils/cleanUpApplicationFiles";
 
 @ObjectType()
 export class ApplicationQueryResult extends ResolverResult {
@@ -176,7 +181,8 @@ export class ApplicationResolver {
     @Ctx() ctx: MyContext
   ) {
     const result = new ApplicationQueryResult();
-    const user = await this.userRepository.findOne(ctx.req.user.userId);
+    const userId = ctx.req.user.userId;
+    const user = await this.userRepository.findOne(userId);
     if (!user) {
       throw new Error(ERROR_CODES.AUTHENTICATION_REQUIRED);
     }
@@ -200,6 +206,7 @@ export class ApplicationResolver {
         applicationStep: ApplicationStep.STEP_2,
       });
       result.result = await application.save();
+      await cleanUpApplicationFiles(application, userId);
     }
     return result;
   }
@@ -246,8 +253,9 @@ export class ApplicationResolver {
     @Ctx() ctx: MyContext
   ) {
     const result = new ApplicationQueryResult();
+    const userId = ctx.req.user.userId;
     const application = await this.applicationRepository.findOne(
-      { id: applicationStepTwoSubmit.id, userId: ctx.req.user.userId },
+      { id: applicationStepTwoSubmit.id, userId },
       { relations: ["user"] }
     );
     if (!application) {
@@ -262,6 +270,7 @@ export class ApplicationResolver {
         applicationState: ApplicationState.PENDING,
       });
       result.result = await application.save();
+      await cleanUpApplicationFiles(application, userId);
     }
     return result;
   }
