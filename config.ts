@@ -49,7 +49,8 @@ const envVars = [
   "PASSWORD_RESET_TOKEN_LIFETIME_SECONDS",
   "COOKIE_SECRET",
   "COOKIE_SECURE",
-  "GAIA_EMAIL_FROM"
+  "GAIA_EMAIL_FROM",
+  "APPLICATION_FILES_DIR"
 ];
 interface requiredEnv {
   JWT_SECRET: string;
@@ -103,6 +104,7 @@ interface requiredEnv {
   ACCESS_TOKEN_LIFETIME_IN_DAYS: number;
   COOKIE_SECURE: string;
   GAIA_EMAIL_FROM: string;
+  APPLICATION_FILES_DIR: string;
 }
 
 class Config {

@@ -270,6 +270,7 @@ export class ApplicationResolver {
   @Mutation(() => ApplicationDocumentUploadResult)
   async uploadApplicationDocument(
     @Arg("documents", () => [GraphQLUpload]) documents: FileUpload[],
+    @Arg("applicationId", () => String) applicationId: string,
     @Ctx() ctx: MyContext
   ) {
     const result = new ApplicationDocumentUploadResult();
@@ -287,8 +288,8 @@ export class ApplicationResolver {
             filename: name,
             mimetype: type,
           } = await document;
-          await saveFile(userId, id, createReadStream);
-          const size = await getFileSize(userId, id);
+          await saveFile(applicationId, userId, id, createReadStream);
+          const size = await getFileSize(applicationId, userId, id);
           return {
             id,
             name,
@@ -307,6 +308,7 @@ export class ApplicationResolver {
   @Mutation(() => DeleteUploadedDocumentResult)
   async deleteUploadedFile(
     @Arg("id", () => ID!) id: string,
+    @Arg("applicationId", () => String) applicationId: string,
     @Ctx() ctx: MyContext
   ) {
     const result = new DeleteUploadedDocumentResult();
@@ -315,7 +317,7 @@ export class ApplicationResolver {
     if (!user) {
       throw new Error(ERROR_CODES.AUTHENTICATION_REQUIRED);
     } else {
-      deleteFile(userId, id);
+      deleteFile(applicationId, userId, id);
       return result;
     }
   }

@@ -56,3 +56,4 @@ data:
   COOKIE_SECURE: "false"
   ACCESS_TOKEN_LIFETIME_IN_DAYS: "30"
   GAIA_EMAIL_FROM: "no-reply@gaia.gives"
+  APPLICATION_FILES_DIR: "/mnt/applications"

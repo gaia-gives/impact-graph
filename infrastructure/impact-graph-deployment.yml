@@ -25,7 +25,7 @@ spec:
             - configMapRef:
                 name: impact-graph-config
           volumeMounts:
-            - mountPath: /app/utils/public/applications
+            - mountPath: /mnt/applications
               name: impact-graph-data
               subPath: applications
       volumes:
