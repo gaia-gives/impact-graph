@@ -36,13 +36,9 @@ let server: ApolloServer;
 let connection: TypeORM.Connection;
 
 const createApplicationDraft: () => Promise<Application> = async () => {
-  const { data } = await server.executeOperation({
-    query: CREATE_APPLICATION_MUTATION,
-    variables: {
-      legalName: "Test",
-    },
-  }, { connection });
-  return data?.createApplication.result;
+  await connection.query(`INSERT INTO "application" ("legalName") VALUES ('TEST')`);
+  const result = await connection.query(`SELECT * FROM "application" WHERE "legalName" = 'TEST'`);
+  return result[0] as Application;
 };
 
 describe("application resolver", async () => {
@@ -66,6 +62,7 @@ describe("application resolver", async () => {
         id: application.id,
       },
     });
+    console.log(result.errors);
     expect(result.data).to.not.be.undefined;
     expect(result.data?.application.id).to.equal(application.id);
   });
@@ -74,6 +71,7 @@ describe("application resolver", async () => {
     const result = await server.executeOperation({
       query: APPLICATIONS_QUERY,
     });
+    console.log(result.errors);
     expect(result.data).to.not.be.undefined;
   });
 
@@ -84,6 +82,7 @@ describe("application resolver", async () => {
         legalName: "Test",
       },
     });
+    console.log(result.errors);
     expect(result.data).to.not.be.undefined.and.to.not.be.null;
     expect(
       result.data?.createOrUpdateApplicationDraft.application.applicationState
@@ -94,7 +93,7 @@ describe("application resolver", async () => {
   });
 
   it("should update application draft for step one", async () => {
-    const { data } = await server.executeOperation(
+    const { data, errors } = await server.executeOperation(
       {
         query: UPDATE_APPLICATION_STEP_ONE_DRAFT_MUTATION,
         variables: {
@@ -112,6 +111,7 @@ describe("application resolver", async () => {
       },
       { connection: connection }
     );
+    console.log(errors);
     expect(data).to.not.be.undefined.and.to.not.be.null;
     expect(data?.updateApplicationStepOneDraft.success).to.be.true;
   });
