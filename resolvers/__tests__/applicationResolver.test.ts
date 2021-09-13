@@ -20,7 +20,6 @@ import { expect } from "chai";
 import { createTestServer } from "../../server/testServerFactory";
 import {
   APPLICATION_QUERY,
-  APPLICATIONS_QUERY,
   CREATE_APPLICATION_MUTATION,
   SUBMIT_APPLICATION_STEP_ONE_MUTATION,
 } from "./queries-and-mutations";
@@ -34,15 +33,15 @@ import {
 
 let server: ApolloServer;
 let connection: TypeORM.Connection;
+let application: Application;
 
-const createApplicationDraft: () => Promise<Application> = async () => {
-  await connection.query(`INSERT INTO "application" ("legalName") VALUES ('TEST')`);
-  const result = await connection.query(`SELECT * FROM "application" WHERE "legalName" = 'TEST'`);
-  return result[0] as Application;
-};
 
 describe("application resolver", async () => {
-  let application;
+  const createApplicationDraft: () => Promise<Application> = async () => {
+    await connection.query(`INSERT INTO "application" ("legalName") VALUES ('TEST')`);
+    const result = await connection.query(`SELECT * FROM "application" WHERE "legalName" = 'TEST'`);
+    return result[0] as Application;
+  };
 
   before(async () => {
     [connection, server] = await createTestServer();
@@ -65,14 +64,6 @@ describe("application resolver", async () => {
     console.log(result.errors);
     expect(result.data).to.not.be.undefined;
     expect(result.data?.application.id).to.equal(application.id);
-  });
-
-  it("should query applications", async () => {
-    const result = await server.executeOperation({
-      query: APPLICATIONS_QUERY,
-    });
-    console.log(result.errors);
-    expect(result.data).to.not.be.undefined;
   });
 
   it("should create application draft", async () => {
