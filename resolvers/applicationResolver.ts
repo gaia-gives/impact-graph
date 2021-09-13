@@ -98,7 +98,7 @@ export class ApplicationResolver {
         .where("application.applicationState IN (:...applicationStates)", {
           applicationStates: [ApplicationState.INITIAL, ApplicationState.DRAFT],
         })
-        .where({ userId: user.id })
+        .andWhere("application.userId = :userId", { userId: user.id})
         .getOne();
       result.result = application;
     }
