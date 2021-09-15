@@ -1,40 +1,26 @@
-import { ERROR_CODES } from "../utils/errorCodes";
-import { User } from "../entities/user";
-import {
-  Resolver,
-  Query,
-  Arg,
-  Mutation,
-  Args,
-  Ctx,
-  Authorized,
-  ObjectType,
-  Field,
-} from "type-graphql";
+import {ERROR_CODES} from "../utils/errorCodes";
+import {User} from "../entities/user";
+import {Arg, Args, Authorized, Ctx, Field, Mutation, ObjectType, Query, Resolver,} from "type-graphql";
 import uuid from "uuid";
-import { GraphQLUpload, FileUpload } from "graphql-upload";
-import { Repository } from "typeorm";
-import { InjectRepository } from "typeorm-typedi-extensions";
+import {FileUpload, GraphQLUpload} from "graphql-upload";
+import {Repository} from "typeorm";
+import {InjectRepository} from "typeorm-typedi-extensions";
+import {Application, ApplicationState, ApplicationStep,} from "../entities/application";
+import {MyContext} from "../types/MyContext";
+import {saveFile} from "../utils/saveFile";
+import {getUser} from "../utils/getUser";
+import {getFileSize} from "../utils/getFileSize";
 import {
-  Application,
-  ApplicationState,
-  ApplicationStep,
-} from "../entities/application";
-import { MyContext } from "../types/MyContext";
-import { saveFile } from "../utils/saveFile";
-import { getUser } from "../utils/getUser";
-import { getFileSize } from "../utils/getFileSize";
-import {
-  File,
-  ApplicationStepTwoSubmitVariables,
+  ApplicationStepOneDraftVariables,
   ApplicationStepOneSubmitVariables,
   ApplicationStepTwoDraftVariables,
-  ApplicationStepOneDraftVariables,
+  ApplicationStepTwoSubmitVariables,
+  File,
 } from "./types/application";
-import { ResolverResult } from "./types/ResolverResult";
-import { Category } from "../entities/category";
-import { isAdmin } from "../utils/userAccess";
-import { cleanUpApplicationFiles } from "../utils/cleanUpApplicationFiles";
+import {ResolverResult} from "./types/ResolverResult";
+import {Category} from "../entities/category";
+import {isAdmin} from "../utils/userAccess";
+import {cleanUpApplicationFiles} from "../utils/cleanUpApplicationFiles";
 
 @ObjectType()
 export class ApplicationQueryResult extends ResolverResult {
@@ -96,7 +82,7 @@ export class ApplicationResolver {
       const application = await this.applicationRepository
         .createQueryBuilder("application")
         .where("application.applicationState IN (:...applicationStates)", {
-          applicationStates: [ApplicationState.INITIAL, ApplicationState.DRAFT],
+          applicationStates: [ApplicationState.INITIAL, ApplicationState.DRAFT, ApplicationState.PENDING],
         })
         .andWhere("application.userId = :userId", { userId: user.id})
         .getOne();
@@ -159,6 +145,7 @@ export class ApplicationResolver {
       );
       application.assertCanUpdate(ApplicationStep.STEP_1);
       application.categories = categories;
+      application.applicationState = ApplicationState.DRAFT;
       Application.merge(application, applicationStepOneDraft);
       result.result = await application.save();
     }
@@ -192,6 +179,7 @@ export class ApplicationResolver {
       });
     } else {
       application.assertCanUpdate(ApplicationStep.STEP_2);
+      application.applicationState = ApplicationState.DRAFT;
       Application.merge(application, {
         ...applicationStepTwoDraft,
         applicationStep: ApplicationStep.STEP_2,
