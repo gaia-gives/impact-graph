@@ -1,11 +1,12 @@
 import { FundingGoal } from "../../../entities/application";
-import { Field, ID, Int, ArgsType, Float, InputType } from "type-graphql";
+import { Field, ArgsType, InputType } from "type-graphql";
 import {
   FundingType,
   MainInterestReason,
   OrganisationType,
 } from "../../../entities/application";
 import { General, Links } from ".";
+import { Category } from "../../../entities/category";
 
 @ArgsType()
 @InputType()
@@ -46,8 +47,8 @@ export class ApplicationStepOneDraftVariables  {
   @Field(() => MainInterestReason, { nullable: true })
   mainInterestReason?: MainInterestReason;
 
-  @Field(() => [ID], {nullable: true})
-  categoryIds?: number[];
+  @Field(() => [Category], {nullable: true})
+  categories: Category[];
 
   @Field(() => Links, { nullable: true })
   links?: Links;

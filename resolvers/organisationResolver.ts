@@ -10,7 +10,6 @@ import {
 } from 'type-graphql'
 
 import { Organisation } from '../entities/organisation'
-import { OrganisationUser } from '../entities/organisationUser'
 import { User } from '../entities/user'
 import { Project } from '../entities/project'
 import { Repository } from 'typeorm'
@@ -29,9 +28,6 @@ export class OrganisationResolver {
 
     @InjectRepository(Project)
     private readonly projectRepository: Repository<Project>,
-
-    @InjectRepository(OrganisationUser)
-    private readonly organisationUserRepository: Repository<OrganisationUser>
   ) {}
 
   @FieldResolver()

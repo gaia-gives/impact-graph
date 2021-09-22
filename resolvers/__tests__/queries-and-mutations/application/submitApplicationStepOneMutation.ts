@@ -14,7 +14,7 @@ export const SUBMIT_APPLICATION_STEP_ONE_MUTATION = gql`
     $plannedFunding: FundingGoal!
     $acceptFundingFromCorporateSocialResponsibilityPartner: Boolean!
     $mainInterestReason: MainInterestReason!
-    $categoryIds: [ID!]!
+    $categories: [String!]!
     $links: SubmitLinks!
   ) {
     submitApplicationStepOne(
@@ -30,7 +30,7 @@ export const SUBMIT_APPLICATION_STEP_ONE_MUTATION = gql`
       plannedFunding: $plannedFunding
       acceptFundingFromCorporateSocialResponsibilityPartner: $acceptFundingFromCorporateSocialResponsibilityPartner
       mainInterestReason: $mainInterestReason
-      categoryIds: $categoryIds
+      categories: $categories
       links: $links
     ) {
       success

@@ -11,9 +11,7 @@ export const FETCH_PROJECT_BY_SLUG = gql`
       creationDate
       admin
       walletAddress
-      categories {
-        name
-      }
+      categories
     }
   }
 `

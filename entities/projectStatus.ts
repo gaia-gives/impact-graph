@@ -8,6 +8,16 @@ import {
 } from 'typeorm'
 import { Project } from './project'
 
+export enum ProjStatus {
+  rjt = 1,
+  pen = 2,
+  clr = 3,
+  ver = 4,
+  act = 5,
+  can = 6,
+  del = 7,
+}
+
 @Entity()
 @ObjectType()
 export class ProjectStatus extends BaseEntity{

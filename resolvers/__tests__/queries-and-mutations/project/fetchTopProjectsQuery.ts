@@ -12,9 +12,7 @@ export const FETCH_TOP_PROJECTS_QUERY = gql`
         creationDate
         admin
         walletAddress
-        categories {
-          name
-        }
+        categories
       }
       totalCount
     }

@@ -11,13 +11,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinTable,
-  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
   RelationId,
   UpdateDateColumn,
 } from "typeorm";
+import { Category } from "./category";
 import {
   File,
   OrganisationalStructure,
@@ -25,7 +24,6 @@ import {
   General,
   Links,
 } from "../resolvers/types/application";
-import { Category } from "./category";
 import { User } from "./user";
 
 export enum ApplicationState {
@@ -192,13 +190,8 @@ export class Application extends BaseEntity {
   public mainInterestReason?: MainInterestReason;
 
   @Field(() => [Category])
-  @JoinTable()
-  @ManyToMany(() => Category, { cascade: true })
+  @Column("text", { array: true, default: [], nullable: false })
   public categories: Category[];
-
-  @Field(() => [ID!])
-  @RelationId((application: Application) => application.categories)
-  categoryIds: number[];
 
   @Field(() => Links, { nullable: true })
   @Column("simple-json", { nullable: true })

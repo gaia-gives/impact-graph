@@ -20,7 +20,6 @@ const mockProjectWithOrganisation = (): Project => {
   project.organisation = mockOrganisation();
   project.organisationId = 1;
   project.qualityScore = 0;
-  project.reactions = [];
   project.slug = "test-project";
   project.users = [];
   project.title = "Test project";

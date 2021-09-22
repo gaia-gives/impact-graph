@@ -13,12 +13,11 @@ import {
 
 import { Organisation } from "./organisation";
 import { Donation } from "./donation";
-import { Reaction } from "./reaction";
-import { Category } from "./category";
 import { User } from "./user";
 import { ProjectStatus } from "./projectStatus";
 import { ImpactLocation } from "./impactLocation";
 import { Milestone, MilestoneStatus } from "./milestone";
+import { Category } from "./category";
 
 @Entity()
 @ObjectType()
@@ -78,12 +77,7 @@ class Project extends BaseEntity {
   impactLocations: ImpactLocation[];
 
   @Field((type) => [Category], { nullable: true })
-  @ManyToMany((type) => Category, (category) => category.projects, {
-    nullable: true,
-    eager: true,
-    cascade: true,
-  })
-  @JoinTable()
+  @Column("text", { array: true, default: [], nullable: false })
   categories: Category[];
 
   @Field((type) => Float, { nullable: true })
@@ -194,15 +188,6 @@ class Project extends BaseEntity {
   @Field((type) => [User], { nullable: true })
   users: User[];
 
-  @Field((type) => [Reaction], { nullable: true })
-  @OneToMany((type) => Reaction, (reaction) => reaction.project)
-  reactions?: Reaction[];
-
-  @Field((type) => Float, { nullable: true })
-  reactionsCount() {
-    return this.reactions ? this.reactions.length : 0;
-  }
-
   @Field((type) => ProjectStatus)
   @ManyToOne((type) => ProjectStatus, { eager: true })
   status: ProjectStatus;
@@ -291,4 +276,4 @@ class ProjectUpdate extends BaseEntity {
   isMain: boolean;
 }
 
-export { Project, Category, ProjectUpdate, AddDonationArgs };
+export { Project, ProjectUpdate, AddDonationArgs };

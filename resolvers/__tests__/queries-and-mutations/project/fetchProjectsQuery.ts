@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 
 export const FETCH_PROJECTS_QUERY = gql`
-  query FetchProjects($limit: Int, $skip: Int, $orderBy: OrderBy, $categories: [Int!], $locations: [Int!]) {
+  query FetchProjects($limit: Int, $skip: Int, $orderBy: OrderBy, $categories: [String!], $locations: [Int!]) {
     projects(take: $limit, skip: $skip, orderBy: $orderBy, categories: $categories, locations: $locations) {
       id
       title
@@ -9,10 +9,7 @@ export const FETCH_PROJECTS_QUERY = gql`
       slug
       creationDate
       admin
-      categories {
-        id
-        name
-      }
+      categories
       impactLocations {
         id
         name

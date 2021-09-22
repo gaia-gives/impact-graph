@@ -18,7 +18,6 @@ import {
   File,
 } from "./types/application";
 import {ResolverResult} from "./types/ResolverResult";
-import {Category} from "../entities/category";
 import {isAdmin} from "../utils/userAccess";
 import {cleanUpApplicationFiles} from "../utils/cleanUpApplicationFiles";
 
@@ -43,8 +42,6 @@ export class ApplicationResolver {
     private readonly applicationRepository: Repository<Application>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    @InjectRepository(Category)
-    private readonly categoryRepository: Repository<Category>
   ) {}
 
   @Authorized()
@@ -58,7 +55,7 @@ export class ApplicationResolver {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     const application = await this.applicationRepository.findOne({
       where: isAdmin(user) ? { id } : { id, userId },
-      relations: ["categories", "user"],
+      relations: ["user"],
     });
 
     if (application) {
@@ -130,8 +127,7 @@ export class ApplicationResolver {
       throw new Error(ERROR_CODES.AUTHENTICATION_REQUIRED);
     }
     const application = await this.applicationRepository.findOne(
-      { id: applicationStepOneDraft.id, userId: user.id },
-      { relations: ["categories"] }
+      { id: applicationStepOneDraft.id, userId: user.id }
     );
 
     if (!application) {
@@ -140,11 +136,7 @@ export class ApplicationResolver {
         message: "No application found for given id!",
       });
     } else {
-      const categories = await this.categoryRepository.findByIds(
-        applicationStepOneDraft.categoryIds || []
-      );
       application.assertCanUpdate(ApplicationStep.STEP_1);
-      application.categories = categories;
       application.applicationState = ApplicationState.DRAFT;
       Application.merge(application, applicationStepOneDraft);
       result.result = await application.save();
@@ -209,11 +201,7 @@ export class ApplicationResolver {
         message: "No application found for given id!",
       });
     } else {
-      const categories = await this.categoryRepository.findByIds(
-        applicationStepOneSubmit.categoryIds || []
-      );
       application.assertCanSubmit(ApplicationStep.STEP_1);
-      application.categories = categories;
       Application.merge(application, {
         ...applicationStepOneSubmit,
         applicationState: ApplicationState.PENDING,

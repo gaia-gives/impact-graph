@@ -7,14 +7,10 @@ import {
   ManyToMany,
   BaseEntity,
   JoinTable,
-  ManyToOne,
-  JoinColumn,
 } from "typeorm";
-import { OrganisationUser } from "./organisationUser";
 import { Organisation } from "./organisation";
 import { Project } from "./project";
 import { Application } from "./application";
-import { application } from "express";
 
 export enum GlobalRole {
   ADMIN = "admin",
@@ -76,12 +72,6 @@ export class User extends BaseEntity {
   @Field()
   @Column({ type: "enum", enum: GlobalRole, default: GlobalRole.USER })
   globalRole: GlobalRole;
-
-  @OneToMany(
-    (type) => OrganisationUser,
-    (organisationUser) => organisationUser.user
-  )
-  organisationUsers?: OrganisationUser[];
 
   @Field((type) => [Organisation])
   @ManyToMany((type) => Organisation, (organisation) => organisation.users)

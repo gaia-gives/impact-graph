@@ -1,6 +1,7 @@
 import { MaxLength } from "class-validator";
 import { InputType, Field } from "type-graphql";
 import { GraphQLUpload, FileUpload } from "graphql-upload";
+import { Category } from "../../entities/category";
 
 @InputType()
 export class ImageUpload {
@@ -27,8 +28,8 @@ export class ProjectInput {
   // Removing this as rich texts are longer
   // We can consider making this check without img or video tags
 
-  @Field(() => [String], { nullable: true, defaultValue: [] })
-  categories?: string[];
+  @Field(() => [Category], { nullable: true, defaultValue: [] })
+  categories?: Category[];
 
   // Client uploads image file
   @Field(() => GraphQLUpload, { nullable: true })

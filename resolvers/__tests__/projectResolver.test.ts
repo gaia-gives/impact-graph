@@ -4,6 +4,7 @@ import "mocha";
 import { createTestServer } from "../../server/testServerFactory";
 import { FETCH_PROJECTS_QUERY } from "./queries-and-mutations";
 import { expect } from "chai";
+import { Category } from "../../entities/category";
 
 let connection: TypeORM.Connection;
 let server: ApolloServer;
@@ -20,12 +21,12 @@ describe("Test Project Resolver", () => {
   });
 
   it("should query projects by impactLocations and categories", async () => {
-    const params = { categoryIds: [5], impactLocationIds: [1] };
+    const params = { categories: [Category.protectionOfBasicNeeds], impactLocationIds: [1] };
 
     const result = await server.executeOperation({
       query: FETCH_PROJECTS_QUERY,
       variables: {
-        categories: params.categoryIds,
+        categories: params.categories,
         locations: params.impactLocationIds,
       },
     });
@@ -49,7 +50,7 @@ describe("Test Project Resolver", () => {
   });
 
   it("should query projects by only categories", async () => {
-    const params = { categories: [5] };
+    const params = { categories: [Category.industryTransformation] };
 
     const result = await server.executeOperation({
       query: FETCH_PROJECTS_QUERY,
@@ -63,7 +64,7 @@ describe("Test Project Resolver", () => {
   });
 
   it("should query projects without filter parameter given", async () => {
-    const params = { categories: [5] };
+    const params = { categories: [Category.industryTransformation] };
 
     const result = await server.executeOperation({
       query: FETCH_PROJECTS_QUERY,

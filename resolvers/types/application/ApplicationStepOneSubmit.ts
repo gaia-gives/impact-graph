@@ -6,6 +6,7 @@ import {
   OrganisationType,
 } from "../../../entities/application";
 import { SubmitGeneral, SubmitLinks } from ".";
+import { Category } from "../../../entities/category";
 
 @ArgsType()
 @InputType()
@@ -46,8 +47,8 @@ export class ApplicationStepOneSubmitVariables {
   @Field(() => MainInterestReason)
   mainInterestReason: MainInterestReason;
 
-  @Field(() => [ID!])
-  categoryIds: number[];
+  @Field(() => [Category!])
+  categories: Category[];
 
   @Field(() => SubmitLinks)
   links: SubmitLinks;

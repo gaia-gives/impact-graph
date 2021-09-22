@@ -14,7 +14,7 @@ export const UPDATE_APPLICATION_STEP_ONE_DRAFT_MUTATION = gql`
     $acceptFundingFromCorporateSocialResponsibilityPartner: Boolean
     $plannedFunding: FundingGoal
     $accountUsagePlan: String
-    $categoryIds: [ID!]
+    $categories: [String!]
     $links: LinksInputType
   ) {
     updateApplicationStepOneDraft(
@@ -30,7 +30,7 @@ export const UPDATE_APPLICATION_STEP_ONE_DRAFT_MUTATION = gql`
       acceptFundingFromCorporateSocialResponsibilityPartner: $acceptFundingFromCorporateSocialResponsibilityPartner
       plannedFunding: $plannedFunding
       accountUsagePlan: $accountUsagePlan
-      categoryIds: $categoryIds
+      categories: $categories
       links: $links
     ) {
       problems {
@@ -58,7 +58,7 @@ export const UPDATE_APPLICATION_STEP_ONE_DRAFT_MUTATION = gql`
         plannedFunding
         acceptFundingFromCorporateSocialResponsibilityPartner
         mainInterestReason
-        categoryIds
+        categories
         links {
           website
           facebook

@@ -8,8 +8,6 @@ import {
 } from 'type-graphql'
 import { InjectRepository } from 'typeorm-typedi-extensions'
 import { Repository } from 'typeorm'
-
-import { OrganisationUser } from '../entities/organisationUser'
 import { User } from '../entities/user'
 import { RegisterInput } from '../user/register/RegisterInput'
 import { Organisation } from '../entities/organisation'
@@ -24,8 +22,6 @@ const analytics = getAnalytics()
 export class UserResolver {
   constructor (
     @InjectRepository(User) private readonly userRepository: Repository<User>,
-    @InjectRepository(OrganisationUser)
-    private readonly organisationUserRepository: Repository<OrganisationUser>,
     @InjectRepository(Organisation)
     private readonly organisationRepository: Repository<Organisation> // , // @InjectRepository(OrganisationUser) // private readonly organisationUserRepository: Repository<OrganisationUser>
   ) {}
@@ -95,35 +91,4 @@ export class UserResolver {
       return false
     }
   }
-  // @FieldResolver()
-  // organisationUsers (@Root() user: User) {
-  //   return this.organisationUserRepository.find({
-  //     cache: 1000,
-  //     where: { authorId: user.id }
-  //   })
-  // }
-
-  // @FieldResolver()
-  // async organisations (@Root() user: User) {
-  //   const orgs = await this.userRepository.find({
-  //     relations: ['organisations']
-  //   })
-  //   console.log(`orgs : ${JSON.stringify(orgs, null, 2)}`)
-
-  //   process.exit()
-  // }
-
-  // @FieldResolver()
-  // async organisations (@Root() user: User) {
-  //   const organisationUsers = await this.organisationUserRepository.find({
-  //     cache: 1000,
-  //     where: { userId: user.id }
-  //   })
-
-  //   const organisationUserIds = organisationUsers.map(o => o.id)
-  //   return await this.organisationRepository.find({
-  //     cache: 1000,
-  //     where: { organisationUserId: In(organisationUserIds) }
-  //   })
-  // }
 }

@@ -11,9 +11,7 @@ const FETCH_PROJECT_QUERY = gql`
       slug
       creationDate
       walletAddress
-      categories {
-        name
-      }
+      categories
     }
   }
 `

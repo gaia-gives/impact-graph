@@ -5,7 +5,6 @@ import { OrganisationResolver } from "./organisationResolver";
 import { LoginResolver } from "./loginResolver";
 import { RegisterResolver } from "./registerResolver";
 import { MeResolver } from "./meResolver";
-import { CategoryResolver } from "./categoryResolver";
 import { NewPasswordResolver } from "./newPasswordResolver";
 import { ConfirmUserResolver } from "./confirmUserResolver";
 import { ApplicationResolver } from "./applicationResolver";
@@ -20,7 +19,6 @@ const resolvers: NonEmptyArray<Function> = [
   LoginResolver,
   RegisterResolver,
   MeResolver,
-  CategoryResolver,
   NewPasswordResolver,
   ConfirmUserResolver,
   ApplicationResolver,
