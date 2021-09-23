@@ -190,7 +190,7 @@ export class Application extends BaseEntity {
   public mainInterestReason?: MainInterestReason;
 
   @Field(() => [Category])
-  @Column("text", { array: true, default: [], nullable: false })
+  @Column("enum", { array: true, default: [], nullable: false })
   public categories: Category[];
 
   @Field(() => Links, { nullable: true })

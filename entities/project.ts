@@ -77,7 +77,7 @@ class Project extends BaseEntity {
   impactLocations: ImpactLocation[];
 
   @Field((type) => [Category], { nullable: true })
-  @Column("text", { array: true, default: [], nullable: false })
+  @Column("enum", { array: true, default: [], nullable: false })
   categories: Category[];
 
   @Field((type) => Float, { nullable: true })
