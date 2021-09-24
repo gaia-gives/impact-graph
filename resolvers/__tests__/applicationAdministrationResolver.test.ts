@@ -22,7 +22,6 @@ const createApplication: () => Promise<Application> = async () => {
         legalName: "Test",
       },
     },
-    { connection }
   );
   return data?.createApplication.result;
 };
@@ -38,15 +37,14 @@ describe("application administration resolver", async () => {
 
   after(async () => {
     await server.stop();
+    await connection.dropDatabase();
     await connection.close();
   });
 
   it("should query applications as an admin", async () => {
     const result = await server.executeOperation(
       { query: APPLICATIONS_AS_ADMIN_QUERY },
-      { connection }
     );
-
     expect(result.data).to.not.be.undefined.and.to.not.be.null;
     expect(result.data!.applicationsAsAdmin.length).to.equal(2);
     expect(
@@ -60,7 +58,6 @@ describe("application administration resolver", async () => {
         query: APPLICATIONS_AS_ADMIN_QUERY,
         variables: { applicationState: ApplicationState.ACCEPTED },
       },
-      { connection }
     );
 
     expect(result.data).to.not.be.undefined.and.to.not.be.null;
@@ -76,7 +73,6 @@ describe("application administration resolver", async () => {
         query: APPLICATIONS_AS_ADMIN_QUERY,
         variables: { applicationState: ApplicationState.PENDING },
       },
-      { connection }
     );
 
     expect(result.data).to.not.be.undefined.and.to.not.be.null;
@@ -89,7 +85,6 @@ describe("application administration resolver", async () => {
         query: APPLICATIONS_AS_ADMIN_QUERY,
         variables: { applicationState: ApplicationState.REJECTED },
       },
-      { connection }
     );
 
     expect(result.data).to.not.be.undefined.and.to.not.be.null;
@@ -105,7 +100,6 @@ describe("application administration resolver", async () => {
         query: APPLICATION_AS_ADMIN_QUERY,
         variables: { id: application.id },
       },
-      { connection }
     );
     expect(result.data).to.not.be.null.and.to.not.be.undefined;
     expect(result.data!.applicationAsAdmin.id).to.equal(
@@ -122,7 +116,6 @@ describe("application administration resolver", async () => {
           adminComment: "Test",
         },
       },
-      { connection }
     );
     expect(result.data).to.not.be.null.and.to.not.be.undefined;
   });
@@ -136,7 +129,6 @@ describe("application administration resolver", async () => {
           adminComment: "Test",
         },
       },
-      { connection }
     );
     expect(result.data).to.not.be.null.and.to.not.be.undefined;
   });

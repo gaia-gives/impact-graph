@@ -20,6 +20,7 @@ import {
 import {ResolverResult} from "./types/ResolverResult";
 import {isAdmin} from "../utils/userAccess";
 import {cleanUpApplicationFiles} from "../utils/cleanUpApplicationFiles";
+import {Service} from "typedi";
 
 @ObjectType()
 export class ApplicationQueryResult extends ResolverResult {
@@ -35,6 +36,7 @@ export class ApplicationDocumentUploadResult extends ResolverResult {
   files?: File[];
 }
 
+@Service()
 @Resolver(() => Application)
 export class ApplicationResolver {
   constructor(
@@ -76,14 +78,13 @@ export class ApplicationResolver {
     const user = await getUser(ctx);
     const result = new ApplicationQueryResult();
     if (user) {
-      const application = await this.applicationRepository
-        .createQueryBuilder("application")
-        .where("application.applicationState IN (:...applicationStates)", {
-          applicationStates: [ApplicationState.INITIAL, ApplicationState.DRAFT, ApplicationState.PENDING],
-        })
-        .andWhere("application.userId = :userId", { userId: user.id})
-        .getOne();
-      result.result = application;
+      result.result = await this.applicationRepository
+          .createQueryBuilder("application")
+          .where("application.applicationState IN (:...applicationStates)", {
+            applicationStates: [ApplicationState.INITIAL, ApplicationState.DRAFT, ApplicationState.PENDING],
+          })
+          .andWhere("application.userId = :userId", {userId: user.id})
+          .getOne();
     }
     return result;
   }

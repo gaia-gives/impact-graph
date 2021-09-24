@@ -2,8 +2,6 @@ import config from '../config'
 import { ApolloServer } from 'apollo-server-express'
 import * as jwt from 'jsonwebtoken'
 import { json } from 'express'
-import { handleStripeWebhook } from '../utils/stripe'
-import { netlifyDeployed } from '../netlify/deployed'
 import createSchema from './createSchema'
 import { graphqlUploadExpress } from 'graphql-upload'
 import cookieParser from "cookie-parser"
@@ -11,7 +9,6 @@ import cors from "cors"
 
 // tslint:disable:no-var-requires
 const express = require('express')
-const bodyParser = require('body-parser')
 
 // register 3rd party IOC container
 
@@ -77,16 +74,6 @@ export async function bootstrap () {
           res
         }
       },
-      engine: {
-        reportSchema: true
-      },
-      playground: {
-        endpoint: '/graphql',
-        settings: {
-          "request.credentials": 'include'
-        }
-      },
-      uploads: false,
       introspection: true
     })
 
@@ -97,7 +84,10 @@ export async function bootstrap () {
     
     app.use(cors({
       credentials: true,
-      origin: "http://localhost:3000"
+      origin: [
+          "http://localhost:3000",
+          "https://studio.apollographql.com"
+      ]
     }))
     app.use(
       json({ limit: config.get('UPLOAD_FILE_MAX_SIZE') || 4000000 })
@@ -108,20 +98,11 @@ export async function bootstrap () {
         maxFiles: 10
       })
     )
-    apolloServer.applyMiddleware({ app, cors: false })
-    app.post(
-      '/stripe-webhook',
-      bodyParser.raw({ type: 'application/json' }),
-      handleStripeWebhook
-    )
-    app.post(
-      '/netlify-build',
-      bodyParser.raw({ type: 'application/json' }),
-      netlifyDeployed
-    )
 
-    // Start the server
+    await apolloServer.start()
+    apolloServer.applyMiddleware({ app, cors: false })
     app.listen({ port: 4000 })
+
     console.log(
       `🚀 Server is running, GraphQL Playground available at http://127.0.0.1:${4000}/graphql`
     )

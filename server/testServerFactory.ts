@@ -3,7 +3,7 @@ import { ApolloServer } from "apollo-server-express";
 import * as TypeGraphQL from "type-graphql";
 import * as TypeORM from "typeorm";
 import { ApolloServerPluginUsageReportingDisabled } from "apollo-server-core";
-import Container from "typedi";
+import {Container} from "typedi";
 import entities from "../entities";
 import resolvers from "../resolvers";
 import { userCheck } from "../auth/userCheck";
@@ -45,6 +45,7 @@ const createTestServer: () => Promise<[TypeORM.Connection, ApolloServer]> =
   async () => {
     const connection = await createTestConnection();
     const schema = await createTestSchema();
+    //connection.dropDatabase();
 
     const server = new ApolloServer({
       schema,
@@ -60,12 +61,6 @@ const createTestServer: () => Promise<[TypeORM.Connection, ApolloServer]> =
           req,
           res,
         };
-      },
-      playground: {
-        endpoint: "/graphql",
-      },
-      uploads: {
-        maxFileSize: config.get("UPLOAD_FILE_MAX_SIZE") || 2000000,
       },
       plugins: [ApolloServerPluginUsageReportingDisabled()],
     });

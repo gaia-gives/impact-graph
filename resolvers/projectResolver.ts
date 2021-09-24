@@ -1,15 +1,11 @@
-import { ImpactLocation } from "./../entities/impactLocation";
-import { Project, ProjectUpdate } from "../entities/project";
+import { Project } from "../entities/project";
 import { InjectRepository } from "typeorm-typedi-extensions";
-import { ProjectStatus, ProjStatus } from "../entities/projectStatus";
-import { UserPermissions } from "../permissions";
-import { Donation } from "../entities/donation";
+import { ProjStatus } from "../entities/projectStatus";
 import { MyContext } from "../types/MyContext";
 import { Max, Min } from "class-validator";
 import { User } from "../entities/user";
 import { Brackets, Repository } from "typeorm";
 import { Service } from "typedi";
-import Logger from "../logger";
 import {
   Arg,
   Args,
@@ -65,12 +61,7 @@ async function getLoggedInUser(ctx: MyContext) {
   const user = await User.findOne({ id: ctx.req.user.userId });
 
   if (!user) {
-    const errorMessage = `No user with userId ${ctx.req.user.userId} found. This userId comes from the token. Please check the pm2 logs for the token. Search for 'Non-existant userToken' to see the token`;
     const userMessage = "Access denied";
-    Logger.captureMessage(errorMessage);
-    console.error(
-      `Non-existant userToken for userId ${ctx.req.user.userId}. Token is ${ctx.req.user.token}`
-    );
     throw new Error(userMessage);
   }
 
@@ -119,13 +110,14 @@ class GetProjectsArgs {
   searchTerm: string;
 }
 
-@Service()
+
 @ArgsType()
 class GetProjectArgs {
   @Field((type) => ID!, { defaultValue: 0 })
   id: number;
 }
 
+@Service()
 @Resolver((of) => Project)
 export class ProjectResolver {
   constructor(

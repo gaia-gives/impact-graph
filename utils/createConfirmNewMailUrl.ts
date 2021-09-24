@@ -1,4 +1,4 @@
-import { confirmNewMailPrefix } from './../constants/redisPrefixes';
+import { confirmNewMailPrefix } from '../constants/redisPrefixes';
 import { v4 } from 'uuid'
 import { redis } from '../redis'
 import config from '../config'

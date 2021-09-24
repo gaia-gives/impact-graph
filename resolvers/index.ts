@@ -1,5 +1,4 @@
 import { ImpactLocationResolver } from "./impactLocationResolver";
-import { UserResolver } from "./userResolver";
 import { ProjectResolver } from "./projectResolver";
 import { OrganisationResolver } from "./organisationResolver";
 import { LoginResolver } from "./loginResolver";
@@ -13,7 +12,6 @@ import { ApplicationAdministrationResolver } from "./applicationAdministrationRe
 
 const resolvers: NonEmptyArray<Function> = [
   ImpactLocationResolver,
-  UserResolver,
   ProjectResolver,
   OrganisationResolver,
   LoginResolver,

@@ -2,7 +2,10 @@ import { Resolver, Query } from 'type-graphql'
 import { InjectRepository } from "typeorm-typedi-extensions";
 import { ImpactLocation } from "../entities/impactLocation";
 import { Repository } from "typeorm";
+import {Service} from "typedi";
 
+
+@Service()
 @Resolver(of => ImpactLocation)
 export class ImpactLocationResolver {
     constructor(

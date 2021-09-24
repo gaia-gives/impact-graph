@@ -7,14 +7,11 @@ import { Organisation } from "../entities/organisation";
 import { Project } from "../entities/project";
 import { MyContext } from "../types/MyContext";
 import { Repository } from "typeorm";
-import Logger from "../logger";
 import { ERROR_CODES } from "../utils/errorCodes";
 import * as bcrypt from "bcryptjs";
-import { getAnalytics } from "../analytics";
 import { sendEmail } from "../utils/sendEmail";
 import config from '../config';
-
-const analytics = getAnalytics();
+import {Service} from "typedi";
 
 function checkIfUserInRequest(ctx: MyContext) {
   if (!ctx.req.user) {
@@ -22,6 +19,7 @@ function checkIfUserInRequest(ctx: MyContext) {
   }
 }
 
+@Service()
 @Resolver()
 export class MeResolver {
   constructor(
@@ -46,12 +44,7 @@ export class MeResolver {
 
 
     if (!user) {
-      const errorMessage = `No user with userId ${ctx.req.user.userId} found. This userId comes from the token. Please check the pm2 logs for the token. Search for 'Non-existant userToken' to see the token`;
       const userMessage = "Access denied";
-      Logger.captureMessage(errorMessage);
-      console.error(
-        `Non-existant userToken for userId ${ctx.req.user.userId}. Token is ${ctx.req.user.token}`
-      );
       throw new Error(userMessage);
     }
   
@@ -60,9 +53,8 @@ export class MeResolver {
 
   @Authorized()
   @Query(() => User, { nullable: true, complexity: 5 })
-  async me(@Ctx() ctx: MyContext): Promise<User | undefined> {
-    const user = await this.getLoggedInUser(ctx);
-    return user;
+  me(@Ctx() ctx: MyContext): Promise<User | undefined> {
+    return this.getLoggedInUser(ctx);
   }
 
   private async assertAuthenticatedAndAuthorized(
@@ -104,8 +96,6 @@ export class MeResolver {
         subject: "Gaia Gives - New email address confirmation link",
         html: `Confirm your new email address: <a href="${confirmationUrl}">${confirmationUrl}</a>`
       });
-      analytics.identifyUser(dbUser);
-      analytics.track("Updated email", dbUser.segmentUserId(), newEmail, null);
       return true;
     } else {
       return false;
@@ -125,14 +115,7 @@ export class MeResolver {
     );
     const newHashedPassword = bcrypt.hashSync(newPassword, 12);
     if (dbUser) {
-      User.update(dbUser, { password: newHashedPassword });
-      analytics.identifyUser(dbUser);
-      analytics.track(
-        "Updated password",
-        dbUser.segmentUserId(),
-        newHashedPassword,
-        null
-      );
+      await User.update(dbUser, { password: newHashedPassword });
       return true;
     } else {
       return false;
@@ -148,7 +131,9 @@ export class MeResolver {
   ) {
     const dbUser = await this.userRepository.findOne({ id: user.userId });
     if (dbUser) {
-      User.update(dbUser, { firstName, lastName });
+      dbUser.firstName = firstName;
+      dbUser.lastName = lastName;
+      await dbUser.save()
       return true;
     } else {
       return false;

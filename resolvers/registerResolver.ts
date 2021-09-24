@@ -1,17 +1,19 @@
 // tslint:disable-next-line:no-var-requires
+import {Service} from "typedi";
+
 const bcrypt = require('bcryptjs')
 import { Resolver, Mutation, Arg } from 'type-graphql'
 import { InjectRepository } from 'typeorm-typedi-extensions'
 import { Organisation } from '../entities/organisation'
 
 import { User } from '../entities/user'
-import { RegisterWalletInput } from '../user/register/RegisterWalletInput'
 import { RegisterInput } from '../user/register/RegisterInput'
 import { sendEmail } from '../utils/sendEmail'
 import { createConfirmationUrl } from '../utils/createConfirmationUrl'
 import { Repository } from 'typeorm'
 import config from '../config'
 
+@Service()
 @Resolver()
 export class RegisterResolver {
   constructor (

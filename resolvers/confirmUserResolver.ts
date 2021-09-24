@@ -5,7 +5,9 @@ import { User } from '../entities/user'
 import { confirmUserPrefix } from '../constants/redisPrefixes'
 import { InjectRepository } from 'typeorm-typedi-extensions';
 import { Repository } from 'typeorm';
+import {Service} from "typedi";
 
+@Service()
 @Resolver()
 export class ConfirmUserResolver {
   constructor(

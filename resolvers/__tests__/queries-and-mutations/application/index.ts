@@ -1,7 +1,6 @@
 export * from "./applicationAsAdminQuery";
 export * from "./applicationsAsAdminQuery";
 export * from "./applicationQuery";
-export * from "./applicationsQuery";
 
 export * from "./createApplicationMutation";
 export * from "./approveApplicationMutation";

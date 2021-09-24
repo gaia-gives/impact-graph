@@ -1,5 +1,5 @@
-import { Application, ApplicationStep } from "./../entities/application";
-import { MyContext } from "./../types/MyContext";
+import { Application, ApplicationStep } from "../entities/application";
+import { MyContext } from "../types/MyContext";
 import { Repository } from "typeorm";
 import { Arg, Authorized, Ctx, Mutation, Query, Resolver } from "type-graphql";
 import { InjectRepository } from "typeorm-typedi-extensions";
@@ -10,6 +10,7 @@ import { ERROR_CODES } from "../utils/errorCodes";
 import { sendEmail } from "../utils/sendEmail";
 import { User } from "../entities/user";
 import config from "../config";
+import {Service} from "typedi";
 
 const sendMailToApplicant = async (user: User, applicationId: string) => {
   if (!user) {
@@ -27,6 +28,7 @@ const sendMailToApplicant = async (user: User, applicationId: string) => {
   });
 };
 
+@Service()
 @Resolver(() => Application)
 export class ApplicationAdministrationResolver {
   constructor(

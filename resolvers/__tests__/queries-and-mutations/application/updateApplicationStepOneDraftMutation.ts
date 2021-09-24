@@ -14,7 +14,7 @@ export const UPDATE_APPLICATION_STEP_ONE_DRAFT_MUTATION = gql`
     $acceptFundingFromCorporateSocialResponsibilityPartner: Boolean
     $plannedFunding: FundingGoal
     $accountUsagePlan: String
-    $categories: [String!]
+    $categories: [Category!]
     $links: LinksInputType
   ) {
     updateApplicationStepOneDraft(

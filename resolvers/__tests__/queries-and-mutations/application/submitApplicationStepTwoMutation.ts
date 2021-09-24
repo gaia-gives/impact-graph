@@ -9,33 +9,37 @@ export const SUBMIT_APPLICATION_STEP_TWO_MUTATION = gql`
   }
   mutation submitApplicationStepTwo(
     $id: ID!
-    $validationMaterial: [String!]
-    $organisationalStructure: String!
-    $currentChannelsOfFundraising: String
-    $channelsAndStrategies: String
-    $integrateDonations: Boolean
-    $partnerOrganisations: String
-    $fullTimeWorkers: String
-    $stakeholderCount: String
-    $organisationNeededResources: OrganisationNeededResources
-    $possibleAssistenceFromGaia: String
-    $firstProjectImpactsAppropriateness: String
-    $firstProjectBeneficiaries: String
-    $firstProjectStakeholderRepresentation: String
-    $firstProjectRisks: String
-    $firstProjectMilestoneValidation: String
+    $charter: [FileInputType!]!
+    $document501c3: [FileInputType!]!
+    $validationMaterial: SubmitValidationMaterial!
+    $organisationalStructure: SubmitOrganisationalStructure!
+    $currentChannelsOfFundraising: String!
+    $channelsAndStrategies: String!
+    $integrateDonations: Boolean!
+    $partnerOrganisations: String!
+    $fullTimeWorkers: String!
+    $stakeholderCount: String!
+    $organisationNeededResources: OrganisationNeededResources!
+    $possibleAssistenceFromGaia: String!
+    $firstProjectImpactsAppropriateness: String!
+    $firstProjectBeneficiaries: String!
+    $firstProjectStakeholderRepresentation: String!
+    $firstProjectRisks: String!
+    $firstProjectMilestoneValidation: String!
   ) {
     submitApplicationStepTwo(
       id: $id
+      charter: $charter
+      document501c3: $document501c3
       validationMaterial: $validationMaterial
       organisationalStructure: $organisationalStructure
       channelsAndStrategies: $channelsAndStrategies
-      currentChannelsOfFundraising: $currentChannelsOfFundraising
       integrateDonations: $integrateDonations
       partnerOrganisations: $partnerOrganisations
       fullTimeWorkers: $fullTimeWorkers
       stakeholderCount: $stakeholderCount
       organisationNeededResources: $organisationNeededResources
+      currentChannelsOfFundraising: $currentChannelsOfFundraising
       possibleAssistenceFromGaia: $possibleAssistenceFromGaia
       firstProjectImpactsAppropriateness: $firstProjectImpactsAppropriateness
       firstProjectBeneficiaries: $firstProjectBeneficiaries

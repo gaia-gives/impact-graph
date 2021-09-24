@@ -166,7 +166,7 @@ export class Application extends BaseEntity {
   public accountUsagePlan?: string;
 
   @Field(() => OrganisationType, { nullable: true })
-  @Column({ nullable: true })
+  @Column("enum",{ enum: OrganisationType, nullable: true })
   public organisationType?: OrganisationType;
 
   @Field({ nullable: true })
@@ -178,7 +178,7 @@ export class Application extends BaseEntity {
   public fundingType?: FundingType;
 
   @Field(() => FundingGoal, { nullable: true })
-  @Column({ nullable: true })
+  @Column("enum", { enum: FundingGoal, nullable: true })
   public plannedFunding?: FundingGoal;
 
   @Field(() => Boolean, { nullable: true })
@@ -186,7 +186,7 @@ export class Application extends BaseEntity {
   public acceptFundingFromCorporateSocialResponsibilityPartner?: boolean;
 
   @Field(() => MainInterestReason, { nullable: true })
-  @Column({ nullable: true })
+  @Column("enum", { enum: MainInterestReason, nullable: true })
   public mainInterestReason?: MainInterestReason;
 
   @Field(() => [Category])
@@ -206,11 +206,11 @@ export class Application extends BaseEntity {
   public userId?: number;
 
   @Field(() => ApplicationState, { nullable: true })
-  @Column({ nullable: false, default: ApplicationState.INITIAL })
+  @Column("enum", { enum: ApplicationState, nullable: false, default: ApplicationState.INITIAL })
   public applicationState: ApplicationState;
 
   @Field(() => ApplicationStep, { nullable: true })
-  @Column({ nullable: false, default: ApplicationStep.STEP_1 })
+  @Column("enum",{ enum: ApplicationStep, nullable: false, default: ApplicationStep.STEP_1 })
   public applicationStep: ApplicationStep;
 
   @Field(() => [File!], { nullable: true })
@@ -259,7 +259,7 @@ export class Application extends BaseEntity {
   public stakeholderCount?: string;
 
   @Field(() => OrganisationNeededResources, { nullable: true })
-  @Column({ nullable: true })
+  @Column("enum",{ enum: OrganisationNeededResources, nullable: true })
   public organisationNeededResources?: OrganisationNeededResources;
 
   @Field({ nullable: true })

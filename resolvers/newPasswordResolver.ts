@@ -11,6 +11,7 @@ import { sendEmail } from "../utils/sendEmail";
 import { createSetNewPasswordUrl } from "../utils/createSetNewPasswordUrl";
 import { ApolloError } from "apollo-server-express";
 import config from "../config";
+import {Service} from "typedi";
 
 @ObjectType()
 export class SendPasswordResetLinkResponse {
@@ -43,6 +44,7 @@ class SetNewPasswordError extends ApolloError {
    }
 }
 
+@Service()
 @Resolver()
 export class NewPasswordResolver {
   constructor(

@@ -10,6 +10,8 @@ export const CREATE_APPLICATION_MUTATION = gql`
       }
       result {
         id
+        applicationState
+        applicationStep
       }
     }
   }
