@@ -26,11 +26,7 @@ export class RegisterResolver {
     @Arg('data')
     { email, password, passwordClone, lastVisited }: RegisterInput
   ): Promise<User> {
-    console.log(`In Register Resolver : ${JSON.stringify(bcrypt, null, 2)}`)
-
-    // const hashedPassword = await bcrypt.hash(password, 12)
     const hashedPassword = bcrypt.hashSync(password, 12)
-    console.log(`hashedPassword ---> : ${hashedPassword}`)
 
     if(!await bcrypt.compare(passwordClone, hashedPassword)) {
       throw new Error("Password is not the same");
@@ -42,7 +38,6 @@ export class RegisterResolver {
       loginType: 'password',
       confirmed: false
     }).save()
-    console.log("after creation")
     const confirmationUrl = await createConfirmationUrl(user.id, lastVisited);
     await sendEmail({
       to: email,
