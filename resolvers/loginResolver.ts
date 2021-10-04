@@ -55,13 +55,11 @@ export class LoginResolver {
     @Arg("loginType", { nullable: true }) loginType: LoginType,
     @Ctx() ctx: MyContext
   ): Promise<LoginResponse> {
-    console.log({email, password})
     if (typeof loginType === "undefined") {
       loginType = LoginType.Password;
     }
     switch (loginType) {
       case LoginType.SignedMessage:
-        console.log("MESSAGE");
         loginType = LoginType.SignedMessage;
         break;
       case LoginType.Password:
