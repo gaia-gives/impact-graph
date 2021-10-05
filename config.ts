@@ -50,7 +50,9 @@ const envVars = [
   "COOKIE_SECRET",
   "COOKIE_SECURE",
   "GAIA_EMAIL_FROM",
-  "APPLICATION_FILES_DIR"
+  "APPLICATION_FILES_DIR",
+  "SENDGRID_USE",
+  "SENDGRID_API_KEY"
 ];
 interface requiredEnv {
   JWT_SECRET: string;
@@ -105,6 +107,8 @@ interface requiredEnv {
   COOKIE_SECURE: string;
   GAIA_EMAIL_FROM: string;
   APPLICATION_FILES_DIR: string;
+  SENDGRID_USE: boolean;
+  SENDGRID_API_KEY: string;
 }
 
 class Config {
