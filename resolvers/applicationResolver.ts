@@ -66,6 +66,11 @@ export class ApplicationResolver {
       relations: ["user"],
     });
 
+    if (isAdmin(user) && application && !application.readByAdmin) {
+      application.setRead();
+      await application.save();
+    }
+
     if (application) {
       result.result = application;
     } else {

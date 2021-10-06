@@ -61,44 +61,50 @@ export class ApplicationAdministrationResolver {
     @Arg("applicationState", { nullable: true })
     applicationState?: ApplicationState
   ) {
+    let applications: Application[] = [];
     const user = await getUser(ctx);
     assertAdminAccess(user);
 
     const query = this.applicationRepository.createQueryBuilder("application");
-    if (!applicationState) {
-      return await query
-        .where("application.applicationState IN (:...applicationStates)", {
-          applicationStates: [
-            ApplicationState.ACCEPTED,
-            ApplicationState.PENDING,
-            ApplicationState.REJECTED,
-          ],
+    applications = await query
+      .where("application.applicationState = :applicationState", {
+        applicationState: applicationState,
+      })
+      .getMany();
+    if (applicationState === ApplicationState.ACCEPTED) {
+      const draftOrInitialInStepTwoApplications =
+        await this.applicationRepository
+          .createQueryBuilder("application")
+          .where("application.applicationState IN (:...draftOrInitialStates)", {
+            draftOrInitialStates: [
+              ApplicationState.DRAFT,
+              ApplicationState.INITIAL,
+              ApplicationState.ACCEPTED,
+              ApplicationState.PENDING
+            ],
+          })
+          .andWhere("application.applicationStep = :applicationStep", {
+            applicationStep: ApplicationStep.STEP_2,
+          })
+          .getMany();
+      const artificiallySetInStepOneAndAcceptedApplications =
+        draftOrInitialInStepTwoApplications.map((application) => {
+          return {
+            ...application,
+            applicationStep: ApplicationStep.STEP_1,
+            applicationState: ApplicationState.ACCEPTED,
+          };
+        });
+      console.log(
+        artificiallySetInStepOneAndAcceptedApplications.map((x) => {
+          x.legalName, x.applicationStep;
         })
-        .getMany();
-    } else {
-      return await query
-        .where("application.applicationState = :applicationState", {
-          applicationState: applicationState,
-        })
-        .getMany();
+      );
+      applications = applications.concat(
+        artificiallySetInStepOneAndAcceptedApplications as Application[]
+      );
     }
-  }
-
-  @Authorized()
-  @Query(() => Application)
-  async applicationAsAdmin(
-    @Ctx() ctx: MyContext,
-    @Arg("id", { nullable: false }) id: string
-  ) {
-    const user = await getUser(ctx);
-    assertAdminAccess(user);
-
-    const application = await this.applicationRepository.findOne(id);
-    if (application?.readByAdmin !== true) {
-      application?.setRead();
-      await application?.save();
-    }
-    return application;
+    return applications;
   }
 
   @Authorized()
@@ -122,6 +128,7 @@ export class ApplicationAdministrationResolver {
       if (application.applicationStep === ApplicationStep.STEP_1) {
         application.applicationState = ApplicationState.INITIAL;
         application.applicationStep = ApplicationStep.STEP_2;
+        application.readByAdmin = false;
       } else {
         const organisation = application.createOrganisationThroughApproval();
         const createdOrganisaton =
