@@ -4,6 +4,7 @@
   "description": "Backend GraphQL server for Giveth originally forked from Topia",
   "main": "./dist/index.js",
   "dependencies": {
+    "@sendgrid/mail": "^7.4.7",
     "@types/node": "^16.9.6",
     "apollo-server": "^3.3.0",
     "apollo-server-express": "^3.3.0",
