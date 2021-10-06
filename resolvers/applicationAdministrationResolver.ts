@@ -54,6 +54,36 @@ export class ApplicationAdministrationResolver {
     private readonly organisationRepository: Repository<Organisation>
   ) {}
 
+  async getPhantomAcceptedStepOneApplications(
+    existingApplications: Application[]
+  ): Promise<Application[]> {
+    const draftOrInitialInStepTwoApplications = await this.applicationRepository
+      .createQueryBuilder("application")
+      .where("application.applicationState IN (:...draftOrInitialStates)", {
+        draftOrInitialStates: [
+          ApplicationState.DRAFT,
+          ApplicationState.INITIAL,
+          ApplicationState.ACCEPTED,
+          ApplicationState.PENDING,
+        ],
+      })
+      .andWhere("application.applicationStep = :applicationStep", {
+        applicationStep: ApplicationStep.STEP_2,
+      })
+      .getMany();
+    const artificiallySetInStepOneAndAcceptedApplications =
+      draftOrInitialInStepTwoApplications.map((application) => {
+        return {
+          ...application,
+          applicationStep: ApplicationStep.STEP_1,
+          applicationState: ApplicationState.ACCEPTED,
+        };
+      });
+    return existingApplications.concat(
+      artificiallySetInStepOneAndAcceptedApplications as Application[]
+    );
+  }
+
   @Authorized()
   @Query(() => [Application])
   async applicationsAsAdmin(
@@ -72,37 +102,7 @@ export class ApplicationAdministrationResolver {
       })
       .getMany();
     if (applicationState === ApplicationState.ACCEPTED) {
-      const draftOrInitialInStepTwoApplications =
-        await this.applicationRepository
-          .createQueryBuilder("application")
-          .where("application.applicationState IN (:...draftOrInitialStates)", {
-            draftOrInitialStates: [
-              ApplicationState.DRAFT,
-              ApplicationState.INITIAL,
-              ApplicationState.ACCEPTED,
-              ApplicationState.PENDING
-            ],
-          })
-          .andWhere("application.applicationStep = :applicationStep", {
-            applicationStep: ApplicationStep.STEP_2,
-          })
-          .getMany();
-      const artificiallySetInStepOneAndAcceptedApplications =
-        draftOrInitialInStepTwoApplications.map((application) => {
-          return {
-            ...application,
-            applicationStep: ApplicationStep.STEP_1,
-            applicationState: ApplicationState.ACCEPTED,
-          };
-        });
-      console.log(
-        artificiallySetInStepOneAndAcceptedApplications.map((x) => {
-          x.legalName, x.applicationStep;
-        })
-      );
-      applications = applications.concat(
-        artificiallySetInStepOneAndAcceptedApplications as Application[]
-      );
+      applications = await this.getPhantomAcceptedStepOneApplications(applications);
     }
     return applications;
   }
