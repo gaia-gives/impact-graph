@@ -1,7 +1,6 @@
 import { Organisation } from "./organisation";
 import { User } from "./user";
 import { Project, ProjectUpdate } from "./project";
-import { ProjectStatus } from "./projectStatus";
 import { BankAccount, StripeTransaction } from "./bankAccount";
 import { ImpactLocation } from "./impactLocation";
 import { Milestone } from "./milestone";
@@ -14,7 +13,6 @@ const entities = [
   Project,
   ProjectUpdate,
   Donation,
-  ProjectStatus,
   BankAccount,
   StripeTransaction,
   ImpactLocation,

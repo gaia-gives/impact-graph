@@ -1,6 +1,5 @@
 import { Project } from "../entities/project";
 import { InjectRepository } from "typeorm-typedi-extensions";
-import { ProjStatus } from "../entities/projectStatus";
 import { MyContext } from "../types/MyContext";
 import { Max, Min } from "class-validator";
 import { User } from "../entities/user";
@@ -21,6 +20,7 @@ import {
 } from "type-graphql";
 
 import { Category } from "../entities/category";
+import { ProjectStatus } from "../entities/projectStatus";
 
 @ObjectType()
 class TopProjects {
@@ -135,7 +135,6 @@ export class ProjectResolver {
     const queryBuilder = this.projectRepository
       .createQueryBuilder("project")
       .leftJoinAndSelect("project.donations", "donations")
-      .leftJoinAndSelect("project.status", "status")
       .leftJoinAndSelect("project.users", "users")
       .innerJoinAndSelect(
         "project.impactLocations",
@@ -143,7 +142,7 @@ export class ProjectResolver {
         locationsAreFilled ? "il.id IN (:...impactLocations)" : undefined,
         { impactLocations: locationsAreFilled ? locations : [] }
       )
-      .where("project.statusId = 5")
+      .where("project.status = :ongoing", { ongoing: ProjectStatus.ONGOING })
       .andWhere(
         new Brackets((qb) => {
           qb.where(":searchTerm = ''").orWhere(
@@ -186,15 +185,13 @@ export class ProjectResolver {
         skip,
         order,
         where: {
-          status: {
-            id: ProjStatus.act,
-          },
+          status: ProjectStatus.ONGOING
         },
       });
     } else {
       [projects, totalCount] = await this.projectRepository
         .createQueryBuilder("project")
-        .where("project.statusId = 5")
+        .where("project.status = :ongoing", { ongoing: ProjectStatus.ONGOING })
         .orderBy(`project.${field}`, direction)
         .limit(skip)
         .take(take)
