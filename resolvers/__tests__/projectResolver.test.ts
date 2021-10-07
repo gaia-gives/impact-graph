@@ -2,9 +2,10 @@ import { ApolloServer } from "apollo-server-express";
 import * as TypeORM from "typeorm";
 import "mocha";
 import { createTestServer } from "../../server/testServerFactory";
-import { FETCH_PROJECTS_QUERY } from "./queries-and-mutations";
+import { FETCH_PROJECTS_QUERY, PROJECTS_BY_ORGANISATION_ID_QUERY } from "./queries-and-mutations";
 import { expect } from "chai";
 import { Category } from "../../entities/category";
+import { Organisation } from "../../entities/organisation";
 
 let connection: TypeORM.Connection;
 let server: ApolloServer;
@@ -72,5 +73,18 @@ describe("Test Project Resolver", () => {
 
     expect(result.data).to.not.be.null;
     expect(result.data?.projects).to.be.lengthOf(3);
+  });
+
+  it("should query projects by organisation id", async () => {
+    const organisations = (await connection.query(`SELECT * FROM "organisation" LIMIT 1;`)) as Organisation[];
+    const params = { organisationId: organisations[0].id };
+
+    const { data, errors } = await server.executeOperation({
+      query: PROJECTS_BY_ORGANISATION_ID_QUERY,
+      variables: params
+    })
+
+    expect(data).to.not.be.null;
+    expect(data?.projectsByOrganisationId).to.be.lengthOf(3);
   });
 });

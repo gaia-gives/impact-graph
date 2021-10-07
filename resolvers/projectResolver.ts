@@ -1,6 +1,6 @@
+import { MyContext } from "./../types/MyContext";
 import { Project } from "../entities/project";
 import { InjectRepository } from "typeorm-typedi-extensions";
-import { MyContext } from "../types/MyContext";
 import { Max, Min } from "class-validator";
 import { User } from "../entities/user";
 import { Brackets, Repository } from "typeorm";
@@ -9,6 +9,7 @@ import {
   Arg,
   Args,
   ArgsType,
+  Ctx,
   Field,
   ID,
   InputType,
@@ -110,7 +111,6 @@ class GetProjectsArgs {
   searchTerm: string;
 }
 
-
 @ArgsType()
 class GetProjectArgs {
   @Field((type) => ID!, { defaultValue: 0 })
@@ -118,11 +118,18 @@ class GetProjectArgs {
 }
 
 @Service()
+@ArgsType()
+class ProjectByOrganisationIdArgs {
+  @Field(() => Int, { nullable: false })
+  organisationId: number;
+}
+
+@Service()
 @Resolver((of) => Project)
 export class ProjectResolver {
   constructor(
     @InjectRepository(Project)
-    private readonly projectRepository: Repository<Project>, 
+    private readonly projectRepository: Repository<Project>
   ) {}
 
   @Query((returns) => [Project])
@@ -154,10 +161,10 @@ export class ProjectResolver {
 
     if (categoriesAreFilled) {
       queryBuilder.andWhere("project.categories && (:categories)", {
-        categories: categories
+        categories: categories,
       });
     }
-    
+
     let projects;
     [projects] = await queryBuilder
       .orderBy(`project.qualityScore`, "DESC")
@@ -185,7 +192,7 @@ export class ProjectResolver {
         skip,
         order,
         where: {
-          status: ProjectStatus.ONGOING
+          status: ProjectStatus.ONGOING,
         },
       });
     } else {
@@ -208,5 +215,16 @@ export class ProjectResolver {
     );
     project.milestones.sort((a, b) => (a.status > b.status ? -1 : 1));
     return project;
+  }
+
+  @Query(() => [Project])
+  async projectsByOrganisationId(
+    @Args() { organisationId }: ProjectByOrganisationIdArgs,
+    @Ctx() Ctx: MyContext
+  ) {
+    return await this.projectRepository.find({
+      where: { organisationId },
+      relations: ["organisation"],
+    });
   }
 }
