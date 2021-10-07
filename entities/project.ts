@@ -1,11 +1,10 @@
-import { Field, ID, Float, ObjectType, Authorized, Int } from "type-graphql";
+import { Field, ID, Float, ObjectType, Int } from "type-graphql";
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   ManyToMany,
   ManyToOne,
-  RelationId,
   JoinTable,
   BaseEntity,
   OneToMany,

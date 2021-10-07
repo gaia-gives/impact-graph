@@ -21,7 +21,7 @@ describe("Test Project Resolver", () => {
   });
 
   it("should query projects by impactLocations and categories", async () => {
-    const params = { categories: [Category.protectionOfBasicNeeds], impactLocationIds: [1] };
+    const params = { categories: [Category.protectionOfBasicNeeds, Category.educationAndResearch], impactLocationIds: [7] };
 
     const result = await server.executeOperation({
       query: FETCH_PROJECTS_QUERY,

@@ -77,7 +77,7 @@ VALUES
         4,
         2,
         'ONGOING',
-        '{ "industryTransformation", "protectionOfBasicNeeds" }'
+        '{ "industryTransformation" }'
     ),
     (
         'Funding homes for the victims of Fukushima',
