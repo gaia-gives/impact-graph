@@ -59,15 +59,7 @@ export class ApplicationAdministrationResolver {
   ): Promise<Application[]> {
     const draftOrInitialInStepTwoApplications = await this.applicationRepository
       .createQueryBuilder("application")
-      .where("application.applicationState IN (:...draftOrInitialStates)", {
-        draftOrInitialStates: [
-          ApplicationState.DRAFT,
-          ApplicationState.INITIAL,
-          ApplicationState.ACCEPTED,
-          ApplicationState.PENDING,
-        ],
-      })
-      .andWhere("application.applicationStep = :applicationStep", {
+      .where("application.applicationStep = :applicationStep", {
         applicationStep: ApplicationStep.STEP_2,
       })
       .getMany();
