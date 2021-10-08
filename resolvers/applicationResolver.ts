@@ -29,6 +29,12 @@ export class ApplicationQueryResult extends ResolverResult {
 }
 
 @ObjectType()
+export class MyApplicationsQueryResult extends ResolverResult {
+  @Field(() => [Application], { nullable: true })
+  applications?: Application[];
+}
+
+@ObjectType()
 export class ApplicationDocumentUploadResult extends ResolverResult {
   @Field(() => Application)
   application: Application;
@@ -85,6 +91,17 @@ export class ApplicationResolver {
           })
           .andWhere("application.userId = :userId", {userId: user.id})
           .getOne();
+    }
+    return result;
+  }
+
+  @Authorized()
+  @Query(() => MyApplicationsQueryResult)
+  async myApplications(@Ctx() ctx: MyContext) {
+    const user = await getUser(ctx);
+    const result = new MyApplicationsQueryResult();
+    if (user) {
+      result.applications  = await this.applicationRepository.find({ userId: user.id });
     }
     return result;
   }
