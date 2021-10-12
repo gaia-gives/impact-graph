@@ -226,7 +226,7 @@ export class ProjectResolver {
   ) {
     const user = await getLoggedInUser(Ctx);
     if (!user.organisations.map(org => org.id).includes(organisationId)) {
-      return ERROR_CODES.UNAUTHORIZED;
+      throw new Error(ERROR_CODES.UNAUTHORIZED);
     }
     return await this.projectRepository.find({
       where: { organisationId },
