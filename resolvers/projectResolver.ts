@@ -18,6 +18,7 @@ import {
   Query,
   registerEnumType,
   Resolver,
+  UnauthorizedError,
 } from "type-graphql";
 
 import { Category } from "../entities/category";
@@ -59,7 +60,7 @@ function checkIfUserInRequest(ctx: MyContext) {
 async function getLoggedInUser(ctx: MyContext) {
   checkIfUserInRequest(ctx);
 
-  const user = await User.findOne({ id: ctx.req.user.userId });
+  const user = await User.findOne({ id: ctx.req.user.userId }, { relations: ["organisations"] });
 
   if (!user) {
     const userMessage = "Access denied";
@@ -222,6 +223,10 @@ export class ProjectResolver {
     @Args() { organisationId }: ProjectByOrganisationIdArgs,
     @Ctx() Ctx: MyContext
   ) {
+    const user = await getLoggedInUser(Ctx);
+    if (!user.organisations.map(org => org.id).includes(organisationId)) {
+      throw new UnauthorizedError();
+    }
     return await this.projectRepository.find({
       where: { organisationId },
       relations: ["organisation"],

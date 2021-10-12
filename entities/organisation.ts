@@ -6,13 +6,14 @@ import {
   ManyToMany,
   OneToMany,
   JoinTable,
+  BaseEntity,
 } from "typeorm";
 import { User } from "./user";
 import { Project } from "./project";
 
 @Entity()
 @ObjectType()
-export class Organisation {
+export class Organisation extends BaseEntity {
   @Field((type) => ID)
   @PrimaryGeneratedColumn()
   readonly id: number;

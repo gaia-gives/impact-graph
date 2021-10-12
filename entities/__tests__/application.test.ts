@@ -1,4 +1,5 @@
 import { assert, expect } from "chai";
+import { randomUUID } from "crypto";
 import { Application, ApplicationState, ApplicationStep } from "../application";
 import { GlobalRole, User } from "../user";
 
@@ -26,7 +27,7 @@ describe("application tests", () => {
 
     assert.throws(
       () => {
-        application.assertCanSubmit(ApplicationStep.STEP_1)
+        application.assertCanSubmit(ApplicationStep.STEP_1);
       },
       Error,
       "Cannot submit, invalid application state for submission!"
@@ -40,7 +41,7 @@ describe("application tests", () => {
 
     assert.throws(
       () => {
-        application.assertCanSubmit(ApplicationStep.STEP_1)
+        application.assertCanSubmit(ApplicationStep.STEP_1);
       },
       Error,
       "Cannot submit, invalid application state for submission!"
@@ -68,7 +69,7 @@ describe("application tests", () => {
 
     assert.doesNotThrow(
       () => {
-        application.assertCanSubmit(ApplicationStep.STEP_1)
+        application.assertCanSubmit(ApplicationStep.STEP_1);
       },
       Error,
       "Cannot submit, invalid application state for submission!"
@@ -129,7 +130,8 @@ describe("application tests", () => {
 
     application.updateAdminComment("Test");
 
-    expect(application.adminCommentStepOne).to.not.be.null.and.to.not.be.undefined;
+    expect(application.adminCommentStepOne).to.not.be.null.and.to.not.be
+      .undefined;
     expect(application.adminCommentStepTwo).to.be.undefined;
     expect(application.adminCommentStepOne).to.equal("Test");
   });
@@ -143,9 +145,59 @@ describe("application tests", () => {
 
     application.updateAdminComment("Test");
 
-    expect(application.adminCommentStepTwo).to.not.be.null.and.to.not.be.undefined;
+    expect(application.adminCommentStepTwo).to.not.be.null.and.to.not.be
+      .undefined;
     expect(application.adminCommentStepOne).to.be.undefined;
     expect(application.adminCommentStepTwo).to.equal("Test");
   });
 
+  it("should create organisation after approval of step 2", () => {
+    application = new Application();
+    const admin = new User();
+    admin.globalRole = GlobalRole.ADMIN;
+    const applicationCreator = new User();
+    application.user = applicationCreator;
+    application.legalName = "Testorga";
+    application.applicationStep = ApplicationStep.STEP_2;
+    application.applicationState = ApplicationState.ACCEPTED;
+
+    const result = application.createOrganisationThroughApproval();
+
+    expect(result).to.not.be.null.and.to.not.be.undefined;
+    expect(result.title).to.equal(application.legalName);
+  });
+
+  it("should not create organisation if not in STEP_2", () => {
+    application = new Application();
+    const admin = new User();
+    admin.globalRole = GlobalRole.ADMIN;
+    const applicationCreator = new User();
+    application.user = applicationCreator;
+    application.legalName = "Testorga";
+    application.applicationStep = ApplicationStep.STEP_1;
+    application.applicationState = ApplicationState.ACCEPTED;
+
+    assert.throws(
+      () => application.createOrganisationThroughApproval(),
+      Error,
+      "Cannot create organisation without beforehand approval!"
+    );
+  });
+
+  it("should not create organisation if not in ACCEPTED state", () => {
+    application = new Application();
+    const admin = new User();
+    admin.globalRole = GlobalRole.ADMIN;
+    const applicationCreator = new User();
+    application.user = applicationCreator;
+    application.legalName = "Testorga";
+    application.applicationStep = ApplicationStep.STEP_2;
+    application.applicationState = ApplicationState.PENDING;
+
+    assert.throws(
+      () => application.createOrganisationThroughApproval(),
+      Error,
+      "Cannot create organisation without beforehand approval!"
+    );
+  });
 });

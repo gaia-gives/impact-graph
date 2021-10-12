@@ -1,3 +1,4 @@
+import { Organisation } from './../entities/organisation';
 import { Application, ApplicationStep } from "../entities/application";
 import { MyContext } from "../types/MyContext";
 import { Repository } from "typeorm";
@@ -33,7 +34,9 @@ const sendMailToApplicant = async (user: User, applicationId: string) => {
 export class ApplicationAdministrationResolver {
   constructor(
     @InjectRepository(Application)
-    private readonly applicationRepository: Repository<Application>
+    private readonly applicationRepository: Repository<Application>,
+    @InjectRepository(Organisation)
+    private readonly organisationRepository: Repository<Organisation>
   ) {}
 
   @Authorized()
@@ -104,6 +107,10 @@ export class ApplicationAdministrationResolver {
       if (application.applicationStep === ApplicationStep.STEP_1) {
         application.applicationState = ApplicationState.INITIAL;
         application.applicationStep = ApplicationStep.STEP_2;
+      } else {
+        const organisation = application.createOrganisationThroughApproval();
+        const createdOrganisaton = this.organisationRepository.create(organisation);
+        const orga = await createdOrganisaton.save();
       }
       await application.save();
       await sendMailToApplicant(application.user, application.id);

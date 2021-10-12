@@ -25,6 +25,7 @@ import {
   Links,
 } from "../resolvers/types/application";
 import { User } from "./user";
+import { Organisation } from "./organisation";
 
 export enum ApplicationState {
   INITIAL = "INITIAL",
@@ -133,6 +134,18 @@ export class Application extends BaseEntity {
     this.applicationState = ApplicationState.PENDING;
   }
 
+  public createOrganisationThroughApproval(): Organisation {
+    if (this.applicationStep !== ApplicationStep.STEP_2 || this.applicationState !== ApplicationState.ACCEPTED) {
+      throw new Error("Cannot create organisation without beforehand approval!");
+    }
+    const organisation = new Organisation(); 
+
+    organisation.title = this.legalName!;
+    organisation.users = [];
+    organisation.users.push(this.user);
+    return organisation;
+  }
+
   public async updateAdminComment(comment: string) {
     if (this.applicationStep === ApplicationStep.STEP_1) {
       this.adminCommentStepOne = comment;
@@ -166,7 +179,7 @@ export class Application extends BaseEntity {
   public accountUsagePlan?: string;
 
   @Field(() => OrganisationType, { nullable: true })
-  @Column("enum",{ enum: OrganisationType, nullable: true })
+  @Column("enum", { enum: OrganisationType, nullable: true })
   public organisationType?: OrganisationType;
 
   @Field({ nullable: true })
@@ -206,11 +219,19 @@ export class Application extends BaseEntity {
   public userId?: number;
 
   @Field(() => ApplicationState, { nullable: true })
-  @Column("enum", { enum: ApplicationState, nullable: false, default: ApplicationState.INITIAL })
+  @Column("enum", {
+    enum: ApplicationState,
+    nullable: false,
+    default: ApplicationState.INITIAL,
+  })
   public applicationState: ApplicationState;
 
   @Field(() => ApplicationStep, { nullable: true })
-  @Column("enum",{ enum: ApplicationStep, nullable: false, default: ApplicationStep.STEP_1 })
+  @Column("enum", {
+    enum: ApplicationStep,
+    nullable: false,
+    default: ApplicationStep.STEP_1,
+  })
   public applicationStep: ApplicationStep;
 
   @Field(() => [File!], { nullable: true })
@@ -221,12 +242,12 @@ export class Application extends BaseEntity {
   @Column("simple-json", { nullable: false, default: [] })
   public document501c3?: File[];
 
-  @Field(() => ValidationMaterial, { nullable: true} )
-  @Column("simple-json", { nullable: true, default: { links: [], files: [] }})
+  @Field(() => ValidationMaterial, { nullable: true })
+  @Column("simple-json", { nullable: true, default: { links: [], files: [] } })
   public validationMaterial?: ValidationMaterial;
 
-  @Field(() => OrganisationalStructure, { nullable: true})
-  @Column("simple-json", { nullable: true, default: { text: null, files: [] }})
+  @Field(() => OrganisationalStructure, { nullable: true })
+  @Column("simple-json", { nullable: true, default: { text: null, files: [] } })
   public organisationalStructure?: OrganisationalStructure;
 
   @Field(() => Date, { nullable: true })
@@ -259,7 +280,7 @@ export class Application extends BaseEntity {
   public stakeholderCount?: string;
 
   @Field(() => OrganisationNeededResources, { nullable: true })
-  @Column("enum",{ enum: OrganisationNeededResources, nullable: true })
+  @Column("enum", { enum: OrganisationNeededResources, nullable: true })
   public organisationNeededResources?: OrganisationNeededResources;
 
   @Field({ nullable: true })
