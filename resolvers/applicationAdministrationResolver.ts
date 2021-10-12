@@ -126,7 +126,8 @@ export class ApplicationAdministrationResolver {
         const organisation = application.createOrganisationThroughApproval();
         const createdOrganisaton =
           this.organisationRepository.create(organisation);
-        const orga = await createdOrganisaton.save();
+        const savedOrganisation = await createdOrganisaton.save();
+        application.organisationId = savedOrganisation.id;
       }
       await application.save();
       await sendMailToApplicant(

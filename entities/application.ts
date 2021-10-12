@@ -319,4 +319,8 @@ export class Application extends BaseEntity {
   @Field({ nullable: true })
   @Column({ nullable: true })
   public adminCommentStepTwo?: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  public organisationId?: number;
 }
