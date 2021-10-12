@@ -1,11 +1,10 @@
-import { Field, ID, Float, ObjectType, Authorized, Int } from "type-graphql";
+import { Field, ID, Float, ObjectType, Int } from "type-graphql";
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   ManyToMany,
   ManyToOne,
-  RelationId,
   JoinTable,
   BaseEntity,
   OneToMany,
@@ -14,10 +13,10 @@ import {
 import { Organisation } from "./organisation";
 import { Donation } from "./donation";
 import { User } from "./user";
-import { ProjectStatus } from "./projectStatus";
 import { ImpactLocation } from "./impactLocation";
 import { Milestone, MilestoneStatus } from "./milestone";
 import { Category } from "./category";
+import { ProjectStatus } from "./projectStatus";
 
 @Entity()
 @ObjectType()
@@ -188,12 +187,9 @@ class Project extends BaseEntity {
   @Field((type) => [User], { nullable: true })
   users: User[];
 
-  @Field((type) => ProjectStatus)
-  @ManyToOne((type) => ProjectStatus, { eager: true })
+  @Field(() => ProjectStatus, { nullable: false })
+  @Column("enum", { enum: ProjectStatus, nullable: false, default: ProjectStatus.DRAFT })
   status: ProjectStatus;
-
-  @RelationId((project: Project) => project.status)
-  statusId: number;
 
   mayUpdateStatus(user: User) {
     if (this.users.filter((o) => o.id === user.id).length > 0) {

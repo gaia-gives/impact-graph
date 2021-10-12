@@ -36,19 +36,6 @@ VALUES
     );
 
 INSERT INTO
-    "project_status" ("symbol", "name", "description")
-VALUES
-    ('rjt', 'rejected', 'A rejected project'),
-    ('pen', 'pending', 'A pending project'),
-    (
-        'clr',
-        'clearance',
-        'A project waiting for final clearance'
-    ),
-    ('ver', 'verified', 'A verified project'),
-    ('act', 'active', 'An active project');
-
-INSERT INTO
     "project" (
         "title",
         "slug",
@@ -60,7 +47,7 @@ INSERT INTO
         "giveBacks",
         "totalDonations",
         "totalDonors",
-        "statusId",
+        "status",
         "categories"
     )
 VALUES
@@ -75,7 +62,7 @@ VALUES
         TRUE,
         10,
         22,
-        5,
+        'ONGOING',
         '{ "educationAndResearch", "protectionOfBasicNeeds" }'
     ),
     (
@@ -89,8 +76,8 @@ VALUES
         TRUE,
         4,
         2,
-        5,
-        '{ "industryTransformation", "protectionOfBasicNeeds" }'
+        'ONGOING',
+        '{ "industryTransformation" }'
     ),
     (
         'Funding homes for the victims of Fukushima',
@@ -103,7 +90,7 @@ VALUES
         TRUE,
         10,
         5,
-        5,
+        'ONGOING',
         '{ "watersAndOceans", "industryTransformation", "energyAndMobility" }'
     );
 
