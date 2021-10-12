@@ -1,4 +1,4 @@
-import { Organisation } from './../entities/organisation';
+import { Organisation } from "./../entities/organisation";
 import { Application, ApplicationStep } from "../entities/application";
 import { MyContext } from "../types/MyContext";
 import { Repository } from "typeorm";
@@ -11,21 +11,36 @@ import { ERROR_CODES } from "../utils/errorCodes";
 import { sendEmail } from "../utils/sendEmail";
 import { User } from "../entities/user";
 import config from "../config";
-import {Service} from "typedi";
+import { Service } from "typedi";
 
-const sendMailToApplicant = async (user: User, applicationId: string) => {
+const sendMailToApplicant = async (
+  user: User,
+  applicationId: string,
+  step: ApplicationStep,
+  state: ApplicationState
+) => {
   if (!user) {
     throw new Error(ERROR_CODES.INVALID_OPERATION);
   }
 
+  const approvedInStep2 =
+    step === ApplicationStep.STEP_2 && state === ApplicationState.ACCEPTED;
   const applicationLink = `${config.get(
     "WEBSITE_URL"
   )}/applications/${applicationId}`;
+
+  const subject = approvedInStep2
+    ? "Your organisation was created!"
+    : "Your application status";
+  const html = approvedInStep2
+    ? "Congratulations! Your organisation was created right after we approved your application. Login with your user and check out your user profile to access your newly created organisation."
+    : `We have some updates concerning your application. You can check it here: <a href="${applicationLink}">${applicationLink}</a>`;
+
   return await sendEmail({
     from: config.get("GAIA_EMAIL_FROM"),
     to: user.email!,
-    subject: "Your application status",
-    html: `We have some updates concerning your application. You can check it here: <a href="${applicationLink}">${applicationLink}</a>`,
+    subject: subject,
+    html: html,
   });
 };
 
@@ -51,7 +66,7 @@ export class ApplicationAdministrationResolver {
 
     const query = this.applicationRepository.createQueryBuilder("application");
     if (!applicationState) {
-      return  await query
+      return await query
         .where("application.applicationState IN (:...applicationStates)", {
           applicationStates: [
             ApplicationState.ACCEPTED,
@@ -109,11 +124,17 @@ export class ApplicationAdministrationResolver {
         application.applicationStep = ApplicationStep.STEP_2;
       } else {
         const organisation = application.createOrganisationThroughApproval();
-        const createdOrganisaton = this.organisationRepository.create(organisation);
+        const createdOrganisaton =
+          this.organisationRepository.create(organisation);
         const orga = await createdOrganisaton.save();
       }
       await application.save();
-      await sendMailToApplicant(application.user, application.id);
+      await sendMailToApplicant(
+        application.user,
+        application.id,
+        application.applicationStep,
+        application.applicationState
+      );
     }
     return application;
   }
@@ -136,7 +157,12 @@ export class ApplicationAdministrationResolver {
       application.updateAdminComment(adminComment);
       application.applicationState = ApplicationState.REJECTED;
       await application.save();
-      await sendMailToApplicant(application.user, application.id);
+      await sendMailToApplicant(
+        application.user,
+        application.id,
+        application.applicationStep,
+        application.applicationState
+      );
     }
 
     return application;

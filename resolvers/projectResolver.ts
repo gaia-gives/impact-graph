@@ -23,6 +23,7 @@ import {
 
 import { Category } from "../entities/category";
 import { ProjectStatus } from "../entities/projectStatus";
+import { ERROR_CODES } from "../utils/errorCodes";
 
 @ObjectType()
 class TopProjects {
@@ -225,7 +226,7 @@ export class ProjectResolver {
   ) {
     const user = await getLoggedInUser(Ctx);
     if (!user.organisations.map(org => org.id).includes(organisationId)) {
-      throw new UnauthorizedError();
+      return ERROR_CODES.UNAUTHORIZED;
     }
     return await this.projectRepository.find({
       where: { organisationId },
