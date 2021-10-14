@@ -12,6 +12,8 @@ import { sendEmail } from "../utils/sendEmail";
 import { User } from "../entities/user";
 import config from "../config";
 import { Service } from "typedi";
+import { GraphQLError } from "graphql";
+import { ForbiddenError } from "apollo-server-errors";
 
 const sendMailToApplicant = async (
   user: User,
@@ -69,10 +71,10 @@ export class ApplicationAdministrationResolver {
           ...application,
           applicationStep: ApplicationStep.STEP_1,
           applicationState: ApplicationState.ACCEPTED,
-        };
+        } as Application;
       });
     return existingApplications.concat(
-      artificiallySetInStepOneAndAcceptedApplications as Application[]
+      artificiallySetInStepOneAndAcceptedApplications
     );
   }
 
@@ -80,9 +82,13 @@ export class ApplicationAdministrationResolver {
   @Query(() => [Application])
   async applicationsAsAdmin(
     @Ctx() ctx: MyContext,
-    @Arg("applicationState", { nullable: true })
-    applicationState?: ApplicationState
+    @Arg("applicationState", { nullable: false })
+    applicationState: ApplicationState
   ) {
+    const nonQueryableApplicationStates = [ ApplicationState.INITIAL, ApplicationState.DRAFT ];
+    if (nonQueryableApplicationStates.includes(applicationState)) {
+      throw new ForbiddenError("Non routable application state!");
+    }
     let applications: Application[] = [];
     const user = await getUser(ctx);
     assertAdminAccess(user);
