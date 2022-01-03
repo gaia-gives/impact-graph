@@ -1,10 +1,10 @@
-FROM node:alpine as deps
+FROM node:lts-alpine as deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY ./ ./
 RUN yarn install --frozen-lockfile
 
-FROM node:alpine AS runner
+FROM node:lts-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
