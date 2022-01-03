@@ -7,7 +7,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-body-size: "20m"
 spec:
   rules:
-    - host: gaia-gives.westeurope.cloudapp.azure.com
+    - host: gaia-gives.germanywestcentral.cloudapp.azure.com
       http:
         paths:
           - pathType: Prefix

@@ -37,7 +37,7 @@ data:
   SENTRY_ID: "5637156"
   NETLIFY_DEPLOY_HOOK: "60201df9361c939f95828711"
   ENVIRONMENT: "local"
-  WEBSITE_URL: "http://gaia-gives.westeurope.cloudapp.azure.com"
+  WEBSITE_URL: "http://gaia-gives.germanywestcentral.cloudapp.azure.com"
   TRIGGER_BUILD_ON_NEW_PROJECT: "false"
   ETHEREUM_NETWORK_ID: "3"
   OUR_SECRET: "test_se"
